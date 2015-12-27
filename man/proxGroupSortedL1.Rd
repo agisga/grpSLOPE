@@ -4,7 +4,7 @@
 \alias{proxGroupSortedL1}
 \title{Prox for group SLOPE}
 \usage{
-proxGroupSortedL1(y, group, lambda, method)
+proxGroupSortedL1(y, group, lambda, method = "c")
 }
 \arguments{
 \item{y}{The response vector}

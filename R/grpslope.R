@@ -17,6 +17,7 @@
 #' grp <- c(0,0,0,1,1,0,2,1,0,2)
 #' proxGroupSortedL1(y = 1:10, group = grp, lambda = 10:1)
 #'
+#' @export
 proxGroupSortedL1 <- function(y, group, lambda, method = "c") {
   group.unique <- unique(group)
   n.group <- length(group.unique)
