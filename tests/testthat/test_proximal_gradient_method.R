@@ -33,14 +33,14 @@ lam  <- 0.1 * (10:1)
 sol  <- c(0,0,3.856002988,2.080742942,0,0,0,0,0,3.512828045)
 
 test_that("the Group SLOPE solution is computed correctly when the groups are consequtive blocks", {
-  result <- grpSLOPE(X=A, Dinv=diag(wt), b=y, group=grp, lambda=lam,
+  result <- grpSLOPESolver(X=A, Dinv=diag(wt), b=y, group=grp, lambda=lam,
                    list("tolerance" = 1e-12, "verbosity" = 0))
   expect_equal(result$x, as.matrix(sol), tolerance=1e-6)
 })
 
 test_that("the Group SLOPE solution is computed correctly when the groups are not consequtive blocks", {
   ord <- sample(1:10, 10)
-  result <- grpSLOPE(X=A[ , ord], Dinv=diag(wt[ord]), b=y, group=grp[ord], lambda=lam,
+  result <- grpSLOPESolver(X=A[ , ord], Dinv=diag(wt[ord]), b=y, group=grp[ord], lambda=lam,
                    list("tolerance" = 1e-12, "verbosity" = 0))
   expect_equal(result$x, as.matrix(sol[ord]), tolerance=1e-6)
 })

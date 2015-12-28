@@ -56,7 +56,7 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "c") {
 #' Compute the coefficient estimates of the Group SLOPE model  
 #'
 #' @export
-grpSLOPE <- function(X, Dinv, b, group, lambda, opts=list())
+grpSLOPESolver <- function(X, Dinv, b, group, lambda, opts=list())
 {
   # TODO: rewrite this function from scratch, where the main loop should be written in C++
   # TODO: check whether all groups have length 1, then use SLOPE
