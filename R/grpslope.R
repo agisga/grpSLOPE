@@ -7,8 +7,9 @@
 #' \code{\link[SLOPE]{prox_sorted_L1}}.
 #'
 #' @param y The response vector
-#' @param group A vector describing the grouping structure. It should contain a group id
-#'   for each predictor variable.
+#' @param group A vector or an object of class \code{groupID} (e.g. as produced by 
+#'   \code{\link{getGroups}}), which is describeing the grouping structure. If it is
+#'   a vector, then it should contain a group id for each predictor variable.
 #' @param lambda A decreasing sequence of regularization parameters \eqn{\lambda}.
 #' @param method Specifies which implementation of the Sorted L1 norm prox should be used. 
 #'   See \code{\link[SLOPE]{prox_sorted_L1}}.
@@ -19,15 +20,15 @@
 #'
 #' @export
 proxGroupSortedL1 <- function(y, group, lambda, method = "c") {
-  # TODO: Instead of computing group.id here, it should be passed as an argument. Also, 
-  # this function should be probably be rewritten from scratch in C++, in order
+  # TODO:  this function should be probably be rewritten from scratch in C++, in order
   # to remove the dependency on the package SLOPE
 
-  group.unique <- unique(group)
-  n.group <- length(group.unique)
-  group.id <- list()
-  for (i in 1:n.group){
-    group.id[[i]] <- which(group==group.unique[i])
+  if (inherits(group, "groupID")) {
+    n.group <- length(group)
+    group.id <- group
+  } else {
+    n.group <- length(unique(group))
+    group.id <- getGroupID(group)
   }
 
   # compute Euclidean norms for groups in y
@@ -59,6 +60,7 @@ grpSLOPE <- function(X, Dinv, b, group, lambda, opts=list())
 {
   # TODO: rewrite this function from scratch, where the main loop should be written in C++
   # TODO: check whether all groups have length 1, then use SLOPE
+  # TODO: compute groupID somewhere in here
 
   # Copyright 2013, M. Bogdan, E. van den Berg, W. Su, and E.J. Candes
   # Copyright 2015, Alexej Gossmann

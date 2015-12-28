@@ -9,8 +9,9 @@ proxGroupSortedL1(y, group, lambda, method = "c")
 \arguments{
 \item{y}{The response vector}
 
-\item{group}{A vector describing the grouping structure. It should contain a group id
-for each predictor variable.}
+\item{group}{A vector or an object of class \code{groupID} (e.g. as produced by 
+\code{\link{getGroups}}), which is describeing the grouping structure. If it is
+a vector, then it should contain a group id for each predictor variable.}
 
 \item{lambda}{A decreasing sequence of regularization parameters \eqn{\lambda}.}
 
