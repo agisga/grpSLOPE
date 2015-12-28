@@ -51,66 +51,65 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "c") {
   return(prox.solution)
 }
 
-#' Group SLOPE algorithm
+#' Proximal gradient method for Group SLOPE
 #'
-#' Compute the coefficient estimates of the Group SLOPE model  
+#' Compute the coefficient estimates for the Group SLOPE problem.
+#'
+#' \code{proximalGradientSolverGroupSLOPE} computes the coefficient estimates
+#' for the Group SLOPE model. The employed optimization algorithm is FISTA with 
+#' backtracking Lipschitz search.
+#'
+#' @param y the response vector
+#' @param A the model matrix
+#' @param group A vector describing the grouping structure. It should 
+#'   contain a group id for each predictor variable.
+#' @param wt A vector of weights
+#' @param lambda A decreasing sequence of regularization parameters \eqn{\lambda}
+#' @param max.iter Maximal number of iterations to carry out
+#' @param verbose A \code{logical} specifying whether to print output or not
+#' @param tolerance The tolerance used in the stopping criteria
+#' @param x.init An optional initial value for the iterative algorithm
+#'
+#' @return A list with members:
+#'   \describe{
+#'     \item{x}{Solution (n-by-1 matrix)}
+#'     \item{status}{Convergence status: 1 if optimal, 2 if iteration limit reached}
+#'     \item{L}{Approximation of the Lipschitz constant (step size)}
+#'     \item{iter}{Iterations of the proximal gradient method}
+#'     \item{L.iter}{Total number of iterations spent in Lischitz search}
+#'   }
 #'
 #' @export
-grpSLOPESolver <- function(X, Dinv, b, group, lambda, opts=list())
+proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1e4,
+                                             verbose=TRUE, tolerance=1e-6, x.init=vector())
 {
   # TODO: rewrite this function from scratch, where the main loop should be written in C++
   # TODO: check whether all groups have length 1, then use SLOPE
-  # TODO: compute groupID somewhere in here
 
-  # Copyright 2013, M. Bogdan, E. van den Berg, W. Su, and E.J. Candes
-  # Copyright 2015, Alexej Gossmann
-
-  # -------------------------------------------------------------
-  # Start times
-  # -------------------------------------------------------------
-  t0 <- proc.time()[3]
+  # This is based on the source code available from
+  # http://statweb.stanford.edu/~candes/SortedL1/software.html
+  # under the GNU GPL-3 licence.
+  #
+  # Original implementation: Copyright 2013, M. Bogdan, E. van den Berg, W. Su, and E.J. Candes
+  # Modifications: Copyright 2015, Alexej Gossmann
   
-  # -------------------------------------------------------------
-  # Define function for retrieving option fields with defaults
-  # -------------------------------------------------------------
-  getDefaultField <- function(opts,name,default)
-  {  
-    if (!is.null(opts[[name]])) {
-      return(opts[[name]])
-    } else {
-      return(default)
-    }
-  }
+  # Initialize ---------------------------------------------------------------
   
-  # -------------------------------------------------------------
-  # Parse parameters
-  # -------------------------------------------------------------
-  iterations <- getDefaultField(opts,"iterations", 10000)
-  verbosity  <- getDefaultField(opts,"verbosity" , 1)
-  gradIter   <- getDefaultField(opts,"gradIter"  , 20)
-  tolerance  <- getDefaultField(opts,"tolerance" , 1e-6)
-  xInit      <- getDefaultField(opts,"xInit"     , vector())
-  
-  # -------------------------------------------------------------
   # Ensure that lambda is non-increasing
-  # -------------------------------------------------------------
   n.lambda <- length(lambda)
   if ((n.lambda > 1) && any(lambda[2:n.lambda] > lambda[1:n.lambda-1])) {
     stop("Lambda must be non-increasing.")
   }
-  
-  # -------------------------------------------------------------
-  # Initialize
-  # -------------------------------------------------------------
 
-  A <- X %*% Dinv
-  n <- ncol(A)
+  Dinv <- diag(wt)
+  A    <- A %*% Dinv
+  p    <- ncol(A)
   
   # Get initial lower bound on the Lipschitz constant
-  x <- matrix(rnorm(n),c(n,1))
-  x <- x / norm(x, "f")
-  x <- t(A) %*% (A %*% x)
-  L <- norm(x, "f")
+  rand.mat <- matrix(rnorm(p),c(p,1))
+  rand.mat <- rand.mat / norm(rand.mat, "f")
+  rand.mat <- t(A) %*% (A %*% rand.mat)
+  L <- norm(rand.mat, "f")
   
   # Set constants
   STATUS_RUNNING    <- 0
@@ -119,78 +118,67 @@ grpSLOPESolver <- function(X, Dinv, b, group, lambda, opts=list())
   STATUS_MSG        <- c('Optimal','Iteration limit reached')
   
   # Initialize parameters and iterates
-  if (length(xInit) == 0) xInit <- matrix(0,n,1)
-  tt      <- 1
-  eta     <- 2
-  lambda  <- as.matrix(lambda)
-  b       <- as.matrix(b)
-  x       <- xInit
-  y       <- x
-  Ax      <- A %*% x
-  fPrev   <- Inf
-  iter    <- 0
-  status  <- STATUS_RUNNING
-  Aprods  <- 2
-  ATprods <- 1
-  relgap  <- Inf
+  if (length(x.init) == 0) x.init <- matrix(0,p,1)
+  tt       <- 1
+  eta      <- 2
+  lambda   <- as.matrix(lambda)
+  y        <- as.matrix(y)
+  x        <- x.init
+  b        <- x
+  Ax       <- A %*% x
+  f.prev   <- Inf
+  iter     <- 0
+  L.iter   <- 0
+  status   <- STATUS_RUNNING
+  relgap   <- Inf
+  group.id <- getGroupID(group)
   
-  if (verbosity > 0) {
+  if (verbose == TRUE) {
     printf <- function(...) invisible(cat(sprintf(...)))
     printf('%5s  %9s  %9s\n','Iter','||r||_2','Rel. gap')
   }
   
-  # -------------------------------------------------------------
-  # Main loop
-  # -------------------------------------------------------------
+  # Main loop ---------------------------------------------------------
   while (TRUE)
   {    
-    # Compute the gradient at f(y) (Includes first iterations)
-    if ((iter %% gradIter) == 0) {
-      r <- (A %*% y) - b
-      g <- t(A) %*% r
-      f <- as.double(crossprod(r)) / 2
-    } else {
-      r <- (Ax + ((ttPrev - 1) / tt) * (Ax - AxPrev)) - b
-      g <- t(A) %*% r
-      f <- as.double(crossprod(r)) / 2
-    }
+    # Compute the gradient
+    r <- (A %*% b) - y
+    g <- t(A) %*% r
     
     # Increment iteration count
     iter <- iter + 1
     
     # Stopping criteria
-    if ((status == 0) && (iter >= iterations)) {
+    if ((status == 0) && (iter >= max.iter)) {
       status <- STATUS_ITERATIONS
     }
 
     if (status != 0) {
-      if (verbosity > 0) {
+      if (verbose == TRUE) {
         printf('Exiting with status %d -- %s\n', status, STATUS_MSG[[status]])
       }
       break
     }
     
     # Keep copies of previous values
-    AxPrev <- Ax
-    xPrev  <- x
-    yPrev  <- y
-    fPrev  <- f
-    ttPrev <- tt
+    f.prev  <- as.double(crossprod(r)) / 2
+    Ax.prev <- Ax
+    x.prev  <- x
+    b.prev  <- b
+    tt.prev <- tt
     
     # Lipschitz search
     while (TRUE) {
-      # Compute prox mapping
-      x <- proxGroupSortedL1(y = y - (1/L)*g, group = group, lambda = lambda/L)
-      d <- x - y
-    
+      x  <- proxGroupSortedL1(y = b - (1/L)*g, group = group.id, lambda = lambda/L)
+      d  <- x - b
       Ax <- A %*% x
-      r  <- Ax-b
+      r  <- Ax-y
       f  <- as.double(crossprod(r))/2
-      q  <- fPrev + as.double(crossprod(d,g)) + (L/2)*as.double(crossprod(d))
+      qq <- f.prev + as.double(crossprod(d,g)) + (L/2)*as.double(crossprod(d))
                               
-      Aprods <- Aprods + 1
+      L.iter <- L.iter + 1
                               
-      if (q >= f*(1-1e-12))
+      if (qq >= f*(1-1e-12))
         break
       else
         L <- L * eta
@@ -198,39 +186,34 @@ grpSLOPESolver <- function(X, Dinv, b, group, lambda, opts=list())
     
     # Update
     tt <- (1 + sqrt(1 + 4*tt^2)) / 2
-    y  <- x + ((ttPrev - 1) / tt) * (x - xPrev)
+    b  <- x + ((tt.prev - 1) / tt) * (x - x.prev)
 
     # Compute 'relative gap'
-    if (sqrt(sum(yPrev^2))==0) {
-      relgap <- sqrt(sum((y-yPrev)^2))
+    if (sqrt(sum(b.prev^2))==0) {
+      relgap <- sqrt(sum((b-b.prev)^2))
     } else {
-      relgap <- sqrt(sum((y-yPrev)^2)) / sqrt(sum(yPrev^2))
+      relgap <- sqrt(sum((b-b.prev)^2)) / sqrt(sum(b.prev^2))
     }
 
     # Format string
-    if (verbosity > 0) str <- sprintf('   %9.2e', relgap)
+    if (verbose == TRUE) str <- sprintf('   %9.2e', relgap)
      
     # Check relative gap
     if (relgap < tolerance) status <- STATUS_OPTIMAL
     
-    if ( verbosity > 0 ) {
+    if (verbose == TRUE) {
       printf('%5d  %9.2e%s\n', iter,f,str)
     }
   } # While (TRUE)
   
   
-  # Information structure
-  solution           <- list()
-  solution$runtime   <- proc.time()[3] - t0
-  solution$Aprods    <- Aprods + ceiling(iter / gradIter)
-  solution$ATprods   <- ATprods + iter
-  solution$status    <- status
-  solution$x         <- Dinv %*% y
-  solution$L         <- L
-  solution$iter      <- iter
-
-  # Define an S3 class
-  class(solution) <- "grpSLOPE"
+  # Record output information
+  result           <- list()
+  result$x         <- Dinv %*% b
+  result$status    <- status
+  result$L         <- L
+  result$iter      <- iter
+  result$L.iter    <- L.iter
   
-  return(solution)
+  return(result)
 }

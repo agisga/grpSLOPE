@@ -7,7 +7,7 @@
 getGroupID(group)
 }
 \arguments{
-\item{group}{A vector describeing the grouping structure. It should 
+\item{group}{A vector describing the grouping structure. It should 
 contain a group id for each predictor variable.}
 }
 \value{

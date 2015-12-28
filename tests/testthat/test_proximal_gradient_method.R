@@ -21,7 +21,7 @@ test_that("the prox is evaluated correctly when the groups are not consequtive b
 
 
 
-context("grpSLOPE()")
+context("proximalGradientSolverGroupSLOPE()")
 
 set.seed(1)
 A    <- matrix(runif(100, 0, 1), 10, 10)
@@ -32,15 +32,15 @@ y    <- A %*% x
 lam  <- 0.1 * (10:1)
 sol  <- c(0,0,3.856002988,2.080742942,0,0,0,0,0,3.512828045)
 
-test_that("the Group SLOPE solution is computed correctly when the groups are consequtive blocks", {
-  result <- grpSLOPESolver(X=A, Dinv=diag(wt), b=y, group=grp, lambda=lam,
-                   list("tolerance" = 1e-12, "verbosity" = 0))
+test_that("solution is computed correctly when the groups are consequtive blocks", {
+  result <- proximalGradientSolverGroupSLOPE(y=y, A=A, group=grp, wt=wt, lambda=lam, 
+                                             tolerance=1e-12, verbose=FALSE)
   expect_equal(result$x, as.matrix(sol), tolerance=1e-6)
 })
 
-test_that("the Group SLOPE solution is computed correctly when the groups are not consequtive blocks", {
+test_that("solution is computed correctly when the groups are not consequtive blocks", {
   ord <- sample(1:10, 10)
-  result <- grpSLOPESolver(X=A[ , ord], Dinv=diag(wt[ord]), b=y, group=grp[ord], lambda=lam,
-                   list("tolerance" = 1e-12, "verbosity" = 0))
+  result <- proximalGradientSolverGroupSLOPE(y=y, A=A[ , ord], group=grp[ord], wt=wt[ord],
+                                             lambda=lam, tolerance=1e-12, verbose=FALSE)
   expect_equal(result$x, as.matrix(sol[ord]), tolerance=1e-6)
 })

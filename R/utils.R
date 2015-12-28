@@ -2,7 +2,7 @@
 #'
 #' Intended for internal use only.
 #'
-#' @param group A vector describeing the grouping structure. It should 
+#' @param group A vector describing the grouping structure. It should 
 #'    contain a group id for each predictor variable.
 #'
 #' @return An object of class groupID, which is a list, whose members are 
