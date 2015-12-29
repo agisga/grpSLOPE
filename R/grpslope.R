@@ -22,6 +22,7 @@
 proxGroupSortedL1 <- function(y, group, lambda, method = "c") {
   # TODO:  this function should be probably be rewritten from scratch in C++, in order
   # to remove the dependency on the package SLOPE
+  # TODO: write my own prox function that can be selected as one of the options for "method"
 
   if (inherits(group, "groupID")) {
     n.group <- length(group)
@@ -85,6 +86,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 {
   # TODO: rewrite this function from scratch, where the main loop should be written in C++
   # TODO: check whether all groups have length 1, then use SLOPE
+  # TODO: after writing my own prox function, add an argument "prox"
 
   # This is based on the source code available from
   # http://statweb.stanford.edu/~candes/SortedL1/software.html
@@ -101,9 +103,38 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
     stop("Lambda must be non-increasing.")
   }
 
+  # Adjust matrix for prior weights
   Dinv <- diag(wt)
   A    <- A %*% Dinv
   p    <- ncol(A)
+
+  # Prepare grouping information
+  group.id <- getGroupID(group)
+
+  # Auxilliary function to record output information
+  recordResult <- function(b, status, L, iter, L.iter) {
+    result           <- list()
+    result$x         <- Dinv %*% b
+    result$status    <- status
+    result$L         <- L
+    result$iter      <- iter
+    result$L.iter    <- L.iter
+    return(result)
+  }
+
+  # Run regular SLOPE if all groups are singletons
+  if (length(group.id) == p) {
+    # TODO: maybe have to change the "prox" argument later
+    if (length(x.init) == 0) x.init <- matrix(0,p,1)
+    sol <- SLOPE::SLOPE_solver(A=A, b=y, lambda=lambda, initial=x.init,
+                               prox=SLOPE::prox_sorted_L1, max_iter=max.iter,
+                               tol_infeas=tolerance, tol_rel_gap=tolerance)
+    status <- 2
+    if (sol$optimal) status <- 1
+    result <- recordResult(b=matrix(sol$x, c(p,1)), status=status, L=sol$lipschitz,
+                           iter=sol$iter, L.iter=NULL)
+    return(result)
+  }
   
   # Get initial lower bound on the Lipschitz constant
   rand.mat <- matrix(rnorm(p),c(p,1))
@@ -131,7 +162,6 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
   L.iter   <- 0
   status   <- STATUS_RUNNING
   relgap   <- Inf
-  group.id <- getGroupID(group)
   
   if (verbose == TRUE) {
     printf <- function(...) invisible(cat(sprintf(...)))
@@ -204,16 +234,9 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
     if (verbose == TRUE) {
       printf('%5d  %9.2e%s\n', iter,f,str)
     }
-  } # While (TRUE)
+  } # while (TRUE)
   
   
-  # Record output information
-  result           <- list()
-  result$x         <- Dinv %*% b
-  result$status    <- status
-  result$L         <- L
-  result$iter      <- iter
-  result$L.iter    <- L.iter
-  
+  result <- recordResult(b=b, status=status, L=L, iter=iter, L.iter=L.iter)
   return(result)
 }

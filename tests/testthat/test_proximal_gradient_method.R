@@ -32,15 +32,45 @@ y    <- A %*% x
 lam  <- 0.1 * (10:1)
 sol  <- c(0,0,3.856002988,2.080742942,0,0,0,0,0,3.512828045)
 
-test_that("solution is computed correctly when the groups are consequtive blocks", {
+test_that("it works correctly when the groups are consequtive blocks", {
   result <- proximalGradientSolverGroupSLOPE(y=y, A=A, group=grp, wt=wt, lambda=lam, 
                                              tolerance=1e-12, verbose=FALSE)
   expect_equal(result$x, as.matrix(sol), tolerance=1e-6)
+  expect_identical(result$status, 1)
+  expect_is(result$L, "numeric")
+  expect_true(result$L > 0)
+  expect_is(result$iter, "numeric")
+  expect_true(result$iter > 1)
+  expect_is(result$L.iter, "numeric")
+  expect_true(result$L.iter >= result$iter)
 })
 
-test_that("solution is computed correctly when the groups are not consequtive blocks", {
+test_that("it works correctly when the groups are not consequtive blocks", {
   ord <- sample(1:10, 10)
   result <- proximalGradientSolverGroupSLOPE(y=y, A=A[ , ord], group=grp[ord], wt=wt[ord],
                                              lambda=lam, tolerance=1e-12, verbose=FALSE)
   expect_equal(result$x, as.matrix(sol[ord]), tolerance=1e-6)
+  expect_identical(result$status, 1)
+  expect_is(result$L, "numeric")
+  expect_true(result$L > 0)
+  expect_is(result$iter, "numeric")
+  expect_true(result$iter > 1)
+  expect_is(result$L.iter, "numeric")
+  expect_true(result$L.iter >= result$iter)
+})
+
+test_that("solution is computed correctly when each group is a singleton", {
+  grp <- 1:10
+  wt  <- rep(1, 10)
+  sol <- c(0.2036292051,0.2036292051,3.8097062299,0.8573736336,0.8573736336,
+           0.2036292051,0.2036292051,0.7057561857,0.2036292051,2.3940891644)
+  result <- proximalGradientSolverGroupSLOPE(y=y, A=A, group=grp, wt=wt, lambda=lam, 
+                                             tolerance=1e-6, verbose=FALSE)
+  expect_equal(result$x, as.matrix(sol), tolerance=1e-6)
+  expect_identical(result$status, 1)
+  expect_is(result$L, "numeric")
+  expect_true(result$L > 0)
+  expect_is(result$iter, "numeric")
+  expect_true(result$iter > 1)
+  expect_true(is.null(result$L.iter))
 })
