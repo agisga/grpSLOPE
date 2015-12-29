@@ -1,3 +1,8 @@
+#' @useDynLib grpSLOPE
+#' @importFrom Rcpp sourceCpp
+NULL
+#> NULL
+
 #' Prox for group SLOPE
 #'
 #' Evaluate the proximal mapping for the group SLOPE problem.
@@ -85,8 +90,8 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
                                              verbose=TRUE, tolerance=1e-6, x.init=vector())
 {
   # TODO: rewrite this function from scratch, where the main loop should be written in C++
-  # TODO: check whether all groups have length 1, then use SLOPE
   # TODO: after writing my own prox function, add an argument "prox"
+  # TODO: check the stopping criteria  # TODO: check the stopping criteria  # TODO: check the stopping criteria
 
   # This is based on the source code available from
   # http://statweb.stanford.edu/~candes/SortedL1/software.html

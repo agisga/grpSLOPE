@@ -14,6 +14,9 @@ using namespace Rcpp;
 //   http://gallery.rcpp.org/
 //
 
+//' Test
+//'
+//' @export
 // [[Rcpp::export]]
 List rcpp_hello() {
   CharacterVector x = CharacterVector::create("foo", "bar");
