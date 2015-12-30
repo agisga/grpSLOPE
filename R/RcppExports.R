@@ -5,10 +5,3 @@ proxSortedL1Rcpp <- function(y, lambda) {
     .Call('grpSLOPE_proxSortedL1Rcpp', PACKAGE = 'grpSLOPE', y, lambda)
 }
 
-#' Test
-#'
-#' @export
-rcpp_hello <- function() {
-    .Call('grpSLOPE_rcpp_hello', PACKAGE = 'grpSLOPE')
-}
-
