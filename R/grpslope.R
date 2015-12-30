@@ -109,7 +109,8 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "rcpp") {
 #' @param lambda A decreasing sequence of regularization parameters \eqn{\lambda}
 #' @param max.iter Maximal number of iterations to carry out
 #' @param verbose A \code{logical} specifying whether to print output or not
-#' @param tolerance The tolerance used in the stopping criteria
+#' @param dual.gap.tol The tolerance used in the stopping criteria for the duality gap
+#' @param infeas.tol The tolerance used in the stopping criteria for the infeasibility
 #' @param x.init An optional initial value for the iterative algorithm
 #' @param method Specifies which implementation of the Sorted L1 norm prox should be used. 
 #'   See \code{\link{proxGroupSortedL1}} for detail.
@@ -130,19 +131,17 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "rcpp") {
 #' wt  <- c(0.5, 0.5, 0.5, 0.5, 0.2, 0.2, 0.2, 0.2, 0.2, 1)
 #' x   <- c(0, 0, 5, 1, 0, 0, 0, 1, 0, 3)
 #' y   <- A %*% x
-#' lam <- 0.1 * (10:1)
-#' result <- proximalGradientSolverGroupSLOPE(y=y, A=A, group=grp, wt=wt, lambda=lam, 
-#'                                            tolerance=1e-12, verbose=FALSE)
+#' lam <- 0.1 * (10:7)
+#' result <- proximalGradientSolverGroupSLOPE(y=y, A=A, group=grp, wt=wt, lambda=lam, verbose=FALSE)
 #' result$x
 #'
 #' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
 #'
 #' @export
-proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1e4, verbose=TRUE,
-                                             tolerance=1e-6, x.init=vector(), method="rcpp")
+proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1e4,
+                                             verbose=TRUE, dual.gap.tol=1e-6, 
+                                             infeas.tol=1e-6, x.init=vector(), method="rcpp")
 {
-  # TODO: check the stopping criteria
-
   # This is based on the source code available from
   # http://statweb.stanford.edu/~candes/SortedL1/software.html
   # under the GNU GPL-3 licence.
@@ -151,20 +150,24 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
   # Modifications: Copyright 2015, Alexej Gossmann
   
   # Initialize ---------------------------------------------------------------
+
+  # Prepare grouping information
+  group.id <- getGroupID(group)
+  n.group  <- length(group.id)
   
-  # Ensure that lambda is non-increasing
+  # Ensure that lambda is non-increasing and of right length
   n.lambda <- length(lambda)
   if ((n.lambda > 1) && any(lambda[2:n.lambda] > lambda[1:n.lambda-1])) {
     stop("Lambda must be non-increasing.")
+  }
+  if (n.lambda != n.group) {
+    stop("Lambda must have exactly as many entries as there are groups.")
   }
 
   # Adjust matrix for prior weights
   Dinv <- diag(wt)
   A    <- A %*% Dinv
   p    <- ncol(A)
-
-  # Prepare grouping information
-  group.id <- getGroupID(group)
 
   # Auxilliary function to record output information
   recordResult <- function(b, status, L, iter, L.iter) {
@@ -181,8 +184,8 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
   if (length(group.id) == p) {
     if (length(x.init) == 0) x.init <- matrix(0,p,1)
     sol <- SLOPE::SLOPE_solver(A=A, b=y, lambda=lambda, initial=x.init,
-                               max_iter=max.iter, tol_infeas=tolerance,
-                               tol_rel_gap=tolerance)
+                               max_iter=max.iter, tol_infeas=infeas.tol,
+                               tol_rel_gap=dual.gap.tol)
     status <- 2
     if (sol$optimal) status <- 1
     result <- recordResult(b=matrix(sol$x, c(p,1)), status=status, L=sol$lipschitz,
@@ -211,15 +214,17 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
   x        <- x.init
   b        <- x
   Ax       <- A %*% x
+  f        <- Inf
   f.prev   <- Inf
   iter     <- 0
   L.iter   <- 0
   status   <- STATUS_RUNNING
-  relgap   <- Inf
+  duality.gap <- Inf
+  infeasibility <- Inf
   
   if (verbose == TRUE) {
     printf <- function(...) invisible(cat(sprintf(...)))
-    printf('%5s  %9s  %9s\n','Iter','||r||_2','Rel. gap')
+    printf('%5s  %9s  %9s  %9s\n', 'Iter', '||r||_2', 'Dual. gap', 'Infeas.')
   }
   
   # Main loop ---------------------------------------------------------
@@ -227,12 +232,47 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
   {    
     # Compute the gradient
     r <- (A %*% b) - y
-    g <- t(A) %*% r
+    g <- crossprod(A, r)
     
-    # Increment iteration count
-    iter <- iter + 1
+    # Stopping criteria --------------------------------------------
+
+    # Compute duality gap (eq. (1.7) in Appendix I in Brzyski et. al. (2015))
+    b.norms <- rep(NA, n.group)
+    for (i in 1:n.group) {
+      selected <- group.id[[i]]
+      b.norms[i] <- norm(as.matrix(b[selected]), "f")
+    }
+    b.norms.sorted <- sort(b.norms, decreasing=TRUE)
+    duality.gap <- crossprod(b, g) + crossprod(lambda, b.norms.sorted)
+
+    # Compute the infeasibility
+    # The infeasibility is measured based on the unit ball of the dual norm to
+    # the Sorted L1 norm, which is derived in Proposition 1.1 in Bogdan et. al. (2015).
+    # More precisely, we replace the Group-Sorted-L1-dual-minus-1 in (1.8) of Appendix I
+    # of Brzyski et. al. (2015) with the expression from Appendix C.1 of Bogdan et. al. (2015)
+    # applied to the vector of group norms of A^T(Ab-y).
+    # TODO: check if this is actually valid. If the vector of group norms of w is in the unit ball of the dual norm to the Sorted L1 norm, is
+    # then w automatically in the dual norm to the Group Sorted L1 norm?
+    g.norms <- rep(NA, n.group)
+    for (i in 1:n.group) {
+      selected <- group.id[[i]]
+      g.norms[i] <- norm(as.matrix(g[selected]), "f")
+    }
+    g.norms.sorted  <- sort(g.norms, decreasing=TRUE)
+    infeasibility <- max(max(cumsum(g.norms.sorted-lambda)),0)
+
+    # Format string
+    if (verbose == TRUE) str <- sprintf('   %9.2e  %9.2e', duality.gap, infeasibility)
+     
+    # Check stopping criteria
+    if ((duality.gap < dual.gap.tol) && (infeasibility < infeas.tol)) {
+      status <- STATUS_OPTIMAL
+    }
     
-    # Stopping criteria
+    if (verbose == TRUE) {
+      printf('%5d  %9.2e%s\n', iter, f, str)
+    }
+
     if ((status == 0) && (iter >= max.iter)) {
       status <- STATUS_ITERATIONS
     }
@@ -243,6 +283,10 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
       }
       break
     }
+    # (stopping criteria ends) ------------------
+    
+    # Increment iteration count
+    iter <- iter + 1
     
     # Keep copies of previous values
     f.prev  <- as.double(crossprod(r)) / 2
@@ -271,23 +315,6 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
     # Update
     tt <- (1 + sqrt(1 + 4*tt^2)) / 2
     b  <- x + ((tt.prev - 1) / tt) * (x - x.prev)
-
-    # Compute 'relative gap'
-    if (sqrt(sum(b.prev^2))==0) {
-      relgap <- sqrt(sum((b-b.prev)^2))
-    } else {
-      relgap <- sqrt(sum((b-b.prev)^2)) / sqrt(sum(b.prev^2))
-    }
-
-    # Format string
-    if (verbose == TRUE) str <- sprintf('   %9.2e', relgap)
-     
-    # Check relative gap
-    if (relgap < tolerance) status <- STATUS_OPTIMAL
-    
-    if (verbose == TRUE) {
-      printf('%5d  %9.2e%s\n', iter,f,str)
-    }
   } # while (TRUE)
   
   

@@ -5,7 +5,8 @@
 \title{Proximal gradient method for Group SLOPE}
 \usage{
 proximalGradientSolverGroupSLOPE(y, A, group, wt, lambda, max.iter = 10000,
-  verbose = TRUE, tolerance = 1e-06, x.init = vector(), method = "rcpp")
+  verbose = TRUE, dual.gap.tol = 1e-06, infeas.tol = 1e-06,
+  x.init = vector(), method = "rcpp")
 }
 \arguments{
 \item{y}{the response vector}
@@ -23,7 +24,9 @@ contain a group id for each predictor variable.}
 
 \item{verbose}{A \code{logical} specifying whether to print output or not}
 
-\item{tolerance}{The tolerance used in the stopping criteria}
+\item{dual.gap.tol}{The tolerance used in the stopping criteria for the duality gap}
+
+\item{infeas.tol}{The tolerance used in the stopping criteria for the infeasibility}
 
 \item{x.init}{An optional initial value for the iterative algorithm}
 
@@ -55,9 +58,8 @@ grp <- c(0, 0, 1, 1, 2, 2, 2, 2, 2, 3)
 wt  <- c(0.5, 0.5, 0.5, 0.5, 0.2, 0.2, 0.2, 0.2, 0.2, 1)
 x   <- c(0, 0, 5, 1, 0, 0, 0, 1, 0, 3)
 y   <- A \%*\% x
-lam <- 0.1 * (10:1)
-result <- proximalGradientSolverGroupSLOPE(y=y, A=A, group=grp, wt=wt, lambda=lam, 
-                                           tolerance=1e-12, verbose=FALSE)
+lam <- 0.1 * (10:7)
+result <- proximalGradientSolverGroupSLOPE(y=y, A=A, group=grp, wt=wt, lambda=lam, verbose=FALSE)
 result$x
 
 }
