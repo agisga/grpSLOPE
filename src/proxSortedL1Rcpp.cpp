@@ -2,21 +2,6 @@
 #include <RcppEigen.h>
 
 // [[Rcpp::depends(RcppEigen)]]
-
-//' Fast prox for the Sorted L1 norm
-//' 
-//' A fast stack-based algorithm for the prox for the Sorted L1 norm.
-//'
-//' See Algorithm 4 in Bogdan et. al. (2015).
-//'
-//' @param y A vector whose entries should form a nonincreasing sequence.
-//'   This parameter has to be of type (R internal storage mode) \code{double}.
-//' @param lambda A vector whose entries should form a nonincreasing sequence
-//'   This parameter has to be of type (R internal storage mode) \code{double}.
-//'
-//' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
-//'
-//' @export
 // [[Rcpp::export]]
 Eigen::VectorXd proxSortedL1Rcpp(const Eigen::Map<Eigen::VectorXd>& y, const Eigen::Map<Eigen::VectorXd>& lambda)
 {

@@ -3,21 +3,55 @@
 NULL
 #> NULL
 
+#' Fast prox for the Sorted L1 norm
+#' 
+#' A fast stack-based algorithm for the prox for the Sorted L1 norm.
+#'
+#' See Algorithm 4 in Bogdan et. al. (2015).
+#'
+#' @param y A vector
+#' @param lambda A vector whose entries should form a nonincreasing sequence
+#'
+#' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
+#'
+#' @export
+proxSortedL1 <- function (y, lambda) 
+{
+  if (is.complex(y)) {
+    sgn = complex(modulus=1, argument=Arg(y))
+    y = Mod(y)
+  } else {
+    sgn = sign(y)
+    y = abs(y)
+  }
+  y.sorted = sort(y, decreasing=TRUE, index.return=TRUE)
+  result <- proxSortedL1Rcpp(as.double(y.sorted$x), as.double(lambda))
+  result[y.sorted$ix] <- result
+  result <- result * sgn
+  return(result)
+}
+
 #' Prox for group SLOPE
 #'
 #' Evaluate the proximal mapping for the group SLOPE problem.
 #'
 #' \code{proxGroupSortedL1} evaluates the proximal mapping of the group SLOPE problem
-#' by reducing it to the prox for the (regular) SLOPE and then applying the function
-#' \code{\link[SLOPE]{prox_sorted_L1}}.
+#' by reducing it to the prox for the (regular) SLOPE and then applying the fast prox
+#' algorithm for the Sorted L1 norm. The argument \code{method} specifies which 
+#' implementation of the Sorted L1 norm prox should be used. 
+#' Possible values are \code{"rcpp"} (default), \code{"c"}, and \code{"isotone"}.
+#' The default option \code{"rcpp"} uses the internal implementation in
+#' \code{\link{proxSortedL1}}. The alternative options \code{"c"} and
+#' \code{"isotone"} call the function \code{\link[SLOPE]{prox_sorted_L1}} from the
+#' package \code{SLOPE} (see there for detail on these two options).
 #'
 #' @param y The response vector
 #' @param group A vector or an object of class \code{groupID} (e.g. as produced by 
-#'   \code{\link{getGroups}}), which is describeing the grouping structure. If it is
+#'   \code{\link{getGroups}}), which is describing the grouping structure. If it is
 #'   a vector, then it should contain a group id for each predictor variable.
-#' @param lambda A decreasing sequence of regularization parameters \eqn{\lambda}.
+#' @param lambda A decreasing sequence of regularization parameters \eqn{\lambda}
 #' @param method Specifies which implementation of the Sorted L1 norm prox should be used. 
-#'   See \code{\link[SLOPE]{prox_sorted_L1}}.
+#'   Possible values are \code{"rcpp"} (default), \code{"c"}, and \code{"isotone"}. See detail.
 #'
 #' @examples
 #' grp <- c(0,0,0,1,1,0,2,1,0,2)
@@ -26,11 +60,7 @@ NULL
 #' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
 #'
 #' @export
-proxGroupSortedL1 <- function(y, group, lambda, method = "c") {
-  # TODO:  this function should be probably be rewritten from scratch in C++, in order
-  # to remove the dependency on the package SLOPE
-  # TODO: write my own prox function that can be selected as one of the options for "method"
-
+proxGroupSortedL1 <- function(y, group, lambda, method = "rcpp") {
   if (inherits(group, "groupID")) {
     n.group <- length(group)
     group.id <- group
@@ -47,7 +77,11 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "c") {
   }
 
   # get Euclidean norms of the solution vector
-  prox.norm <- SLOPE::prox_sorted_L1(group.norm, lambda, method)
+  if (method == "rcpp") {
+    prox.norm <- proxSortedL1(group.norm, lambda)
+  } else {
+    prox.norm <- SLOPE::prox_sorted_L1(group.norm, lambda, method)
+  }
 
   # compute the solution
   prox.solution <- rep(NA, length(y))
@@ -77,6 +111,8 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "c") {
 #' @param verbose A \code{logical} specifying whether to print output or not
 #' @param tolerance The tolerance used in the stopping criteria
 #' @param x.init An optional initial value for the iterative algorithm
+#' @param method Specifies which implementation of the Sorted L1 norm prox should be used. 
+#'   See \code{\link{proxGroupSortedL1}} for detail.
 #'
 #' @return A list with members:
 #'   \describe{
@@ -87,15 +123,25 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "c") {
 #'     \item{L.iter}{Total number of iterations spent in Lischitz search}
 #'   }
 #'
+#' @examples
+#' set.seed(1)
+#' A   <- matrix(runif(100, 0, 1), 10, 10)
+#' grp <- c(0, 0, 1, 1, 2, 2, 2, 2, 2, 3)
+#' wt  <- c(0.5, 0.5, 0.5, 0.5, 0.2, 0.2, 0.2, 0.2, 0.2, 1)
+#' x   <- c(0, 0, 5, 1, 0, 0, 0, 1, 0, 3)
+#' y   <- A %*% x
+#' lam <- 0.1 * (10:1)
+#' result <- proximalGradientSolverGroupSLOPE(y=y, A=A, group=grp, wt=wt, lambda=lam, 
+#'                                            tolerance=1e-12, verbose=FALSE)
+#' result$x
+#'
 #' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
 #'
 #' @export
-proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1e4,
-                                             verbose=TRUE, tolerance=1e-6, x.init=vector())
+proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1e4, verbose=TRUE,
+                                             tolerance=1e-6, x.init=vector(), method="rcpp")
 {
-  # TODO: rewrite this function from scratch, where the main loop should be written in C++
-  # TODO: after writing my own prox function, add an argument "prox"
-  # TODO: check the stopping criteria  # TODO: check the stopping criteria  # TODO: check the stopping criteria
+  # TODO: check the stopping criteria
 
   # This is based on the source code available from
   # http://statweb.stanford.edu/~candes/SortedL1/software.html
@@ -133,11 +179,10 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 
   # Run regular SLOPE if all groups are singletons
   if (length(group.id) == p) {
-    # TODO: maybe have to change the "prox" argument later
     if (length(x.init) == 0) x.init <- matrix(0,p,1)
     sol <- SLOPE::SLOPE_solver(A=A, b=y, lambda=lambda, initial=x.init,
-                               prox=SLOPE::prox_sorted_L1, max_iter=max.iter,
-                               tol_infeas=tolerance, tol_rel_gap=tolerance)
+                               max_iter=max.iter, tol_infeas=tolerance,
+                               tol_rel_gap=tolerance)
     status <- 2
     if (sol$optimal) status <- 1
     result <- recordResult(b=matrix(sol$x, c(p,1)), status=status, L=sol$lipschitz,
@@ -208,7 +253,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
     
     # Lipschitz search
     while (TRUE) {
-      x  <- proxGroupSortedL1(y = b - (1/L)*g, group = group.id, lambda = lambda/L)
+      x  <- proxGroupSortedL1(y = b - (1/L)*g, group = group.id, lambda = lambda/L, method=method)
       d  <- x - b
       Ax <- A %*% x
       r  <- Ax-y

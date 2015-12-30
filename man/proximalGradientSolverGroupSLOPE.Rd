@@ -5,7 +5,7 @@
 \title{Proximal gradient method for Group SLOPE}
 \usage{
 proximalGradientSolverGroupSLOPE(y, A, group, wt, lambda, max.iter = 10000,
-  verbose = TRUE, tolerance = 1e-06, x.init = vector())
+  verbose = TRUE, tolerance = 1e-06, x.init = vector(), method = "rcpp")
 }
 \arguments{
 \item{y}{the response vector}
@@ -26,6 +26,9 @@ contain a group id for each predictor variable.}
 \item{tolerance}{The tolerance used in the stopping criteria}
 
 \item{x.init}{An optional initial value for the iterative algorithm}
+
+\item{method}{Specifies which implementation of the Sorted L1 norm prox should be used. 
+See \code{\link{proxGroupSortedL1}} for detail.}
 }
 \value{
 A list with members:
@@ -44,6 +47,19 @@ Compute the coefficient estimates for the Group SLOPE problem.
 \code{proximalGradientSolverGroupSLOPE} computes the coefficient estimates
 for the Group SLOPE model. The employed optimization algorithm is FISTA with 
 backtracking Lipschitz search.
+}
+\examples{
+set.seed(1)
+A   <- matrix(runif(100, 0, 1), 10, 10)
+grp <- c(0, 0, 1, 1, 2, 2, 2, 2, 2, 3)
+wt  <- c(0.5, 0.5, 0.5, 0.5, 0.2, 0.2, 0.2, 0.2, 0.2, 1)
+x   <- c(0, 0, 5, 1, 0, 0, 0, 1, 0, 3)
+y   <- A \%*\% x
+lam <- 0.1 * (10:1)
+result <- proximalGradientSolverGroupSLOPE(y=y, A=A, group=grp, wt=wt, lambda=lam, 
+                                           tolerance=1e-12, verbose=FALSE)
+result$x
+
 }
 \references{
 M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}

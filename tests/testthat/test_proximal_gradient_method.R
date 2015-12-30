@@ -1,5 +1,19 @@
 library(grpSLOPE)
 
+context("proxSortedL1()")
+
+y   <- 12:2
+lam <- log(y)
+sol <- c(9.515093350,8.602104727,7.697414907,6.802775423,5.920558458, 5.054089851,
+         4.208240531,3.390562088,2.613705639,1.901387711,1.306852819)
+
+test_that("the prox is evaluated correctly", {
+  x <- proxSortedL1(y = y, lambda = lam)
+  expect_equal(x, sol)
+})
+
+
+
 context("proxGroupSortedL1()")
 
 y   <- 1:10
@@ -8,14 +22,25 @@ sol <- c(0, 0, 0, 0.353261553, 0.441576942, 0.529892330,
          1.974292890, 2.256334731, 2.538376572, 1.0000000001)
 lam <- 10:1
 
-test_that("the prox is evaluated correctly when the groups are consequtive blocks", {
-  x   <- proxGroupSortedL1(y = y, group = grp, lambda = lam)
+test_that("the prox is evaluated correctly with method='rcpp' when the groups are consequtive blocks", {
+  x   <- proxGroupSortedL1(y = y, group = grp, lambda = lam, method="rcpp")
   expect_equal(x, sol)
 })
 
-test_that("the prox is evaluated correctly when the groups are not consequtive blocks", {
+test_that("the prox is evaluated correctly with method='rcpp' when the groups are not consequtive blocks", {
   ord <- sample(y, 10)
-  x <- proxGroupSortedL1(y = y[ord], group = grp[ord], lambda = lam)
+  x <- proxGroupSortedL1(y = y[ord], group = grp[ord], lambda = lam, method="rcpp")
+  expect_equal(x, sol[ord], tolerance=1e-6)
+})
+
+test_that("the prox is evaluated correctly with method='c' when the groups are consequtive blocks", {
+  x   <- proxGroupSortedL1(y = y, group = grp, lambda = lam, method="c")
+  expect_equal(x, sol)
+})
+
+test_that("the prox is evaluated correctly with method='c' when the groups are not consequtive blocks", {
+  ord <- sample(y, 10)
+  x <- proxGroupSortedL1(y = y[ord], group = grp[ord], lambda = lam, method="c")
   expect_equal(x, sol[ord], tolerance=1e-6)
 })
 
@@ -36,8 +61,8 @@ sol <- c(0,0,3.856002988,2.080742942,0,0,0,0,0,3.512828045)
 
 test_that("it works correctly when the groups are consequtive blocks", {
   result <- proximalGradientSolverGroupSLOPE(y=y, A=A, group=grp, wt=wt, lambda=lam, 
-                                             tolerance=1e-12, verbose=FALSE)
-  expect_equal(result$x, as.matrix(sol), tolerance=1e-6)
+                                             tolerance=1e-6, verbose=FALSE)
+  expect_equal(result$x, as.matrix(sol), tolerance=1e-4)
   expect_identical(result$status, 1)
   expect_is(result$L, "numeric")
   expect_true(result$L > 0)
@@ -50,8 +75,8 @@ test_that("it works correctly when the groups are consequtive blocks", {
 test_that("it works correctly when the groups are not consequtive blocks", {
   ord <- sample(1:10, 10)
   result <- proximalGradientSolverGroupSLOPE(y=y, A=A[ , ord], group=grp[ord], wt=wt[ord],
-                                             lambda=lam, tolerance=1e-12, verbose=FALSE)
-  expect_equal(result$x, as.matrix(sol[ord]), tolerance=1e-6)
+                                             lambda=lam, tolerance=1e-6, verbose=FALSE)
+  expect_equal(result$x, as.matrix(sol[ord]), tolerance=1e-4)
   expect_identical(result$status, 1)
   expect_is(result$L, "numeric")
   expect_true(result$L > 0)
