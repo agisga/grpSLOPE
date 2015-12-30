@@ -45,4 +45,7 @@ Compute the coefficient estimates for the Group SLOPE problem.
 for the Group SLOPE model. The employed optimization algorithm is FISTA with 
 backtracking Lipschitz search.
 }
+\references{
+M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
+}
 

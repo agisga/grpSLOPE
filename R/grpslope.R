@@ -23,6 +23,8 @@ NULL
 #' grp <- c(0,0,0,1,1,0,2,1,0,2)
 #' proxGroupSortedL1(y = 1:10, group = grp, lambda = 10:1)
 #'
+#' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
+#'
 #' @export
 proxGroupSortedL1 <- function(y, group, lambda, method = "c") {
   # TODO:  this function should be probably be rewritten from scratch in C++, in order
@@ -84,6 +86,8 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "c") {
 #'     \item{iter}{Iterations of the proximal gradient method}
 #'     \item{L.iter}{Total number of iterations spent in Lischitz search}
 #'   }
+#'
+#' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
 #'
 #' @export
 proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1e4,

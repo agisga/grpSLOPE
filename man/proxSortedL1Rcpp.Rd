@@ -6,8 +6,20 @@
 \usage{
 proxSortedL1Rcpp(y, lambda)
 }
+\arguments{
+\item{y}{A vector whose entries should form a nonincreasing sequence.
+This parameter has to be of type (R internal storage mode) \code{double}.}
+
+\item{lambda}{A vector whose entries should form a nonincreasing sequence
+This parameter has to be of type (R internal storage mode) \code{double}.}
+}
 \description{
-A stack-based algorithm for the prox for the Sorted L1 norm,
-which solves the problem in O(n) flops.
+A fast stack-based algorithm for the prox for the Sorted L1 norm.
+}
+\details{
+See Algorithm 4 in Bogdan et. al. (2015).
+}
+\references{
+M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
 }
 
