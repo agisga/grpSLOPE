@@ -3,12 +3,12 @@ layout: post
 title: Derivation of infeasibility as stopping criterion
 ---
 
-As one stopping criterion for the Group SLOPE optimization problem, [Brzyski et. al. (2015) *Group SLOPE &mdash; adaptive selection of groups of predictors*](http://arxiv.org/abs/1511.09078) derives in Appendix I a measure of infeasibility of the following form:
+As one stopping criterion for the Group SLOPE optimization problem, [Brzyski et. al. (2015) *Group SLOPE &mdash; adaptive selection of groups of predictors*](http://arxiv.org/abs/1511.09078) derives in Appendix I a measure of infeasibility of the following form (using a slightly different notation):
 
 $$
 \begin{equation}
 \label{infeas}
-\mathrm{infeas}(\mu^k) = \max \left\\{ J^D\subscript{\lambda, I}\left( \tilde{\xi} \right) - 1, 0\right\\},
+\mathrm{infeas}(\mu^k) = \max \left\\{ J^D\subscript{\lambda, I}\left( \tilde{\xi}^k \right) - 1, 0\right\\},
 \end{equation}
 $$
 
@@ -16,7 +16,7 @@ where $J^D\subscript{\lambda, I}$ denotes the dual norm to the Group Sorted L1 n
 
 That is, the infeasibility is measured based on the unit ball of the dual norm to the Group Sorted L1 norm, and it is greater than zero if and only if $\tilde{\xi}$ is outside that unit ball. However, it is not clear how the dual norm in question can be easily evaluated. In the following, we will construct an infeasibility criterion which is easy to compute.
 
-Let $w\subscript{\mathbb{I}} := (\\|w\subscript{I\subscript{1}}\\|\subscript{2}, \ldots, \\|w\subscript{I\subscript{J}}\\|\subscript{2})^T$ denotes the vector of Euclidean norms of the groups of elements in $w$, which are given by the partition $I$, and let $J\subscript{\lambda}$ denote the Sorted L1 norm. Then the dual norm of the Group Sorted L1 norm is given by,
+Let $w\subscript{\mathbb{I}} := (\\|w\subscript{I\subscript{1}}\\|\subscript{2}, \ldots, \\|w\subscript{I\subscript{J}}\\|\subscript{2})^T$ denotes the vector of Euclidean norms of the groups of elements in $w$, which are given by the partition $I = \\{I\subscript{1}, \ldots, I\subscript{J}\\}$, and let $J\subscript{\lambda}$ denote the Sorted L1 norm. Then the dual norm of the Group Sorted L1 norm is given by,
 
 $$J^D\subscript{\lambda, I}(x) = \max\subscript{w}\left\\{x^T w : J\subscript{\lambda}(w\subscript{\mathbb{I}}) = 1\right\\},$$
 
@@ -62,8 +62,8 @@ Therefore, the unit ball of the norm $J^D\subscript{\lambda, I}(x)$ is the set $
 
 Proposition 1.1 in [Bogdan et. al. (2013), *Statistical estimation and testing via the sorted L1 norm*](http://arxiv.org/abs/1310.1969) establishes that a vector $u$ is contained in the unit ball of the dual norm to the Sorted L1 norm, if and only if
 
-$$\forall j : \sum\subscript{i=1}^j \left\lvert x \right\rvert\subscript{(i)} \leq \sum\subscript{i=1}^j \lambda\subscript{i}.$$
+$$\forall j : \sum\subscript{i=1}^j \left\lvert u \right\rvert\subscript{(i)} \leq \sum\subscript{i=1}^j \lambda\subscript{i}.$$
 
 Based on $(\ref{infeas})$ and the above considerations about the unit ball of the dual norm, a measure of infeasibility for the Group SLOPE problem is given by
 
-$$\max \left\\{ 0, \max\subscript{j}\left\\{\sum\subscript{i=1}^j \left( \left\lVert x\subscript{I\subscript{(i)}} \right\rVert\subscript{2} - \lambda\subscript{i} \right) \right\\} \right\\}.$$
+$$\mathrm{infeas}(\mu^k) = \max \left\\{ 0, \max\subscript{j}\left\\{\sum\subscript{i=1}^j \left( \left\lVert \tilde{\xi}\subscript{I\subscript{(i)}}^k \right\rVert\subscript{2} - \lambda\subscript{i} \right) \right\\} \right\\}.$$
