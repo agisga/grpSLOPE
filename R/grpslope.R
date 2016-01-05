@@ -246,13 +246,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
     duality.gap <- crossprod(b, g) + crossprod(lambda, b.norms.sorted)
 
     # Compute the infeasibility
-    # The infeasibility is measured based on the unit ball of the dual norm to
-    # the Sorted L1 norm, which is derived in Proposition 1.1 in Bogdan et. al. (2015).
-    # More precisely, we replace the Group-Sorted-L1-dual-minus-1 in (1.8) of Appendix I
-    # of Brzyski et. al. (2015) with the expression from Appendix C.1 of Bogdan et. al. (2015)
-    # applied to the vector of group norms of A^T(Ab-y).
-    # TODO: check if this is actually valid. If the vector of group norms of w is in the unit ball of the dual norm to the Sorted L1 norm, is
-    # then w automatically in the dual norm to the Group Sorted L1 norm?
+    # (derivation of this infeasibility criterion: http://www.alexejgossmann.com/grpSLOPE/Infeasibility/)
     g.norms <- rep(NA, n.group)
     for (i in 1:n.group) {
       selected <- group.id[[i]]
