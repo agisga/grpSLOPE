@@ -3,17 +3,19 @@ Type: Package
 Title: Group SLOPE (Sorted L1 Penalized Estimation)
 Version: 0.1.0
 Authors@R: person("Alexej", "Gossmann", email = "alexej.go@googlemail.com", role = c("aut", "cre"))
-Description: The Group SLOPE method can be used to select groups of predictor variables
-    in a linear regression model with pre-specified group structures among the predictors, 
-    while controlling the (group-wise) false discovery rate at a user-specified level.
+Description: The Group SLOPE method can be used to select groups of predictor
+    variables in a linear regression model with pre-specified group structures among
+    the predictors, while controlling the (group-wise) false discovery rate at a
+    user-specified level.
 License: GPL-3
 URL: https://github.com/agisga/grpSLOPE.git
 BugReports: https://github.com/agisga/grpSLOPE/issues
 LazyData: TRUE
-Imports: 
+Imports:
     Rcpp (>= 0.12.1),
     RcppEigen (>= 0.3.2.4.0),
     SLOPE (>= 0.1.1)
 LinkingTo: Rcpp, RcppEigen
-RoxygenNote: 5.0.0
-Suggests: testthat
+RoxygenNote: 5.0.1
+Suggests:
+    testthat
