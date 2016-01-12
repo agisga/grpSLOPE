@@ -316,3 +316,67 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
   result <- recordResult(b=b, status=status, L=L, iter=iter, L.iter=L.iter)
   return(result)
 }
+
+
+#' Regularizing sequence for Group SLOPE
+#'
+#' Generate the regularizing sequence \code{lambda} for the Group SLOPE
+#' problem according to one of multiple methods.
+#'
+#' @param q The nominal level for the false discovery rate
+#' @param n.groups Number of groups
+#' @param group A vector describing the grouping structure. It should 
+#'    contain a group id for each predictor variable.
+#' @param A The model matrix
+#' @param method Possible values are "gaussian", "chi", "gaussianMC", "chiMC"
+#' @param n.MC The corrections of the entries of lambda will be 
+#'    computed up to the index given by \code{n.MC} only.
+#' @param MC.reps The number of repetitions of the Monte Carlo procedure
+#'
+#' @export
+lambdaGroupSLOPE <- function(q=0.1, n.group=NULL, group=NULL,
+                             A=NULL, method="gaussian",
+                             n.MC=n.group, MC.reps=5000)
+{
+  # Prepare grouping information
+  if (!is.null(group)) {
+    group.id <- getGroupID(group)
+    n.group  <- length(group.id)
+  }
+
+  if (is.null(n.group)) {
+    stop("Either n.group or group needs to be passed as function argument.")
+  }
+
+  if (method=="gaussian" || method=="gaussianMC") {
+    lambda.BH <- rep(NA,n.group)
+    for (i in 1:n.group){
+      lambda.BH[i] <- qnorm(1-(i*q)/(2*n.group))
+    }
+
+    # stop here if method is "gaussian"
+    if (method=="gaussian") return(lambda.BH)
+
+    # Continue if method is "gaussianMC"
+    # Monte Carlo corrections for lambda.BH
+    if (is.null(A) || is.null(group)) {
+      stop("A and group need to be passed as arguments when method is gaussianMC.")
+    }
+
+    mA <- matrix(NA, nrow(A), n.group)
+    for (i in 1:n.group) {
+      mA[,i] <- apply(A[ , group.id[[i]] ], 1, mean)
+      mA[,i] <- mA[,i] / sqrt(sum(mA[,i]^2))
+    }
+
+    lambda.MC <- lambdaMC(lambda.BH, mA, n.MC, MC.reps)
+    lambda.MC <- c(lambda.MC, rep(lambda.MC[n.MC], n.group-n.MC))
+
+    return(lambda.MC)
+  } else if (method=="chi" || method=="chiMC") {
+    # TODO
+    print("TODO!")
+  } else {
+    stop(paste(method, "is not a valid method."))
+  }
+}

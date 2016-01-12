@@ -10,7 +10,7 @@
 using namespace Eigen;
 using namespace Rcpp;
 
-double MC_correction(const MatrixXd& X, const VectorXd& lambda,
+double correctViaMCGaussian(const MatrixXd& X, const VectorXd& lambda,
         int s, int number_of_drawings = 5000)
 {
     MatrixXd Xs(X.rows(),s);
@@ -60,7 +60,7 @@ double MC_correction(const MatrixXd& X, const VectorXd& lambda,
 //and replaces them with their average. 
 //Algorithm based on Algorithm 4 in Bogdan, van den Berg, Sabatti, Su, 
 //Candes: "SLOPE -- Adaptive variable selection via convex optimization".
-VectorXd MakeNonIncreasing(const VectorXd& cy)
+VectorXd makeNonIncreasing(const VectorXd& cy)
 {
     int n(cy.size());
     VectorXd y(cy);
@@ -132,12 +132,12 @@ Eigen::VectorXd lambdaMC(const Eigen::Map<Eigen::VectorXd>& lambda_BH,
     lambda_MC(0) = lambda_BH(0);
     for(int i=1; i<p; i++)
     {
-        lambda_MC(i) = lambda_BH(i) * pow(1.0 + MC_correction(X, lambda_MC, i, 
+        lambda_MC(i) = lambda_BH(i) * pow(1.0 + correctViaMCGaussian(X, lambda_MC, i, 
                     number_of_drawings), 0.5);
     }
 
     Eigen::VectorXd lambda_MC_nonincreasing(p);
-    lambda_MC_nonincreasing = MakeNonIncreasing(lambda_MC);
+    lambda_MC_nonincreasing = makeNonIncreasing(lambda_MC);
 
     return lambda_MC_nonincreasing;
 }
