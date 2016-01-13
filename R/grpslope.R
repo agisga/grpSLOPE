@@ -323,19 +323,38 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 #' Generate the regularizing sequence \code{lambda} for the Group SLOPE
 #' problem according to one of multiple methods.
 #'
-#' @param q The nominal level for the false discovery rate
+#' Multiple methods are available to generate the regularizing sequence \code{lambda}.
+#' "BH" denotes the method of Theorem 1.1 in Bogdan et. al. (2015),
+#' "gaussian" denotes the method of Section 3.2.2 in Bogdan et. al. (2015),
+#' "gaussianMC" denotes the method introduced in Gossmann et. al. (2015),
+#' "basic" denotes the lambdas of Theorem 2.5 in Brzyski et. al. (2015),
+#' "mean" uses the lambdas of equation (2.14) in Brzyski et. al. (2015),
+#' "chi" uses Procedure 1 in Brzyski et. al. (2015),
+#' "chi_mean" uses Procedure 2 in Brzyski et. al. (2015),
+#' "chiMC" denotes a Monte Carlo lambda selection method based on equation 2.25
+#' in Brzyski et. al. (2015).
+#'
+#' @param fdr Target false discovery rate
 #' @param n.groups Number of groups
 #' @param group A vector describing the grouping structure. It should 
 #'    contain a group id for each predictor variable.
 #' @param A The model matrix
-#' @param method Possible values are "gaussian", "chi", "gaussianMC", "chiMC"
+#' @param wt A vector of weights
+#' @param n.subj Number of rows in A (i.e. number of subjects)
+#' @param method Possible values are "BH", "gaussian", "gaussianMC",
+#'    "basic", "mean",  "chi", "chi_mean", "chiMC". See details.
 #' @param n.MC The corrections of the entries of lambda will be 
-#'    computed up to the index given by \code{n.MC} only.
+#'    computed up to the index given by \code{n.MC} only. \code{n.MC} should be
+#'    less than or equal to \code{n.group}.
 #' @param MC.reps The number of repetitions of the Monte Carlo procedure
 #'
+#' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, Annals of Applied Statistics
+#' @references A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
+#' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE — adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+#'
 #' @export
-lambdaGroupSLOPE <- function(q=0.1, n.group=NULL, group=NULL,
-                             A=NULL, method="gaussian",
+lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
+                             A=NULL, wt=NULL, n.subj=NULL, method="gaussian",
                              n.MC=n.group, MC.reps=5000)
 {
   # Prepare grouping information
@@ -348,34 +367,101 @@ lambdaGroupSLOPE <- function(q=0.1, n.group=NULL, group=NULL,
     stop("Either n.group or group needs to be passed as function argument.")
   }
 
-  if (method=="gaussian" || method=="gaussianMC") {
+  if (method %in% c("BH", "gaussian", "gaussianMC")) {
     lambda.BH <- rep(NA,n.group)
     for (i in 1:n.group){
-      lambda.BH[i] <- qnorm(1-(i*q)/(2*n.group))
+      lambda.BH[i] <- qnorm(1-(i*fdr)/(2*n.group))
     }
 
-    # stop here if method is "gaussian"
-    if (method=="gaussian") return(lambda.BH)
+    if (method=="BH") {
+      return(lambda.BH)
+    } else if (method=="gaussian") {
+      if (is.null(A) && is.null(n.subj)) {
+        stop("Either A or n.subj needs to be passed as an argument when method is gaussian.")
+      }
+      if (is.null(n.subj)) n.subj <- nrow(A)
 
-    # Continue if method is "gaussianMC"
-    # Monte Carlo corrections for lambda.BH
-    if (is.null(A) || is.null(group)) {
-      stop("A and group need to be passed as arguments when method is gaussianMC.")
+      omegafun <- function(k) { return(1/(n.subj-k-1)) }
+
+      lambda.G <- rep(NA,n.group)
+      lambda.G[1] <- lambda.BH[1]
+      for (i in 2:min(n.group, n.subj-2)) {
+        lambda.G[i] <- lambda.BH[i] * sqrt( 1 + omegafun(i-1) * sum(lambda.G[1:(i-1)]^2) )
+      }
+
+      lambda.G.min <- min(lambda.G, na.rm=TRUE)
+      min.ind <- which(lambda.G==lambda.G.min)
+      lambda.G[min.ind:n.group] <- lambda.G.min
+
+      return(lambda.G)
+    } else if (method=="gaussianMC") {
+      if (is.null(A) || is.null(group)) {
+        stop("A and group need to be passed as arguments when method is gaussianMC.")
+      }
+
+      mA <- matrix(NA, nrow(A), n.group)
+      for (i in 1:n.group) {
+        mA[ , i] <- apply(A[ , group.id[[i]] ], 1, mean)
+        mA[ , i] <- mA[ , i] / sqrt(sum(mA[ , i]^2))
+      }
+
+      # Monte Carlo corrections for lambda.BH
+      lambda.MC <- lambdaMC(lambda.BH, mA, n.MC, MC.reps)
+      lambda.MC <- c(lambda.MC, rep(lambda.MC[n.MC], n.group-n.MC))
+
+      return(lambda.MC)
+    }
+  } else if (method %in% c("basic", "mean", "chi", "chi_mean", "chiMC")) {
+    if (is.null(group) || is.null(wt)) {
+      stop("Arguments group and wt need to be provided when method is one of 'basic', 'mean', 'chi', 'chi_mean', 'chiMC'.")
     }
 
-    mA <- matrix(NA, nrow(A), n.group)
-    for (i in 1:n.group) {
-      mA[,i] <- apply(A[ , group.id[[i]] ], 1, mean)
-      mA[,i] <- mA[,i] / sqrt(sum(mA[,i]^2))
+    if (method=="basic" || method=="mean") {
+      lambda.max <- rep(NA, n.group)
+      lambda.min   <- rep(NA, n.group)
+
+      for (i in 1:n.group) {
+        qchi.seq <- rep(NA, n.group)
+        for (j in 1:n.group) {
+          qchi.seq[j] <- 1/wt[j] * sqrt(qchisq(1 - fdr*i/n.group, df=length(group.id[[j]])))
+        }
+        lambda.max[i] <- max(qchi.seq)
+        lambda.min[i]   <- min(qchi.seq)
+      }
+
+      # stop here if method is "basic"
+      if (method=="basic") return(lambda.max)
+
+      cdfMean <- function(x) {
+        pchi.seq <- rep(NA, n.group)
+        for (i in 1:n.group) {
+          pchi.seq[i] <- pchisq((wt[i]*x)^2, df=length(group.id[[i]]))
+        }
+        return(mean(pchi.seq))
+      }
+
+      lambda.mean <- rep(NA, n.group)
+      for (k in 1:n.group) {
+        # compute inverse of cdfMean at 1-fdr*k/n.group
+        cdfMean.inv <- uniroot(function(y) (cdfMean(y) - (1-fdr*k/n.group)),
+                               lower = lambda.min[k], upper = lambda.max[k])
+        lambda.mean[k] <- cdfMean.inv$root
+      }
+
+      return(lambda.mean)
+    } else if (method=="chi") {
+      if (is.null(A)) {
+        stop("The model matrix A has to be passed as an argument when method is one of 'chi'.")
+      }
+      # TODO
+      print("TODO!")
+    } else if (method=="chi_mean") {
+      # TODO
+      print("TODO!")
+    } else if (method=="chiMC") {
+      # TODO
+      print("TODO!")
     }
-
-    lambda.MC <- lambdaMC(lambda.BH, mA, n.MC, MC.reps)
-    lambda.MC <- c(lambda.MC, rep(lambda.MC[n.MC], n.group-n.MC))
-
-    return(lambda.MC)
-  } else if (method=="chi" || method=="chiMC") {
-    # TODO
-    print("TODO!")
   } else {
     stop(paste(method, "is not a valid method."))
   }

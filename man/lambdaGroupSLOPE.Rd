@@ -4,21 +4,28 @@
 \alias{lambdaGroupSLOPE}
 \title{Regularizing sequence for Group SLOPE}
 \usage{
-lambdaGroupSLOPE(q = 0.1, n.group = NULL, group = NULL, A = NULL,
-  method = "gaussian", n.MC = n.group, MC.reps = 5000)
+lambdaGroupSLOPE(fdr = 0.1, n.group = NULL, group = NULL, A = NULL,
+  wt = NULL, n.subj = NULL, method = "gaussian", n.MC = n.group,
+  MC.reps = 5000)
 }
 \arguments{
-\item{q}{The nominal level for the false discovery rate}
+\item{fdr}{Target false discovery rate}
 
 \item{group}{A vector describing the grouping structure. It should 
 contain a group id for each predictor variable.}
 
 \item{A}{The model matrix}
 
-\item{method}{Possible values are "gaussian", "chi", "gaussianMC", "chiMC"}
+\item{wt}{A vector of weights}
+
+\item{n.subj}{Number of rows in A (i.e. number of subjects)}
+
+\item{method}{Possible values are "BH", "gaussian", "gaussianMC",
+"basic", "mean",  "chi", "chi_mean", "chiMC". See details.}
 
 \item{n.MC}{The corrections of the entries of lambda will be 
-computed up to the index given by \code{n.MC} only.}
+computed up to the index given by \code{n.MC} only. \code{n.MC} should be
+less than or equal to \code{n.group}.}
 
 \item{MC.reps}{The number of repetitions of the Monte Carlo procedure}
 
@@ -27,5 +34,24 @@ computed up to the index given by \code{n.MC} only.}
 \description{
 Generate the regularizing sequence \code{lambda} for the Group SLOPE
 problem according to one of multiple methods.
+}
+\details{
+Multiple methods are available to generate the regularizing sequence \code{lambda}.
+"BH" denotes the method of Theorem 1.1 in Bogdan et. al. (2015),
+"gaussian" denotes the method of Section 3.2.2 in Bogdan et. al. (2015),
+"gaussianMC" denotes the method introduced in Gossmann et. al. (2015),
+"basic" denotes the lambdas of Theorem 2.5 in Brzyski et. al. (2015),
+"mean" uses the lambdas of equation (2.14) in Brzyski et. al. (2015),
+"chi" uses Procedure 1 in Brzyski et. al. (2015),
+"chi_mean" uses Procedure 2 in Brzyski et. al. (2015),
+"chiMC" denotes a Monte Carlo lambda selection method based on equation 2.25
+in Brzyski et. al. (2015).
+}
+\references{
+M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, Annals of Applied Statistics
+
+A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
+
+D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE — adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
 }
 
