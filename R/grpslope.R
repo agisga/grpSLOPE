@@ -359,8 +359,9 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
 {
   # Prepare grouping information
   if (!is.null(group)) {
-    group.id <- getGroupID(group)
-    n.group  <- length(group.id)
+    group.id    <- getGroupID(group)
+    n.group     <- length(group.id)
+    group.sizes <- sapply(group.id, FUN=length)
   }
 
   if (is.null(n.group)) {
@@ -423,7 +424,7 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
       for (i in 1:n.group) {
         qchi.seq <- rep(NA, n.group)
         for (j in 1:n.group) {
-          qchi.seq[j] <- 1/wt[j] * sqrt(qchisq(1 - fdr*i/n.group, df=length(group.id[[j]])))
+          qchi.seq[j] <- 1/wt[j] * sqrt(qchisq(1 - fdr*i/n.group, df=group.sizes[j]))
         }
         lambda.max[i] <- max(qchi.seq)
         lambda.min[i]   <- min(qchi.seq)
@@ -435,26 +436,56 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
       cdfMean <- function(x) {
         pchi.seq <- rep(NA, n.group)
         for (i in 1:n.group) {
-          pchi.seq[i] <- pchisq((wt[i]*x)^2, df=length(group.id[[i]]))
+          pchi.seq[i] <- pchisq((wt[i]*x)^2, df=group.sizes[i])
         }
         return(mean(pchi.seq))
       }
 
       lambda.mean <- rep(NA, n.group)
       for (k in 1:n.group) {
-        # compute inverse of cdfMean at 1-fdr*k/n.group
-        cdfMean.inv <- uniroot(function(y) (cdfMean(y) - (1-fdr*k/n.group)),
-                               lower = lambda.min[k], upper = lambda.max[k])
-        lambda.mean[k] <- cdfMean.inv$root
+        if (lambda.min[k] == lambda.max[k]) {
+          lambda.mean[k] <- lambda.max[k]
+        } else {
+          # compute inverse of cdfMean at 1-fdr*k/n.group
+          cdfMean.inv <- uniroot(function(y) (cdfMean(y) - (1-fdr*k/n.group)),
+                                 lower = lambda.min[k], upper = lambda.max[k])
+          lambda.mean[k] <- cdfMean.inv$root
+        }
       }
 
       return(lambda.mean)
     } else if (method=="chi") {
-      if (is.null(A)) {
-        stop("The model matrix A has to be passed as an argument when method is one of 'chi'.")
+      if (is.null(A) && is.null(n.subj)) {
+        stop("Either A or n.subj needs to be passed as an argument when method is 'chi'")
       }
-      # TODO
-      print("TODO!")
+      if (is.null(n.subj)) n.subj <- nrow(A)
+
+      # Equal group sizes and weights
+      if ( (length(unique(group.sizes))!=1) || (length(unique(wt))!=1) ) {
+        stop("Method 'chi' requires equal group sizes and equal weights.")
+      }
+      m <- unique(group.sizes)
+      w <- unique(wt)
+
+      lambda.chi    <- rep(NA, n.group)
+      lambda.chi[1] <- sqrt(qchisq(1 - fdr / n.group, df=m)) / w
+      # make sure that the denominator in s is non-zero
+      imax <- floor((n.subj - 1) / m + 1)
+      imax <- min(n.group, imax)
+      for (i in 2:imax) {
+        s <- (n.subj - m*(i-1)) / n.subj + (w^2 * sum(lambda.chi[1:(i-1)]^2)) / (n.subj - m*(i-1) - 1)
+        s <- sqrt(s)
+        lambda.tmp <- (s/w) * sqrt(qchisq(1 - fdr * i / n.group, df=m))
+        if (lambda.tmp <= lambda.chi[i-1]) {
+          lambda.chi[i] <- lambda.tmp
+        } else {
+          for (j in i:imax) { lambda.chi[j] <- lambda.chi[i-1] }
+          break
+        }
+      }
+      lambda.chi[imax:n.group] <- lambda.chi[imax]
+
+      return(lambda.chi)
     } else if (method=="chi_mean") {
       # TODO
       print("TODO!")
