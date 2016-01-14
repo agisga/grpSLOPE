@@ -509,8 +509,12 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
       upperchi <- max(qchi.seq)
       lowerchi <- min(qchi.seq)
 
-      lambda.chi.mean[1] <- uniroot(function(y) (cdfMean(y) - (1-fdr/n.group)),
-                                    lower = lowerchi, upper = upperchi)$root
+      if (upperchi == lowerchi) {
+        lambda.chi.mean[1] <- upperchi
+      } else {
+        lambda.chi.mean[1] <- uniroot(function(y) (cdfMean(y) - (1-fdr/n.group)),
+                                      lower = lowerchi, upper = upperchi)$root
+      }
 
       for (i in 2:n.group) {
         s <- rep(NA, n.group)
