@@ -424,10 +424,10 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
       for (i in 1:n.group) {
         qchi.seq <- rep(NA, n.group)
         for (j in 1:n.group) {
-          qchi.seq[j] <- 1/wt[j] * sqrt(qchisq(1 - fdr*i/n.group, df=group.sizes[j]))
+          qchi.seq[j] <- sqrt(qchisq(1 - fdr*i/n.group, df=group.sizes[j])) / wt[j]
         }
         lambda.max[i] <- max(qchi.seq)
-        lambda.min[i]   <- min(qchi.seq)
+        lambda.min[i] <- min(qchi.seq)
       }
 
       # stop here if method is "basic"
@@ -487,8 +487,67 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
 
       return(lambda.chi)
     } else if (method=="chi_mean") {
-      # TODO
-      print("TODO!")
+      if (is.null(A) && is.null(n.subj)) {
+        stop("Either A or n.subj needs to be passed as an argument when method is 'chi_mean'")
+      }
+      if (is.null(n.subj)) n.subj <- nrow(A)
+
+      lambda.chi.mean <- rep(NA, n.group)
+
+      cdfMean <- function(x) {
+        pchi.seq <- rep(NA, n.group)
+        for (i in 1:n.group) {
+          pchi.seq[i] <- pchisq((wt[i]*x)^2, df=group.sizes[i])
+        }
+        return(mean(pchi.seq))
+      }
+
+      qchi.seq <- rep(NA, n.group)
+      for (j in 1:n.group) {
+        qchi.seq[j] <- sqrt(qchisq(1 - fdr/n.group, df=group.sizes[j])) / wt[j]
+      }
+      upperchi <- max(qchi.seq)
+      lowerchi <- min(qchi.seq)
+
+      lambda.chi.mean[1] <- uniroot(function(y) (cdfMean(y) - (1-fdr/n.group)),
+                                    lower = lowerchi, upper = upperchi)$root
+
+      for (i in 2:n.group) {
+        s <- rep(NA, n.group)
+        for (j in 1:n.group) {
+          # prevent division by 0
+          if ((n.subj - group.sizes[j]*(i-1) - 1) <= 0) {
+            for (k in i:n.group) { lambda.chi.mean[k] <- lambda.chi.mean[i-1] }
+            break
+          }
+
+          s[j] <- (n.subj - group.sizes[j]*(i-1)) / n.subj + 
+            (wt[j]^2 * sum(lambda.chi.mean[1:(i-1)]^2)) / (n.subj - group.sizes[j]*(i-1) - 1)
+          s[j] <- sqrt(s[j])
+        }
+
+        cdfMean <- function(x) {
+          pchi.seq <- rep(NA, n.group)
+          for (j in 1:n.group) {
+            # Procedure 2 in Brzyski et. al. (2015) has a typo at this point
+            pchi.seq[j] <- pchisq((wt[j]/s[j] * x)^2, df=group.sizes[j])
+          }
+          return(mean(pchi.seq))
+        }
+
+        # TODO: change lower to something better
+        cdfMean.inv <- uniroot(function(y) (cdfMean(y) - (1-fdr*i/n.group)),
+                               lower = 0, upper = upperchi)$root
+
+        if (cdfMean.inv <= lambda.chi.mean[i-1]) {
+          lambda.chi.mean[i] <- cdfMean.inv 
+        } else {
+          for (j in i:n.group) { lambda.chi.mean[j] <- lambda.chi.mean[i-1] }
+          break
+        }
+      }
+
+      return(lambda.chi.mean)
     } else if (method=="chiMC") {
       # TODO
       print("TODO!")
