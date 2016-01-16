@@ -1,0 +1,169 @@
+# method of Theorem 1.1 in Bogdan et. al. (2015)
+lambdaBH <- function(fdr, n.group) {
+  lambda.BH <- rep(NA,n.group)
+  for (i in 1:n.group){
+    lambda.BH[i] <- qnorm(1-(i*fdr)/(2*n.group))
+  }
+
+  return(lambda.BH)
+}
+
+# method of Section 3.2.2 in Bogdan et. al. (2015)
+lambdaGaussian <- function(fdr, n.group, n.obs, lambda.BH) {
+  omegafun <- function(k) { return(1/(n.obs-k-1)) }
+
+  lambda.G <- rep(NA,n.group)
+  lambda.G[1] <- lambda.BH[1]
+  for (i in 2:min(n.group, n.obs-2)) {
+    lambda.G[i] <- lambda.BH[i] * sqrt( 1 + omegafun(i-1) * sum(lambda.G[1:(i-1)]^2) )
+  }
+
+  lambda.G.min <- min(lambda.G, na.rm=TRUE)
+  min.ind <- which(lambda.G==lambda.G.min)
+  lambda.G[min.ind:n.group] <- lambda.G.min
+
+  return(lambda.G)
+}
+
+# method introduced in Gossmann et. al. (2015)
+lambdaGaussianMC <- function(fdr, n.group, group.id, lambda.BH, A, n.MC, MC.reps) {
+  mA <- matrix(NA, nrow(A), n.group)
+  for (i in 1:n.group) {
+    mA[ , i] <- apply(A[ , group.id[[i]] ], 1, mean)
+    mA[ , i] <- mA[ , i] / sqrt(sum(mA[ , i]^2))
+  }
+
+  # Monte Carlo corrections for lambda.BH
+  lambda.MC <- grpSLOPE::lambdaMC(lambda.BH, mA, n.MC, MC.reps)
+  lambda.MC <- c(lambda.MC, rep(lambda.MC[n.MC], n.group-n.MC))
+
+  return(lambda.MC)
+}
+
+# lambdas of Theorem 2.5 and equation (2.14) in Brzyski et. al. (2015)
+lambdaChiOrtho <- function(fdr, n.group, group.sizes, wt, method) {
+  lambda.max <- rep(NA, n.group)
+  lambda.min <- rep(NA, n.group)
+
+  for (i in 1:n.group) {
+    qchi.seq <- rep(NA, n.group)
+    for (j in 1:n.group) {
+      qchi.seq[j] <- sqrt(qchisq(1 - fdr*i/n.group, df=group.sizes[j])) / wt[j]
+    }
+    lambda.max[i] <- max(qchi.seq)
+    lambda.min[i] <- min(qchi.seq)
+  }
+
+  # stop here if method is "chiOrthoMax"
+  if (method=="chiOrthoMax") return(lambda.max)
+
+  cdfMean <- function(x) {
+    pchi.seq <- rep(NA, n.group)
+    for (i in 1:n.group) {
+      pchi.seq[i] <- pchisq((wt[i]*x)^2, df=group.sizes[i])
+    }
+    return(mean(pchi.seq))
+  }
+
+  lambda.mean <- rep(NA, n.group)
+  for (k in 1:n.group) {
+    if (lambda.min[k] == lambda.max[k]) {
+      lambda.mean[k] <- lambda.max[k]
+    } else {
+      # compute inverse of cdfMean at 1-fdr*k/n.group
+      cdfMean.inv <- uniroot(function(y) (cdfMean(y) - (1-fdr*k/n.group)),
+                             lower = lambda.min[k], upper = lambda.max[k])
+      lambda.mean[k] <- cdfMean.inv$root
+    }
+  }
+
+  return(lambda.mean)
+}
+
+# Procedure 1 in Brzyski et. al. (2015)
+lambdaChiEqual <- function(fdr, n.obs, n.group, m, w) {
+  lambda.chi    <- rep(NA, n.group)
+  lambda.chi[1] <- sqrt(qchisq(1 - fdr / n.group, df=m)) / w
+  # make sure that the denominator in s is non-zero
+  imax <- floor((n.obs - 1) / m + 1)
+  imax <- min(n.group, imax)
+  for (i in 2:imax) {
+    s <- (n.obs - m*(i-1)) / n.obs + (w^2 * sum(lambda.chi[1:(i-1)]^2)) / (n.obs - m*(i-1) - 1)
+    s <- sqrt(s)
+    lambda.tmp <- (s/w) * sqrt(qchisq(1 - fdr * i / n.group, df=m))
+    if (lambda.tmp <= lambda.chi[i-1]) {
+      lambda.chi[i] <- lambda.tmp
+    } else {
+      for (j in i:imax) { lambda.chi[j] <- lambda.chi[i-1] }
+      break
+    }
+  }
+  lambda.chi[imax:n.group] <- lambda.chi[imax]
+
+  return(lambda.chi)
+}
+
+# Procedure 2 in Brzyski et. al. (2015)
+lambdaChiMean <- function(fdr, n.obs, n.group, group.sizes, wt) {
+  lambda.chi.mean <- rep(NA, n.group)
+
+  cdfMean <- function(x) {
+    pchi.seq <- rep(NA, n.group)
+    for (i in 1:n.group) {
+      pchi.seq[i] <- pchisq((wt[i]*x)^2, df=group.sizes[i])
+    }
+    return(mean(pchi.seq))
+  }
+
+  # get upper and lower bounds for lambda.chi.mean[1]
+  qchi.seq <- rep(NA, n.group)
+  for (j in 1:n.group) {
+    qchi.seq[j] <- sqrt(qchisq(1 - fdr/n.group, df=group.sizes[j])) / wt[j]
+  }
+  upperchi <- max(qchi.seq)
+  lowerchi <- min(qchi.seq)
+
+  if (upperchi == lowerchi) {
+    lambda.chi.mean[1] <- upperchi
+  } else {
+    lambda.chi.mean[1] <- uniroot(function(y) (cdfMean(y) - (1-fdr/n.group)),
+                                  lower = lowerchi, upper = upperchi)$root
+  }
+
+  # get lambda.chi.mean[2:n.group]
+  for (i in 2:n.group) {
+    s <- rep(NA, n.group)
+    for (j in 1:n.group) {
+      # prevent division by 0
+      if ((n.obs - group.sizes[j]*(i-1) - 1) <= 0) {
+        for (k in i:n.group) { lambda.chi.mean[k] <- lambda.chi.mean[i-1] }
+        break
+      }
+
+      s[j] <- (n.obs - group.sizes[j]*(i-1)) / n.obs + 
+        (wt[j]^2 * sum(lambda.chi.mean[1:(i-1)]^2)) / (n.obs - group.sizes[j]*(i-1) - 1)
+      s[j] <- sqrt(s[j])
+    }
+
+    cdfMean <- function(x) {
+      pchi.seq <- rep(NA, n.group)
+      for (j in 1:n.group) {
+        # Procedure 2 in Brzyski et. al. (2015) has a typo at this point
+        pchi.seq[j] <- pchisq((wt[j]/s[j] * x)^2, df=group.sizes[j])
+      }
+      return(mean(pchi.seq))
+    }
+
+    cdfMean.inv <- uniroot(function(y) (cdfMean(y) - (1-fdr*i/n.group)),
+                           lower = 0, upper = upperchi)$root
+
+    if (cdfMean.inv <= lambda.chi.mean[i-1]) {
+      lambda.chi.mean[i] <- cdfMean.inv 
+    } else {
+      for (j in i:n.group) { lambda.chi.mean[j] <- lambda.chi.mean[i-1] }
+      break
+    }
+  }
+
+  return(lambda.chi.mean)
+}

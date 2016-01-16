@@ -323,26 +323,28 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 #' Generate the regularizing sequence \code{lambda} for the Group SLOPE
 #' problem according to one of multiple methods.
 #'
-#' Multiple methods are available to generate the regularizing sequence \code{lambda}.
-#' "BH" denotes the method of Theorem 1.1 in Bogdan et. al. (2015),
-#' "gaussian" denotes the method of Section 3.2.2 in Bogdan et. al. (2015),
-#' "gaussianMC" denotes the method introduced in Gossmann et. al. (2015),
-#' "basic" denotes the lambdas of Theorem 2.5 in Brzyski et. al. (2015),
-#' "mean" uses the lambdas of equation (2.14) in Brzyski et. al. (2015),
-#' "chi" uses Procedure 1 in Brzyski et. al. (2015),
-#' "chi_mean" uses Procedure 2 in Brzyski et. al. (2015),
-#' "chiMC" denotes a Monte Carlo lambda selection method based on equation 2.25
-#' in Brzyski et. al. (2015).
+#' Multiple methods are available to generate the regularizing sequence \code{lambda}:
+#' \itemize{
+#'   \item "BH" -- method of Theorem 1.1 in Bogdan et. al. (2015)
+#'   \item "gaussian" -- method of Section 3.2.2 in Bogdan et. al. (2015)
+#'   \item "gaussianMC" -- method introduced in Gossmann et. al. (2015)
+#'   \item "chiOrthoMax" -- lambdas as in Theorem 2.5 in Brzyski et. al. (2015)
+#'   \item "chiOrthoMean" -- lambdas of equation (2.14) in Brzyski et. al. (2015)
+#'   \item "chiEqual" -- Procedure 1 in Brzyski et. al. (2015)
+#'   \item "chiMean" -- Procedure 2 in Brzyski et. al. (2015)
+#'   \item "chiMC" -- a Monte Carlo lambda selection method based on equation (2.25)
+#'            in Brzyski et. al. (2015)
+#' }
 #'
 #' @param fdr Target false discovery rate
 #' @param n.groups Number of groups
 #' @param group A vector describing the grouping structure. It should 
 #'    contain a group id for each predictor variable.
 #' @param A The model matrix
-#' @param wt A vector of weights
-#' @param n.subj Number of rows in A (i.e. number of subjects)
+#' @param wt A named vector of weights (named according to names as in vector \code{group})
+#' @param n.obs Number of observations (i.e., number of rows in \code{A})
 #' @param method Possible values are "BH", "gaussian", "gaussianMC",
-#'    "basic", "mean",  "chi", "chi_mean", "chiMC". See details.
+#'    "chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC". See under Details.
 #' @param n.MC The corrections of the entries of lambda will be 
 #'    computed up to the index given by \code{n.MC} only. \code{n.MC} should be
 #'    less than or equal to \code{n.group}.
@@ -354,7 +356,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 #'
 #' @export
 lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
-                             A=NULL, wt=NULL, n.subj=NULL, method="gaussian",
+                             A=NULL, wt=NULL, n.obs=NULL, method,
                              n.MC=n.group, MC.reps=5000)
 {
   # Prepare grouping information
@@ -369,191 +371,61 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
   }
 
   if (method %in% c("BH", "gaussian", "gaussianMC")) {
-    lambda.BH <- rep(NA,n.group)
-    for (i in 1:n.group){
-      lambda.BH[i] <- qnorm(1-(i*fdr)/(2*n.group))
-    }
+    lambda.BH <- grpSLOPE::lambdaBH(fdr=fdr, n.group=n.group)
 
     if (method=="BH") {
       return(lambda.BH)
+
     } else if (method=="gaussian") {
-      if (is.null(A) && is.null(n.subj)) {
-        stop("Either A or n.subj needs to be passed as an argument when method is gaussian.")
+      if (is.null(A) && is.null(n.obs)) {
+        stop("Either A or n.obs needs to be passed as an argument when method is 'gaussian'.")
       }
-      if (is.null(n.subj)) n.subj <- nrow(A)
+      if (is.null(n.obs)) n.obs <- nrow(A)
 
-      omegafun <- function(k) { return(1/(n.subj-k-1)) }
+      return(lambdaGaussian(fdr=fdr, n.group=n.group, n.obs=n.obs, lambda.BH=lambda.BH))
 
-      lambda.G <- rep(NA,n.group)
-      lambda.G[1] <- lambda.BH[1]
-      for (i in 2:min(n.group, n.subj-2)) {
-        lambda.G[i] <- lambda.BH[i] * sqrt( 1 + omegafun(i-1) * sum(lambda.G[1:(i-1)]^2) )
-      }
-
-      lambda.G.min <- min(lambda.G, na.rm=TRUE)
-      min.ind <- which(lambda.G==lambda.G.min)
-      lambda.G[min.ind:n.group] <- lambda.G.min
-
-      return(lambda.G)
     } else if (method=="gaussianMC") {
       if (is.null(A) || is.null(group)) {
-        stop("A and group need to be passed as arguments when method is gaussianMC.")
+        stop("A and group need to be passed as arguments when method is 'gaussianMC'.")
       }
 
-      mA <- matrix(NA, nrow(A), n.group)
-      for (i in 1:n.group) {
-        mA[ , i] <- apply(A[ , group.id[[i]] ], 1, mean)
-        mA[ , i] <- mA[ , i] / sqrt(sum(mA[ , i]^2))
-      }
+      return(lambdaGaussianMC(fdr=fdr, n.group=n.group, group.id=group.id,
+                              lambda.BH=lambda.BH, A=A, n.MC=n.MC, MC.reps=MC.reps))
 
-      # Monte Carlo corrections for lambda.BH
-      lambda.MC <- lambdaMC(lambda.BH, mA, n.MC, MC.reps)
-      lambda.MC <- c(lambda.MC, rep(lambda.MC[n.MC], n.group-n.MC))
-
-      return(lambda.MC)
     }
-  } else if (method %in% c("basic", "mean", "chi", "chi_mean", "chiMC")) {
+  } else if (method %in% c("chiOrthoMax", "chiOrthoMean", "chiEqual", "chiMean", "chiMC")) {
     if (is.null(group) || is.null(wt)) {
-      stop("Arguments group and wt need to be provided when method is one of 'basic', 'mean', 'chi', 'chi_mean', 'chiMC'.")
+      stop("Arguments group and wt need to be provided when method is one of 'chiOrthoMax', 'chiOrthoMean', 'chiEqual', 'chiMean', 'chiMC'.")
     }
 
-    if (method=="basic" || method=="mean") {
-      lambda.max <- rep(NA, n.group)
-      lambda.min   <- rep(NA, n.group)
+    if (method=="chiOrthoMax" || method=="chiOrthoMean") {
+      return(lambdaChiOrtho(fdr=fdr, n.group=n.group, group.sizes=group.sizes, wt=wt, method=method))
 
-      for (i in 1:n.group) {
-        qchi.seq <- rep(NA, n.group)
-        for (j in 1:n.group) {
-          qchi.seq[j] <- sqrt(qchisq(1 - fdr*i/n.group, df=group.sizes[j])) / wt[j]
-        }
-        lambda.max[i] <- max(qchi.seq)
-        lambda.min[i] <- min(qchi.seq)
+    } else if (method=="chiEqual") {
+      if (is.null(A) && is.null(n.obs)) {
+        stop("Either A or n.obs needs to be passed as an argument when method is 'chiEqual'")
       }
-
-      # stop here if method is "basic"
-      if (method=="basic") return(lambda.max)
-
-      cdfMean <- function(x) {
-        pchi.seq <- rep(NA, n.group)
-        for (i in 1:n.group) {
-          pchi.seq[i] <- pchisq((wt[i]*x)^2, df=group.sizes[i])
-        }
-        return(mean(pchi.seq))
-      }
-
-      lambda.mean <- rep(NA, n.group)
-      for (k in 1:n.group) {
-        if (lambda.min[k] == lambda.max[k]) {
-          lambda.mean[k] <- lambda.max[k]
-        } else {
-          # compute inverse of cdfMean at 1-fdr*k/n.group
-          cdfMean.inv <- uniroot(function(y) (cdfMean(y) - (1-fdr*k/n.group)),
-                                 lower = lambda.min[k], upper = lambda.max[k])
-          lambda.mean[k] <- cdfMean.inv$root
-        }
-      }
-
-      return(lambda.mean)
-    } else if (method=="chi") {
-      if (is.null(A) && is.null(n.subj)) {
-        stop("Either A or n.subj needs to be passed as an argument when method is 'chi'")
-      }
-      if (is.null(n.subj)) n.subj <- nrow(A)
+      if (is.null(n.obs)) n.obs <- nrow(A)
 
       # Equal group sizes and weights
       if ( (length(unique(group.sizes))!=1) || (length(unique(wt))!=1) ) {
-        stop("Method 'chi' requires equal group sizes and equal weights.")
+        stop("Method 'chiEqual' requires equal group sizes and equal weights.")
       }
       m <- unique(group.sizes)
       w <- unique(wt)
 
-      lambda.chi    <- rep(NA, n.group)
-      lambda.chi[1] <- sqrt(qchisq(1 - fdr / n.group, df=m)) / w
-      # make sure that the denominator in s is non-zero
-      imax <- floor((n.subj - 1) / m + 1)
-      imax <- min(n.group, imax)
-      for (i in 2:imax) {
-        s <- (n.subj - m*(i-1)) / n.subj + (w^2 * sum(lambda.chi[1:(i-1)]^2)) / (n.subj - m*(i-1) - 1)
-        s <- sqrt(s)
-        lambda.tmp <- (s/w) * sqrt(qchisq(1 - fdr * i / n.group, df=m))
-        if (lambda.tmp <= lambda.chi[i-1]) {
-          lambda.chi[i] <- lambda.tmp
-        } else {
-          for (j in i:imax) { lambda.chi[j] <- lambda.chi[i-1] }
-          break
-        }
+      return(lambdaChiEqual(fdr=fdr, n.obs=n.obs, n.group=n.group, m=m, w=w))
+
+    } else if (method=="chiMean") {
+      if (is.null(A) && is.null(n.obs)) {
+        stop("Either A or n.obs needs to be passed as an argument when method is 'chiMean'")
       }
-      lambda.chi[imax:n.group] <- lambda.chi[imax]
+      if (is.null(n.obs)) n.obs <- nrow(A)
 
-      return(lambda.chi)
-    } else if (method=="chi_mean") {
-      if (is.null(A) && is.null(n.subj)) {
-        stop("Either A or n.subj needs to be passed as an argument when method is 'chi_mean'")
-      }
-      if (is.null(n.subj)) n.subj <- nrow(A)
+      return(lambdaChiMean(fdr=fdr, n.obs=n.obs, n.group=n.group, group.sizes=group.sizes, wt=wt))
 
-      lambda.chi.mean <- rep(NA, n.group)
-
-      cdfMean <- function(x) {
-        pchi.seq <- rep(NA, n.group)
-        for (i in 1:n.group) {
-          pchi.seq[i] <- pchisq((wt[i]*x)^2, df=group.sizes[i])
-        }
-        return(mean(pchi.seq))
-      }
-
-      qchi.seq <- rep(NA, n.group)
-      for (j in 1:n.group) {
-        qchi.seq[j] <- sqrt(qchisq(1 - fdr/n.group, df=group.sizes[j])) / wt[j]
-      }
-      upperchi <- max(qchi.seq)
-      lowerchi <- min(qchi.seq)
-
-      if (upperchi == lowerchi) {
-        lambda.chi.mean[1] <- upperchi
-      } else {
-        lambda.chi.mean[1] <- uniroot(function(y) (cdfMean(y) - (1-fdr/n.group)),
-                                      lower = lowerchi, upper = upperchi)$root
-      }
-
-      for (i in 2:n.group) {
-        s <- rep(NA, n.group)
-        for (j in 1:n.group) {
-          # prevent division by 0
-          if ((n.subj - group.sizes[j]*(i-1) - 1) <= 0) {
-            for (k in i:n.group) { lambda.chi.mean[k] <- lambda.chi.mean[i-1] }
-            break
-          }
-
-          s[j] <- (n.subj - group.sizes[j]*(i-1)) / n.subj + 
-            (wt[j]^2 * sum(lambda.chi.mean[1:(i-1)]^2)) / (n.subj - group.sizes[j]*(i-1) - 1)
-          s[j] <- sqrt(s[j])
-        }
-
-        cdfMean <- function(x) {
-          pchi.seq <- rep(NA, n.group)
-          for (j in 1:n.group) {
-            # Procedure 2 in Brzyski et. al. (2015) has a typo at this point
-            pchi.seq[j] <- pchisq((wt[j]/s[j] * x)^2, df=group.sizes[j])
-          }
-          return(mean(pchi.seq))
-        }
-
-        # TODO: change lower to something better
-        cdfMean.inv <- uniroot(function(y) (cdfMean(y) - (1-fdr*i/n.group)),
-                               lower = 0, upper = upperchi)$root
-
-        if (cdfMean.inv <= lambda.chi.mean[i-1]) {
-          lambda.chi.mean[i] <- cdfMean.inv 
-        } else {
-          for (j in i:n.group) { lambda.chi.mean[j] <- lambda.chi.mean[i-1] }
-          break
-        }
-      }
-
-      return(lambda.chi.mean)
     } else if (method=="chiMC") {
-      # TODO
+      # TODO: Implement this!
       print("TODO!")
     }
   } else {

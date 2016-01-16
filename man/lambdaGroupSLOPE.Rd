@@ -5,8 +5,7 @@
 \title{Regularizing sequence for Group SLOPE}
 \usage{
 lambdaGroupSLOPE(fdr = 0.1, n.group = NULL, group = NULL, A = NULL,
-  wt = NULL, n.subj = NULL, method = "gaussian", n.MC = n.group,
-  MC.reps = 5000)
+  wt = NULL, n.obs = NULL, method, n.MC = n.group, MC.reps = 5000)
 }
 \arguments{
 \item{fdr}{Target false discovery rate}
@@ -16,12 +15,12 @@ contain a group id for each predictor variable.}
 
 \item{A}{The model matrix}
 
-\item{wt}{A vector of weights}
+\item{wt}{A named vector of weights (named according to names as in vector \code{group})}
 
-\item{n.subj}{Number of rows in A (i.e. number of subjects)}
+\item{n.obs}{Number of observations (i.e., number of rows in \code{A})}
 
 \item{method}{Possible values are "BH", "gaussian", "gaussianMC",
-"basic", "mean",  "chi", "chi_mean", "chiMC". See details.}
+"chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC". See under Details.}
 
 \item{n.MC}{The corrections of the entries of lambda will be 
 computed up to the index given by \code{n.MC} only. \code{n.MC} should be
@@ -36,16 +35,18 @@ Generate the regularizing sequence \code{lambda} for the Group SLOPE
 problem according to one of multiple methods.
 }
 \details{
-Multiple methods are available to generate the regularizing sequence \code{lambda}.
-"BH" denotes the method of Theorem 1.1 in Bogdan et. al. (2015),
-"gaussian" denotes the method of Section 3.2.2 in Bogdan et. al. (2015),
-"gaussianMC" denotes the method introduced in Gossmann et. al. (2015),
-"basic" denotes the lambdas of Theorem 2.5 in Brzyski et. al. (2015),
-"mean" uses the lambdas of equation (2.14) in Brzyski et. al. (2015),
-"chi" uses Procedure 1 in Brzyski et. al. (2015),
-"chi_mean" uses Procedure 2 in Brzyski et. al. (2015),
-"chiMC" denotes a Monte Carlo lambda selection method based on equation 2.25
-in Brzyski et. al. (2015).
+Multiple methods are available to generate the regularizing sequence \code{lambda}:
+\itemize{
+  \item "BH" -- method of Theorem 1.1 in Bogdan et. al. (2015)
+  \item "gaussian" -- method of Section 3.2.2 in Bogdan et. al. (2015)
+  \item "gaussianMC" -- method introduced in Gossmann et. al. (2015)
+  \item "chiOrthoMax" -- lambdas as in Theorem 2.5 in Brzyski et. al. (2015)
+  \item "chiOrthoMean" -- lambdas of equation (2.14) in Brzyski et. al. (2015)
+  \item "chiEqual" -- Procedure 1 in Brzyski et. al. (2015)
+  \item "chiMean" -- Procedure 2 in Brzyski et. al. (2015)
+  \item "chiMC" -- a Monte Carlo lambda selection method based on equation (2.25)
+           in Brzyski et. al. (2015)
+}
 }
 \references{
 M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, Annals of Applied Statistics
