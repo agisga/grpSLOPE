@@ -15,7 +15,7 @@ contain a group id for each predictor variable.}
 
 \item{A}{The model matrix}
 
-\item{wt}{A named vector of weights (named according to names as in vector \code{group})}
+\item{wt}{A named vector of weights, one weight per group of predictors (named according to names as in vector \code{group})}
 
 \item{n.obs}{Number of observations (i.e., number of rows in \code{A})}
 

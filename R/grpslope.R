@@ -341,7 +341,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 #' @param group A vector describing the grouping structure. It should 
 #'    contain a group id for each predictor variable.
 #' @param A The model matrix
-#' @param wt A named vector of weights (named according to names as in vector \code{group})
+#' @param wt A named vector of weights, one weight per group of predictors (named according to names as in vector \code{group})
 #' @param n.obs Number of observations (i.e., number of rows in \code{A})
 #' @param method Possible values are "BH", "gaussian", "gaussianMC",
 #'    "chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC". See under Details.
@@ -371,10 +371,9 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
   }
 
   if (method %in% c("BH", "gaussian", "gaussianMC")) {
-    lambda.BH <- grpSLOPE::lambdaBH(fdr=fdr, n.group=n.group)
 
     if (method=="BH") {
-      return(lambda.BH)
+      return(grpSLOPE::lambdaBH(fdr=fdr, n.group=n.group))
 
     } else if (method=="gaussian") {
       if (is.null(A) && is.null(n.obs)) {
@@ -382,7 +381,7 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
       }
       if (is.null(n.obs)) n.obs <- nrow(A)
 
-      return(lambdaGaussian(fdr=fdr, n.group=n.group, n.obs=n.obs, lambda.BH=lambda.BH))
+      return(lambdaGaussian(fdr=fdr, n.group=n.group, n.obs=n.obs))
 
     } else if (method=="gaussianMC") {
       if (is.null(A) || is.null(group)) {
@@ -390,7 +389,7 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
       }
 
       return(lambdaGaussianMC(fdr=fdr, n.group=n.group, group.id=group.id,
-                              lambda.BH=lambda.BH, A=A, n.MC=n.MC, MC.reps=MC.reps))
+                              A=A, n.MC=n.MC, MC.reps=MC.reps))
 
     }
   } else if (method %in% c("chiOrthoMax", "chiOrthoMean", "chiEqual", "chiMean", "chiMC")) {

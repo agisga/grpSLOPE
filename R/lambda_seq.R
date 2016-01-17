@@ -9,7 +9,9 @@ lambdaBH <- function(fdr, n.group) {
 }
 
 # method of Section 3.2.2 in Bogdan et. al. (2015)
-lambdaGaussian <- function(fdr, n.group, n.obs, lambda.BH) {
+lambdaGaussian <- function(fdr, n.group, n.obs) {
+  lambda.BH <- grpSLOPE::lambdaBH(fdr=fdr, n.group=n.group)
+
   omegafun <- function(k) { return(1/(n.obs-k-1)) }
 
   lambda.G <- rep(NA,n.group)
@@ -26,7 +28,9 @@ lambdaGaussian <- function(fdr, n.group, n.obs, lambda.BH) {
 }
 
 # method introduced in Gossmann et. al. (2015)
-lambdaGaussianMC <- function(fdr, n.group, group.id, lambda.BH, A, n.MC, MC.reps) {
+lambdaGaussianMC <- function(fdr, n.group, group.id, A, n.MC, MC.reps) {
+  lambda.BH <- grpSLOPE::lambdaBH(fdr=fdr, n.group=n.group)
+
   mA <- matrix(NA, nrow(A), n.group)
   for (i in 1:n.group) {
     mA[ , i] <- apply(A[ , group.id[[i]] ], 1, mean)
