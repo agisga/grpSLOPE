@@ -350,6 +350,24 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 #'    less than or equal to \code{n.group}.
 #' @param MC.reps The number of repetitions of the Monte Carlo procedure
 #'
+#' @examples
+#' fdr     <- 0.1
+#' n.obs   <- 700
+#' n.group <- 90
+#' group   <- vector()
+#' for (i in 1:30) {
+#'   tmp <- rep((i-1)*3+c(1,2,3), c(5,10,20))
+#'   group <- c(group, tmp)
+#' }
+#' wt <- rep(c(sqrt(5), sqrt(10), sqrt(20)), 30)
+#' names(wt) <- names(getGroupID(group))
+#'
+#' lambda.BH <- lambdaGroupSLOPE(fdr=fdr, n.group=n.group, method="BH")
+#' lambda.G <- lambdaGroupSLOPE(fdr=fdr, n.group=n.group, n.obs=n.obs, method="gaussian")
+#' lambda.max <- lambdaGroupSLOPE(fdr=fdr, group=group, wt=wt, method="chiOrthoMax") 
+#' lambda.mean <- lambdaGroupSLOPE(fdr=fdr, group=group, wt=wt, method="chiOrthoMean") 
+#' lambda.chi <- lambdaGroupSLOPE(fdr=fdr, n.obs=n.obs, group=group, wt=wt, method="chiMean")
+#'
 #' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, Annals of Applied Statistics
 #' @references A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
 #' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE — adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
