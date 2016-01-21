@@ -20,6 +20,21 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// lambdaChiMCAdjustment
+double lambdaChiMCAdjustment(const Eigen::Map<Eigen::VectorXd>& y, const Eigen::Map<Eigen::MatrixXd>& X, const Rcpp::List group_id, const Eigen::Map<Eigen::VectorXd>& lambda, int number_of_drawings);
+RcppExport SEXP grpSLOPE_lambdaChiMCAdjustment(SEXP ySEXP, SEXP XSEXP, SEXP group_idSEXP, SEXP lambdaSEXP, SEXP number_of_drawingsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::List >::type group_id(group_idSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< int >::type number_of_drawings(number_of_drawingsSEXP);
+    __result = Rcpp::wrap(lambdaChiMCAdjustment(y, X, group_id, lambda, number_of_drawings));
+    return __result;
+END_RCPP
+}
 // proxSortedL1Rcpp
 Eigen::VectorXd proxSortedL1Rcpp(const Eigen::Map<Eigen::VectorXd>& y, const Eigen::Map<Eigen::VectorXd>& lambda);
 RcppExport SEXP grpSLOPE_proxSortedL1Rcpp(SEXP ySEXP, SEXP lambdaSEXP) {

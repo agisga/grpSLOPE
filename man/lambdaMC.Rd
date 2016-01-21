@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{lambdaMC}
 \alias{lambdaMC}
-\title{Monte Carlo based adjustment of the tuning parameters}
+\title{Monte Carlo based adjustment of the SLOPE tuning parameters}
 \usage{
 lambdaMC(lambda_BH, X, lambda_length, number_of_drawings = 5000L)
 }
