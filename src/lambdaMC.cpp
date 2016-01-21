@@ -170,10 +170,15 @@ double lambdaChiMCAdjustment(const Eigen::Map<Eigen::VectorXd>& y,
     // number of groups
     int p(group_id.size());
     // Array of vectors of indices of group membership
+Rcpp::Rcout << "start" << std::endl;
     NumericVector groups[p];
     for (int i=0; i < p; i++)
     {
         groups[i] = group_id[i];
+        // adjust for 0-based indexing
+        for (int j=0; j < groups[i].length(); j++) { groups[i][j] = groups[i][j] - 1; }
+Rcpp::Rcout << i << "th group" << std::endl;
+Rcpp::Rcout << groups[i] << std::endl;
     }
 
     // number of known enries of lambda
@@ -189,11 +194,16 @@ double lambdaChiMCAdjustment(const Eigen::Map<Eigen::VectorXd>& y,
 
 
     // Monte Carlo loop
-    double variance_estimate;
+    double variance_estimate = 0.0;
     for (int i=0; i<number_of_drawings; i++)
     {
         // Randomly select s indices (s groups of columns of matrix X)
         std::random_shuffle(indices.begin(), indices.end());
+Rcpp::Rcout << "indices" << std::endl;
+for (int j=0; j<p; j++)
+{
+   Rcpp::Rcout << indices[j] << std::endl;
+}
 
         // Create matrix Xs filled with the selected columns
         int ncol_Xs = 0;
@@ -201,18 +211,22 @@ double lambdaChiMCAdjustment(const Eigen::Map<Eigen::VectorXd>& y,
         {
             ncol_Xs += groups[indices[j]].length();
         }
+Rcpp::Rcout << "# cols in Xs" << std::endl;
+Rcpp::Rcout << ncol_Xs << std::endl;
 
         Eigen::MatrixXd Xs(X.rows(),ncol_Xs);
 
         int colcount = 0;
         for (int j=0; j<s; j++)
         {
-            for (int k=0; k < groups[j].length(); k++)
+            for (int k=0; k < groups[indices[j]].length(); k++)
             {
                 Xs.col(colcount) = X.col( groups[indices[j]][k] );
                 colcount++;
             }
         }
+Rcpp::Rcout << "Xs" << std::endl;
+Rcpp::Rcout << Xs << std::endl;
 
         //Xi is a group of columns of X not in Xs
         int ncol_Xi = groups[indices[s]].length();
@@ -221,24 +235,43 @@ double lambdaChiMCAdjustment(const Eigen::Map<Eigen::VectorXd>& y,
         {
            Xi.col(j) = X.col( groups[indices[s]][j] ); 
         }
+Rcpp::Rcout << "Xi" << std::endl;
+Rcpp::Rcout << Xi << std::endl;
        
         // Compute least squares solution on Xs
         Eigen::VectorXd beta(ncol_Xs);
         beta = (Xs.transpose() * Xs).ldlt().solve(Xs.transpose() * y);
+Rcpp::Rcout << "beta" << std::endl;
+Rcpp::Rcout << beta << std::endl;
 
         Eigen::VectorXd beta_norms(s);
+        int start_ind = 0;
+        int end_ind = 0;
         for (int j=0; j<s; j++)
         {
-            beta_norms(j) = beta.segment( groups[j-1].length(), (groups[j].length() - 1) ).norm();
+            end_ind = start_ind + (groups[indices[j]].length() - 1);
+            beta_norms(j) = beta.segment(start_ind, end_ind).norm();
+            start_ind = end_ind + 1;
         }
+Rcpp::Rcout << "end_ind" << std::endl;
+Rcpp::Rcout << end_ind << std::endl;
+Rcpp::Rcout << "beta norms" << std::endl;
+Rcpp::Rcout << beta_norms << std::endl;
 
         // Compute H
         Eigen::VectorXd H(ncol_Xs);
+        start_ind = 0;
+        end_ind = 0;
         for (int j=0; j<s; j++)
         {
-            H.segment( groups[j-1].length(), (groups[j].length() - 1) ) =
-                    lambda(j) / beta_norms(j) * beta.segment( groups[j-1].length(), (groups[j].length() - 1) );
+            end_ind = start_ind + (groups[indices[j]].length() - 1);
+            H.segment(start_ind, end_ind) = lambda(j) / beta_norms(j) * beta.segment(start_ind, end_ind);
+            start_ind = end_ind + 1;
         }
+Rcpp::Rcout << "end_ind" << std::endl;
+Rcpp::Rcout << end_ind << std::endl;
+Rcpp::Rcout << "H" << std::endl;
+Rcpp::Rcout << H << std::endl;
 
         // Update the sum.
         // TODO: implement!
