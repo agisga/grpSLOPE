@@ -247,14 +247,19 @@ Rcpp::Rcout << beta << std::endl;
         Eigen::VectorXd beta_norms(s);
         int start_ind = 0;
         int end_ind = 0;
+        int group_length = 0;
         for (int j=0; j<s; j++)
         {
+            group_length = groups[indices[j]].length();
             end_ind = start_ind + (groups[indices[j]].length() - 1);
-            beta_norms(j) = beta.segment(start_ind, end_ind).norm();
-            start_ind = end_ind + 1;
-        }
+Rcpp::Rcout << "start_ind" << std::endl;
+Rcpp::Rcout << start_ind << std::endl;
 Rcpp::Rcout << "end_ind" << std::endl;
 Rcpp::Rcout << end_ind << std::endl;
+Rcpp::Rcout << beta.segment(start_ind, group_length) << std::endl;
+            beta_norms(j) = beta.segment(start_ind, group_length).norm();
+            start_ind = end_ind + 1;
+        }
 Rcpp::Rcout << "beta norms" << std::endl;
 Rcpp::Rcout << beta_norms << std::endl;
 
@@ -262,10 +267,12 @@ Rcpp::Rcout << beta_norms << std::endl;
         Eigen::VectorXd H(ncol_Xs);
         start_ind = 0;
         end_ind = 0;
+        group_length = 0;
         for (int j=0; j<s; j++)
         {
+            group_length = groups[indices[j]].length();
             end_ind = start_ind + (groups[indices[j]].length() - 1);
-            H.segment(start_ind, end_ind) = lambda(j) / beta_norms(j) * beta.segment(start_ind, end_ind);
+            H.segment(start_ind, group_length) = lambda(j) / beta_norms(j) * beta.segment(start_ind, group_length);
             start_ind = end_ind + 1;
         }
 Rcpp::Rcout << "end_ind" << std::endl;
