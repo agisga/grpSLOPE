@@ -309,10 +309,6 @@ double lambdaChiMCAdjustment(const Eigen::Map<Eigen::VectorXd>& y,
         Eigen::VectorXd zvec(nXs);
         for (int j=0; j<nXs; j++) { zvec(j) = R::rnorm(0.0,1.0); }
         Eigen::VectorXd v2 = Xi.transpose() * tmp_mat3 * zvec;
-        //MC_sum += v.squaredNorm();
-        // TODO: There is a second factor that should be added to MC_sum (see proof of Theorem 2.8)
-        // This is a test. The second term used here is from Lemma 2.9:
-        //MC_sum += (v.squaredNorm() + (double)(v.size()) * ((double)(Xi.rows()) - (double)(v.size()) * (double)(s)) / (double)(Xi.rows()));
         
         MC_sum += v1.squaredNorm();
         MC_sum += v2.squaredNorm();

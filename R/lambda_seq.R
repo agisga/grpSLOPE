@@ -148,7 +148,6 @@ lambdaChiMean <- function(fdr, n.obs, n.group, group.sizes, wt) {
         (wt[j]^2 * sum(lambda.chi.mean[1:(i-1)]^2)) / (n.obs - group.sizes[j]*(i-1) - 1)
       s[j] <- sqrt(s[j])
     }
-print(s)
 
     cdfMean <- function(x) {
       pchi.seq <- rep(NA, n.group)
@@ -205,7 +204,6 @@ lambdaChiMC <- function(fdr, X, y, group.id, wt, n.MC, MC.reps) {
   for (i in 2:n.MC) {
     s <- lambdaChiMCAdjustment(y=y, X=X, group_id=group.id, lambda=lambda.MC,
                                w=wt, number_of_drawings=MC.reps)
-print(s)
 
     cdfMean <- function(x) {
       pchi.seq <- rep(NA, n.group)
