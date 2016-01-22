@@ -47,8 +47,9 @@ Multiple methods are available to generate the regularizing sequence \code{lambd
   \item "chiOrthoMean" -- lambdas of equation (2.14) in Brzyski et. al. (2015)
   \item "chiEqual" -- Procedure 1 in Brzyski et. al. (2015)
   \item "chiMean" -- Procedure 2 in Brzyski et. al. (2015)
-  \item "chiMC" -- a Monte Carlo lambda selection method based on equation (2.25)
-           in Brzyski et. al. (2015)
+  \item "chiMC" -- (experimental) A Monte Carlo lambda selection method based on equation (2.25)
+           in Brzyski et. al. (2015). Requires that rank(\code{A}) is greater than
+           the sum of the number of elements in any \code{n.MC} groups. 
 }
 }
 \examples{

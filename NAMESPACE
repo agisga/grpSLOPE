@@ -2,7 +2,6 @@
 
 export(getGroupID)
 export(lambdaGroupSLOPE)
-export(lambdaMC)
 export(proxGroupSortedL1)
 export(proxSortedL1)
 export(proximalGradientSolverGroupSLOPE)
