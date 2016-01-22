@@ -4,7 +4,7 @@
 \alias{lambdaChiMCAdjustment}
 \title{Monte Carlo based Group SLOPE tuning parameter correction}
 \usage{
-lambdaChiMCAdjustment(y, X, group_id, lambda, number_of_drawings = 5000L)
+lambdaChiMCAdjustment(y, X, group_id, lambda, w, number_of_drawings = 5000L)
 }
 \arguments{
 \item{y}{The response vector}
@@ -15,6 +15,8 @@ lambdaChiMCAdjustment(y, X, group_id, lambda, number_of_drawings = 5000L)
 
 \item{lambda}{A vector containing the first s entries of lambda}
 
+\item{w}{A vector of weights per group}
+
 \item{number_of_drawings}{The number of iterations in the Monte Carlo procedure}
 }
 \description{
@@ -23,7 +25,8 @@ lambdaChiMCAdjustment(y, X, group_id, lambda, number_of_drawings = 5000L)
 }
 \details{
 The adjustment is computed for the (s+1)st coefficient of lambda, assuming 
-that the first s coefficients are known. Needs s <= rank(X).
+that the first s coefficients are known. It is required that rank(X) is greater than the 
+sum of elements of any s groups.
 }
 \references{
 D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE — adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}

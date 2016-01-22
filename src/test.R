@@ -1,3 +1,5 @@
+rm(list=ls())
+
 library(Rcpp)
 library(RcppEigen)
 
@@ -12,7 +14,8 @@ for (i in 1:4) {
 X <- X + matrix(rnorm(500, sd=1/25), 25, 20)
 beta <- as.double(20:1)
 y <- X %*% beta + rnorm(25)
-lambda <- c(2.2,1.1)
+lambda <- c(2.2,1.1, 0.5)
+w <- sqrt(sapply(grp.id, length))
 
 sourceCpp("lambdaMC.cpp")
-lambdaChiMCAdjustment(y=y, X=X, group_id=grp.id, lambda=lambda, number_of_drawings=2)
+lambdaChiMCAdjustment(y=y, X=X, group_id=grp.id, lambda=lambda, w=w, number_of_drawings=300)

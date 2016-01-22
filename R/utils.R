@@ -1,6 +1,6 @@
 #' Get a groupID object
 #'
-#' Intended for internal use only.
+#' Mostly intended for internal use.
 #'
 #' @param group A vector describing the grouping structure. It should 
 #'    contain a group id for each predictor variable.
@@ -9,6 +9,7 @@
 #'    vectors of indices corresponding to each group. The names of
 #'    the list members are the corresponding group names.
 #'
+#' @export
 getGroupID <- function(group) {
   group.unique <- unique(group)
   n.group <- length(group.unique)

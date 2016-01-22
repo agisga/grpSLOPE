@@ -2,13 +2,39 @@
 #include <cmath>
 #include <Rcpp.h>
 #include <RcppEigen.h>
-#include <algorithm>    // std::random_shuffle
+#include <algorithm>    // std::random_shuffle, sort
+#include <utility>      // std::pair
 #include <vector>       // std::vector
 #include <ctime>        // std::time
 #include <cstdlib>      // std::rand, std::srand
 
 using namespace Eigen;
 using namespace Rcpp;
+
+typedef std::pair<double,int> value_index_pair;
+
+bool comparator(const value_index_pair& l, const value_index_pair& r)
+{
+    return l.first > r.first; 
+}
+
+void order(VectorXd& x, VectorXi& ind_order)
+{
+    int n(x.size());
+    std::vector<value_index_pair> xvec(n);
+    value_index_pair p;
+    for(int i=0; i<n; i++)
+    {
+        p = std::make_pair(x(i),i);
+        xvec[i] = p;
+    }
+    sort(xvec.begin(), xvec.end(), comparator);
+    for(int j=0; j<n; j++)
+    {
+        x(j) = xvec[j].first;
+        ind_order(j) = xvec[j].second;
+    }
+}
 
 double correctViaMCGaussian(const MatrixXd& X, const VectorXd& lambda,
         int s, int number_of_drawings = 5000)
@@ -151,12 +177,14 @@ Eigen::VectorXd lambdaMC(const Eigen::Map<Eigen::VectorXd>& lambda_BH,
 //'    via Monte Carlo, in order to adjust the lambda sequence for correlations in the  data.
 //'
 //' The adjustment is computed for the (s+1)st coefficient of lambda, assuming 
-//' that the first s coefficients are known. Needs s <= rank(X).
+//' that the first s coefficients are known. It is required that rank(X) is greater than the 
+//' sum of elements of any s groups. 
 //'
 //' @param y The response vector 
 //' @param X The model matrix
 //' @param group_id A list obtained from \code{\link{getGroupID}}
 //' @param lambda A vector containing the first s entries of lambda
+//' @param w A vector of weights per group
 //' @param number_of_drawings The number of iterations in the Monte Carlo procedure
 //'
 //' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE — adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
@@ -165,20 +193,18 @@ Eigen::VectorXd lambdaMC(const Eigen::Map<Eigen::VectorXd>& lambda_BH,
 // [[Rcpp::export]]
 double lambdaChiMCAdjustment(const Eigen::Map<Eigen::VectorXd>& y,
         const Eigen::Map<Eigen::MatrixXd>& X, const Rcpp::List group_id,
-        const Eigen::Map<Eigen::VectorXd>& lambda, int number_of_drawings=5000)
+        const Eigen::Map<Eigen::VectorXd>& lambda, const Eigen::Map<Eigen::VectorXd>& w,
+        int number_of_drawings=5000)
 {
     // number of groups
     int p(group_id.size());
     // Array of vectors of indices of group membership
-Rcpp::Rcout << "start" << std::endl;
     NumericVector groups[p];
     for (int i=0; i < p; i++)
     {
         groups[i] = group_id[i];
         // adjust for 0-based indexing
         for (int j=0; j < groups[i].length(); j++) { groups[i][j] = groups[i][j] - 1; }
-Rcpp::Rcout << i << "th group" << std::endl;
-Rcpp::Rcout << groups[i] << std::endl;
     }
 
     // number of known enries of lambda
@@ -194,16 +220,13 @@ Rcpp::Rcout << groups[i] << std::endl;
 
 
     // Monte Carlo loop
-    double variance_estimate = 0.0;
+    int total_summands = 0;
+    double MC_sum = 0.0;
+    double wi;
     for (int i=0; i<number_of_drawings; i++)
     {
         // Randomly select s indices (s groups of columns of matrix X)
         std::random_shuffle(indices.begin(), indices.end());
-Rcpp::Rcout << "indices" << std::endl;
-for (int j=0; j<p; j++)
-{
-   Rcpp::Rcout << indices[j] << std::endl;
-}
 
         // Create matrix Xs filled with the selected columns
         int ncol_Xs = 0;
@@ -211,8 +234,6 @@ for (int j=0; j<p; j++)
         {
             ncol_Xs += groups[indices[j]].length();
         }
-Rcpp::Rcout << "# cols in Xs" << std::endl;
-Rcpp::Rcout << ncol_Xs << std::endl;
 
         Eigen::MatrixXd Xs(X.rows(),ncol_Xs);
 
@@ -225,8 +246,6 @@ Rcpp::Rcout << ncol_Xs << std::endl;
                 colcount++;
             }
         }
-Rcpp::Rcout << "Xs" << std::endl;
-Rcpp::Rcout << Xs << std::endl;
 
         //Xi is a group of columns of X not in Xs
         int ncol_Xi = groups[indices[s]].length();
@@ -235,54 +254,57 @@ Rcpp::Rcout << Xs << std::endl;
         {
            Xi.col(j) = X.col( groups[indices[s]][j] ); 
         }
-Rcpp::Rcout << "Xi" << std::endl;
-Rcpp::Rcout << Xi << std::endl;
+
+        wi = w(indices[s]);
        
         // Compute least squares solution on Xs
         Eigen::VectorXd beta(ncol_Xs);
         beta = (Xs.transpose() * Xs).ldlt().solve(Xs.transpose() * y);
-Rcpp::Rcout << "beta" << std::endl;
-Rcpp::Rcout << beta << std::endl;
 
         Eigen::VectorXd beta_norms(s);
         int start_ind = 0;
-        int end_ind = 0;
         int group_length = 0;
         for (int j=0; j<s; j++)
         {
             group_length = groups[indices[j]].length();
-            end_ind = start_ind + (groups[indices[j]].length() - 1);
-Rcpp::Rcout << "start_ind" << std::endl;
-Rcpp::Rcout << start_ind << std::endl;
-Rcpp::Rcout << "end_ind" << std::endl;
-Rcpp::Rcout << end_ind << std::endl;
-Rcpp::Rcout << beta.segment(start_ind, group_length) << std::endl;
             beta_norms(j) = beta.segment(start_ind, group_length).norm();
-            start_ind = end_ind + 1;
+            start_ind += group_length;
         }
-Rcpp::Rcout << "beta norms" << std::endl;
-Rcpp::Rcout << beta_norms << std::endl;
 
+        // Sort the beta_norms in decreasing order, and save permutation
+        VectorXi id_order(s);
+        order(beta_norms, id_order);
+       
         // Compute H
         Eigen::VectorXd H(ncol_Xs);
         start_ind = 0;
-        end_ind = 0;
+        int beta_start_ind = 0;
+        int rank_j;
         group_length = 0;
         for (int j=0; j<s; j++)
         {
-            group_length = groups[indices[j]].length();
-            end_ind = start_ind + (groups[indices[j]].length() - 1);
-            H.segment(start_ind, group_length) = lambda(j) / beta_norms(j) * beta.segment(start_ind, group_length);
-            start_ind = end_ind + 1;
+            rank_j = id_order(j);
+            group_length = groups[indices[rank_j]].length();
+            beta_start_ind = 0;
+            for (int k=0; k<rank_j; k++) { beta_start_ind += groups[indices[k]].length(); }
+            H.segment(start_ind, group_length) = lambda(j) / beta_norms(j) * beta.segment(beta_start_ind, group_length);
+            start_ind += group_length;
         }
-Rcpp::Rcout << "end_ind" << std::endl;
-Rcpp::Rcout << end_ind << std::endl;
-Rcpp::Rcout << "H" << std::endl;
-Rcpp::Rcout << H << std::endl;
 
         // Update the sum.
-        // TODO: implement!
+        // Need to compute:
+        // (Xi.transpose() * Xs * (Xs.transpose() * Xs).inverse() * wi * H).squaredNorm().
+        Eigen::MatrixXd LinSys = Xs.transpose() * Xs;
+        Eigen::MatrixXd RHS = Xs.transpose() * Xi;
+        Eigen::MatrixXd tmp_mat = LinSys.ldlt().solve(RHS);
+        Eigen::VectorXd v = wi * tmp_mat.transpose() * H;
+        //MC_sum += v.squaredNorm();
+        // TODO: There is a second factor that should be added to MC_sum (see proof of Theorem 2.8)
+        // This is a test. The second term used here is from Lemma 2.9:
+        MC_sum += (v.squaredNorm() + (double)(v.size()) * ((double)(Xi.rows()) - (double)(v.size()) * (double)(s)) / (double)(Xi.rows()));
+        total_summands += v.size();
     }
 
-    return variance_estimate;
+    double MC_correction = sqrt(MC_sum / ((double)(total_summands)));
+    return MC_correction;
 }

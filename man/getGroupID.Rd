@@ -16,6 +16,6 @@ An object of class groupID, which is a list, whose members are
    the list members are the corresponding group names.
 }
 \description{
-Intended for internal use only.
+Mostly intended for internal use.
 }
 

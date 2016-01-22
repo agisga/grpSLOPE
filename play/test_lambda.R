@@ -4,9 +4,9 @@ n.obs <- 700
 n.significant.blocks <- 10 #number of significant blocks
 signal <- 1
 
-# (1) Generate the n.obs x 1050 design matrix X from the multivariate normal distribution 
+# (1) Generate the n.obs x 1050 design matrix X from the multivariate normal distribution
 # with mean 0 and 1050x1050 covariance matrix Sigma,
-# where Sigma is block diagonal with blocks Gamma of sizes 
+# where Sigma is block diagonal with blocks Gamma of sizes
 # 5x5, 10x10, and 20x20 (30 blocks of each size),
 # such that Gamma[i,i] = 1 if i=j and =0.9 otherwise.
 blockcovmat5 <- diag(1,5,5)
@@ -17,7 +17,7 @@ blockcovmat20 <- diag(1,20,20)
 blockcovmat20[upper.tri(blockcovmat20,diag=F)] <- blockcovmat20[lower.tri(blockcovmat20, diag=F)] <- 0.95
 Sigma <- bdiag(rep(list(blockcovmat5, blockcovmat10, blockcovmat20), 30))
 withinblock.ind <- as.matrix(Sigma) # for (2) below
-withinblock.ind[upper.tri(withinblock.ind,diag=T)] <- 0 
+withinblock.ind[upper.tri(withinblock.ind,diag=T)] <- 0
 #increase between group cor
 Sigma <- as.matrix(Sigma)
 Sigma[which(Sigma==0)] <- 0.05
@@ -34,7 +34,7 @@ withinblock.cor <- list("mean"=mean(c(corA[which(withinblock.ind!=0)])),
 betweenblock.cor <- list("mean"=mean(c(corA[which(withinblock.ind==0)])),
                          "var"=var(c(corA[which(withinblock.ind==0)])))
 
-# (3) Create the vector b consisting of 90 blocks of sizes 5, 10, and 20 
+# (3) Create the vector b consisting of 90 blocks of sizes 5, 10, and 20
 b <- rep(0, 1050)
 # indices of the first entries of each block
 block.start <- rep(NA, 90)
@@ -42,7 +42,7 @@ block.count <- 1
 for (i in 1:30){
   block.start[3*i-2] <- block.count
   block.start[3*i-1] <- block.count + 5
-  block.start[3*i] <- block.count + 15 
+  block.start[3*i] <- block.count + 15
   block.count <- block.count + 35
 }
 # choose significant blocks
@@ -53,13 +53,19 @@ for(i in block.significant){
     b[block.start[90]:1050] <- signal
   }
   else{
-    b[block.start[i]:(block.start[i+1]-1)] <- (-1)^i * signal 
+    b[block.start[i]:(block.start[i+1]-1)] <- (-1)^i * signal
   }
 }
 
 # (4) Create the response vector y
 errorvector <- rnorm(n.obs,0,1)
 y <- A %*% b + errorvector
+
+# (5) Create B and z ~ B %*% b
+B <- matrix(rnorm(700*1050, sd=1/700), 700, 1050)
+B.colnorms <- sqrt(apply(B^2, 2, sum))
+B <- B %*% diag(1/B.colnorms)
+z <- B %*% b + errorvector
 
 
 # ----------------- Compute lambda sequences --------------------
@@ -77,9 +83,10 @@ names(wt) <- names(getGroupID(group))
 lambda.BH <- lambdaGroupSLOPE(fdr=fdr, n.group=n.group, method="BH")
 lambda.G <- lambdaGroupSLOPE(fdr=fdr, n.group=n.group, n.obs=n.obs, method="gaussian")
 lambda.MC <- lambdaGroupSLOPE(fdr=fdr, group=group, A=A, n.MC=30, MC.reps=5000, method="gaussianMC")
-lambda.max <- lambdaGroupSLOPE(fdr=fdr, group=group, wt=wt, method="chiOrthoMax") 
-lambda.mean <- lambdaGroupSLOPE(fdr=fdr, group=group, wt=wt, method="chiOrthoMean") 
-lambda.chi <- lambdaGroupSLOPE(fdr=fdr, n.obs=n.obs, group=group, wt=wt, method="chiMean") 
+lambda.max <- lambdaGroupSLOPE(fdr=fdr, group=group, wt=wt, method="chiOrthoMax")
+lambda.mean <- lambdaGroupSLOPE(fdr=fdr, group=group, wt=wt, method="chiOrthoMean")
+lambda.chi <- lambdaGroupSLOPE(fdr=fdr, n.obs=n.obs, group=group, wt=wt, method="chiMean")
+lambda.chiMC <- lambdaGroupSLOPE(fdr=fdr, group=group, A=B, y=z, wt=wt, n.MC=10, MC.reps=5000, method="chiMC")
 
 plot(lambda.BH[1:10], type="l", col=1, ylab="lambda", xlab="index",
      main="Lambda sequence for Group SLOPE",
@@ -89,5 +96,6 @@ lines(lambda.MC[1:10], col=3)
 lines(lambda.max[1:10], col=4)
 lines(lambda.mean[1:10], col=5)
 lines(lambda.chi[1:10], col=6)
-legend(c("BH", "gaussian", "gaussianMC", "chiOrthoMax", "chiOrthoMean", "chiMean"),
-       x=7, y=3.3, col=1:6, lty=rep(1,6))
+lines(lambda.chiMC[1:10], col=8)
+legend(c("BH", "gaussian", "gaussianMC", "chiOrthoMax", "chiOrthoMean", "chiMean", "chiMC"),
+       x=7, y=3.3, col=c(1:6,8), lty=rep(1,7))

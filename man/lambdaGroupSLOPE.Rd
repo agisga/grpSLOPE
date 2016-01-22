@@ -5,7 +5,8 @@
 \title{Regularizing sequence for Group SLOPE}
 \usage{
 lambdaGroupSLOPE(fdr = 0.1, n.group = NULL, group = NULL, A = NULL,
-  wt = NULL, n.obs = NULL, method, n.MC = n.group, MC.reps = 5000)
+  y = NULL, wt = NULL, n.obs = NULL, method, n.MC = n.group,
+  MC.reps = 5000)
 }
 \arguments{
 \item{fdr}{Target false discovery rate}
@@ -14,6 +15,8 @@ lambdaGroupSLOPE(fdr = 0.1, n.group = NULL, group = NULL, A = NULL,
 contain a group id for each predictor variable.}
 
 \item{A}{The model matrix}
+
+\item{y}{The response variable}
 
 \item{wt}{A named vector of weights, one weight per group of predictors (named according to names as in vector \code{group})}
 

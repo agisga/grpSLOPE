@@ -10,7 +10,7 @@ lambdaBH <- function(fdr, n.group) {
 
 # method of Section 3.2.2 in Bogdan et. al. (2015)
 lambdaGaussian <- function(fdr, n.group, n.obs) {
-  lambda.BH <- grpSLOPE::lambdaBH(fdr=fdr, n.group=n.group)
+  lambda.BH <- lambdaBH(fdr=fdr, n.group=n.group)
 
   omegafun <- function(k) { return(1/(n.obs-k-1)) }
 
@@ -29,7 +29,7 @@ lambdaGaussian <- function(fdr, n.group, n.obs) {
 
 # method introduced in Gossmann et. al. (2015)
 lambdaGaussianMC <- function(fdr, n.group, group.id, A, n.MC, MC.reps) {
-  lambda.BH <- grpSLOPE::lambdaBH(fdr=fdr, n.group=n.group)
+  lambda.BH <- lambdaBH(fdr=fdr, n.group=n.group)
 
   mA <- matrix(NA, nrow(A), n.group)
   for (i in 1:n.group) {
@@ -170,4 +170,61 @@ lambdaChiMean <- function(fdr, n.obs, n.group, group.sizes, wt) {
   }
 
   return(lambda.chi.mean)
+}
+
+lambdaChiMC <- function(fdr, X, y, group.id, wt, n.MC, MC.reps) {
+  n.group     <- length(group.id)
+  group.sizes <- sapply(group.id, FUN=length)
+  lambda.MC   <- vector()
+
+  cdfMean <- function(x) {
+    pchi.seq <- rep(NA, n.group)
+    for (i in 1:n.group) {
+      pchi.seq[i] <- pchisq((wt[i]*x)^2, df=group.sizes[i])
+    }
+    return(mean(pchi.seq))
+  }
+
+  # get upper and lower bounds for lambda.MC[1]
+  qchi.seq <- rep(NA, n.group)
+  for (j in 1:n.group) {
+    qchi.seq[j] <- sqrt(qchisq(1 - fdr/n.group, df=group.sizes[j])) / wt[j]
+  }
+  upperchi <- max(qchi.seq)
+  lowerchi <- min(qchi.seq)
+
+  if (upperchi == lowerchi) {
+    lambda.MC[1] <- upperchi
+  } else {
+    lambda.MC[1] <- uniroot(function(y) (cdfMean(y) - (1-fdr/n.group)),
+                            lower = lowerchi, upper = upperchi)$root
+  }
+
+  # get lambda.MC[2:n.MC]
+  for (i in 2:n.MC) {
+    s <- lambdaChiMCAdjustment(y=y, X=X, group_id=group.id, lambda=lambda.MC,
+                               w=wt, number_of_drawings=MC.reps)
+
+    cdfMean <- function(x) {
+      pchi.seq <- rep(NA, n.group)
+      for (j in 1:n.group) {
+        pchi.seq[j] <- pchisq((wt[j]/s * x)^2, df=group.sizes[j])
+      }
+      return(mean(pchi.seq))
+    }
+
+    cdfMean.inv <- uniroot(function(y) (cdfMean(y) - (1-fdr*i/n.group)),
+                           lower = 0, upper = upperchi)$root
+
+    if (cdfMean.inv <= lambda.MC[i-1]) {
+      lambda.MC[i] <- cdfMean.inv 
+    } else {
+      lambda.MC[i] <- lambda.MC[i-1] 
+    }
+  }
+
+  # get lambda.MC[n.MC:n.group]
+  lambda.MC[(n.MC+1):n.group] <- lambda.MC[n.MC]
+  
+  return(lambda.MC)
 }

@@ -341,6 +341,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 #' @param group A vector describing the grouping structure. It should 
 #'    contain a group id for each predictor variable.
 #' @param A The model matrix
+#' @param y The response variable
 #' @param wt A named vector of weights, one weight per group of predictors (named according to names as in vector \code{group})
 #' @param n.obs Number of observations (i.e., number of rows in \code{A})
 #' @param method Possible values are "BH", "gaussian", "gaussianMC",
@@ -374,7 +375,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 #'
 #' @export
 lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
-                             A=NULL, wt=NULL, n.obs=NULL, method,
+                             A=NULL, y=NULL, wt=NULL, n.obs=NULL, method,
                              n.MC=n.group, MC.reps=5000)
 {
   # Prepare grouping information
@@ -391,7 +392,7 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
   if (method %in% c("BH", "gaussian", "gaussianMC")) {
 
     if (method=="BH") {
-      return(grpSLOPE::lambdaBH(fdr=fdr, n.group=n.group))
+      return(lambdaBH(fdr=fdr, n.group=n.group))
 
     } else if (method=="gaussian") {
       if (is.null(A) && is.null(n.obs)) {
@@ -442,8 +443,12 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
       return(lambdaChiMean(fdr=fdr, n.obs=n.obs, n.group=n.group, group.sizes=group.sizes, wt=wt))
 
     } else if (method=="chiMC") {
-      # TODO: Implement this!
-      print("TODO!")
+      if (is.null(y) || is.null(A) || is.null(group) || is.null(wt)) {
+        stop("A, y, group and wt need to be passed as arguments when method is 'chiMC'.")
+      }
+
+      return(lambdaChiMC(fdr=fdr, X=A, y=y, group.id=group.id, wt=wt, n.MC=n.MC, MC.reps=MC.reps))
+
     }
   } else {
     stop(paste(method, "is not a valid method."))

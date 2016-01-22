@@ -25,19 +25,21 @@ lambdaMC <- function(lambda_BH, X, lambda_length, number_of_drawings = 5000L) {
 #'    via Monte Carlo, in order to adjust the lambda sequence for correlations in the  data.
 #'
 #' The adjustment is computed for the (s+1)st coefficient of lambda, assuming 
-#' that the first s coefficients are known. Needs s <= rank(X).
+#' that the first s coefficients are known. It is required that rank(X) is greater than the 
+#' sum of elements of any s groups. 
 #'
 #' @param y The response vector 
 #' @param X The model matrix
 #' @param group_id A list obtained from \code{\link{getGroupID}}
 #' @param lambda A vector containing the first s entries of lambda
+#' @param w A vector of weights per group
 #' @param number_of_drawings The number of iterations in the Monte Carlo procedure
 #'
 #' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE — adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
 #' @references \url{http://www.alexejgossmann.com/grpSLOPE/Lambda/}
 #'
-lambdaChiMCAdjustment <- function(y, X, group_id, lambda, number_of_drawings = 5000L) {
-    .Call('grpSLOPE_lambdaChiMCAdjustment', PACKAGE = 'grpSLOPE', y, X, group_id, lambda, number_of_drawings)
+lambdaChiMCAdjustment <- function(y, X, group_id, lambda, w, number_of_drawings = 5000L) {
+    .Call('grpSLOPE_lambdaChiMCAdjustment', PACKAGE = 'grpSLOPE', y, X, group_id, lambda, w, number_of_drawings)
 }
 
 proxSortedL1Rcpp <- function(y, lambda) {
