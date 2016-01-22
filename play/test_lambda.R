@@ -1,6 +1,6 @@
 library(Matrix)
 
-n.obs <- 700
+n.obs <- 2000
 n.significant.blocks <- 10 #number of significant blocks
 signal <- 1
 
@@ -62,7 +62,7 @@ errorvector <- rnorm(n.obs,0,1)
 y <- A %*% b + errorvector
 
 # (5) Create B and z ~ B %*% b
-B <- matrix(rnorm(700*1050, sd=1/700), 700, 1050)
+B <- matrix(rnorm(n.obs*1050, sd=1/n.obs), n.obs, 1050)
 B.colnorms <- sqrt(apply(B^2, 2, sum))
 B <- B %*% diag(1/B.colnorms)
 z <- B %*% b + errorvector

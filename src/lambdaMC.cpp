@@ -293,16 +293,31 @@ double lambdaChiMCAdjustment(const Eigen::Map<Eigen::VectorXd>& y,
 
         // Update the sum.
         // Need to compute:
-        // (Xi.transpose() * Xs * (Xs.transpose() * Xs).inverse() * wi * H).squaredNorm().
+        // v1 = Xi.transpose() * Xs * (Xs.transpose() * Xs).inverse() * wi * H
+        // and
+        // v2 = Xi.transpose() * ( Identity - Xs * (Xs.transpose() * Xs).inverse() Xs.transpose() ) * z,
+        // where z is a standard normal vector.
+        // Then the sum is updated with v1.squaredNorm() + v2.squaredNorm().
         Eigen::MatrixXd LinSys = Xs.transpose() * Xs;
         Eigen::MatrixXd RHS = Xs.transpose() * Xi;
         Eigen::MatrixXd tmp_mat = LinSys.ldlt().solve(RHS);
-        Eigen::VectorXd v = wi * tmp_mat.transpose() * H;
+        Eigen::VectorXd v1 = wi * tmp_mat.transpose() * H;
+
+        int nXs = Xs.rows();
+        Eigen::MatrixXd tmp_mat2 = LinSys.ldlt().solve(Xs.transpose());
+        Eigen::MatrixXd tmp_mat3 = Eigen::MatrixXd::Identity(nXs, nXs) - Xs * tmp_mat2;
+        Eigen::VectorXd zvec(nXs);
+        for (int j=0; j<nXs; j++) { zvec(j) = R::rnorm(0.0,1.0); }
+        Eigen::VectorXd v2 = Xi.transpose() * tmp_mat3 * zvec;
         //MC_sum += v.squaredNorm();
         // TODO: There is a second factor that should be added to MC_sum (see proof of Theorem 2.8)
         // This is a test. The second term used here is from Lemma 2.9:
-        MC_sum += (v.squaredNorm() + (double)(v.size()) * ((double)(Xi.rows()) - (double)(v.size()) * (double)(s)) / (double)(Xi.rows()));
-        total_summands += v.size();
+        //MC_sum += (v.squaredNorm() + (double)(v.size()) * ((double)(Xi.rows()) - (double)(v.size()) * (double)(s)) / (double)(Xi.rows()));
+        
+        MC_sum += v1.squaredNorm();
+        MC_sum += v2.squaredNorm();
+
+        total_summands += v1.size();
     }
 
     double MC_correction = sqrt(MC_sum / ((double)(total_summands)));

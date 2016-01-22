@@ -76,7 +76,7 @@ lambdaChiOrtho <- function(fdr, n.group, group.sizes, wt, method) {
     } else {
       # compute inverse of cdfMean at 1-fdr*k/n.group
       cdfMean.inv <- uniroot(function(y) (cdfMean(y) - (1-fdr*k/n.group)),
-                             lower = lambda.min[k], upper = lambda.max[k])
+                             lower = lambda.min[k], upper = lambda.max[k], extendInt="yes")
       lambda.mean[k] <- cdfMean.inv$root
     }
   }
@@ -131,7 +131,7 @@ lambdaChiMean <- function(fdr, n.obs, n.group, group.sizes, wt) {
     lambda.chi.mean[1] <- upperchi
   } else {
     lambda.chi.mean[1] <- uniroot(function(y) (cdfMean(y) - (1-fdr/n.group)),
-                                  lower = lowerchi, upper = upperchi)$root
+                                  lower = lowerchi, upper = upperchi, extendInt="yes")$root
   }
 
   # get lambda.chi.mean[2:n.group]
@@ -148,6 +148,7 @@ lambdaChiMean <- function(fdr, n.obs, n.group, group.sizes, wt) {
         (wt[j]^2 * sum(lambda.chi.mean[1:(i-1)]^2)) / (n.obs - group.sizes[j]*(i-1) - 1)
       s[j] <- sqrt(s[j])
     }
+print(s)
 
     cdfMean <- function(x) {
       pchi.seq <- rep(NA, n.group)
@@ -159,7 +160,7 @@ lambdaChiMean <- function(fdr, n.obs, n.group, group.sizes, wt) {
     }
 
     cdfMean.inv <- uniroot(function(y) (cdfMean(y) - (1-fdr*i/n.group)),
-                           lower = 0, upper = upperchi)$root
+                           lower = 0, upper = upperchi, extendInt="upX")$root
 
     if (cdfMean.inv <= lambda.chi.mean[i-1]) {
       lambda.chi.mean[i] <- cdfMean.inv 
@@ -197,13 +198,14 @@ lambdaChiMC <- function(fdr, X, y, group.id, wt, n.MC, MC.reps) {
     lambda.MC[1] <- upperchi
   } else {
     lambda.MC[1] <- uniroot(function(y) (cdfMean(y) - (1-fdr/n.group)),
-                            lower = lowerchi, upper = upperchi)$root
+                            lower = lowerchi, upper = upperchi, extendInt="yes")$root
   }
 
   # get lambda.MC[2:n.MC]
   for (i in 2:n.MC) {
     s <- lambdaChiMCAdjustment(y=y, X=X, group_id=group.id, lambda=lambda.MC,
                                w=wt, number_of_drawings=MC.reps)
+print(s)
 
     cdfMean <- function(x) {
       pchi.seq <- rep(NA, n.group)
@@ -214,7 +216,7 @@ lambdaChiMC <- function(fdr, X, y, group.id, wt, n.MC, MC.reps) {
     }
 
     cdfMean.inv <- uniroot(function(y) (cdfMean(y) - (1-fdr*i/n.group)),
-                           lower = 0, upper = upperchi)$root
+                           lower = 0, upper = upperchi, extendInt="upX")$root
 
     if (cdfMean.inv <= lambda.MC[i-1]) {
       lambda.MC[i] <- cdfMean.inv 
