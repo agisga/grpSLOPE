@@ -148,7 +148,6 @@ VectorXd makeNonIncreasing(const VectorXd& cy)
 //'
 //' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
 //'
-//' @export
 // [[Rcpp::export]]
 Eigen::VectorXd lambdaMC(const Eigen::Map<Eigen::VectorXd>& lambda_BH, 
         const Eigen::Map<Eigen::MatrixXd>& X, int lambda_length, 
@@ -178,7 +177,7 @@ Eigen::VectorXd lambdaMC(const Eigen::Map<Eigen::VectorXd>& lambda_BH,
 //'
 //' The adjustment is computed for the (s+1)st coefficient of lambda, assuming 
 //' that the first s coefficients are known. It is required that rank(X) is greater than the 
-//' sum of elements of any s groups. 
+//' sum of the number of elements in any s groups. 
 //'
 //' @param y The response vector 
 //' @param X The model matrix

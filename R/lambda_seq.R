@@ -172,6 +172,7 @@ lambdaChiMean <- function(fdr, n.obs, n.group, group.sizes, wt) {
   return(lambda.chi.mean)
 }
 
+# approximates the variance of (2.25) in Brzyski et. al. (2015) via Monte Carlo
 lambdaChiMC <- function(fdr, X, y, group.id, wt, n.MC, MC.reps) {
   n.group     <- length(group.id)
   group.sizes <- sapply(group.id, FUN=length)
