@@ -38,7 +38,7 @@ lambdaGaussianMC <- function(fdr, n.group, group.id, A, n.MC, MC.reps) {
   }
 
   # Monte Carlo corrections for lambda.BH
-  lambda.MC <- grpSLOPE::lambdaMC(lambda.BH, mA, n.MC, MC.reps)
+  lambda.MC <- lambdaMC(lambda.BH, mA, n.MC, MC.reps)
   lambda.MC <- c(lambda.MC, rep(lambda.MC[n.MC], n.group-n.MC))
 
   return(lambda.MC)
