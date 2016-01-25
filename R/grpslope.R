@@ -105,7 +105,7 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "rcpp") {
 #' @param A the model matrix
 #' @param group A vector describing the grouping structure. It should 
 #'   contain a group id for each predictor variable.
-#' @param wt A vector of weights
+#' @param wt A vector of weights (per coefficient)
 #' @param lambda A decreasing sequence of regularization parameters \eqn{\lambda}
 #' @param max.iter Maximal number of iterations to carry out
 #' @param verbose A \code{logical} specifying whether to print output or not
@@ -128,7 +128,7 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "rcpp") {
 #' set.seed(1)
 #' A   <- matrix(runif(100, 0, 1), 10, 10)
 #' grp <- c(0, 0, 1, 1, 2, 2, 2, 2, 2, 3)
-#' wt  <- c(0.5, 0.5, 0.5, 0.5, 0.2, 0.2, 0.2, 0.2, 0.2, 1)
+#' wt  <- c(2, 2, 2, 2, 5, 5, 5, 5, 5, 1)
 #' x   <- c(0, 0, 5, 1, 0, 0, 0, 1, 0, 3)
 #' y   <- A %*% x
 #' lam <- 0.1 * (10:7)
@@ -166,7 +166,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
   }
 
   # Adjust matrix for prior weights
-  Dinv <- diag(wt)
+  Dinv <- diag(1/wt)
   A    <- A %*% Dinv
   p    <- ncol(A)
 

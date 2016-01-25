@@ -16,7 +16,7 @@ proximalGradientSolverGroupSLOPE(y, A, group, wt, lambda, max.iter = 10000,
 \item{group}{A vector describing the grouping structure. It should 
 contain a group id for each predictor variable.}
 
-\item{wt}{A vector of weights}
+\item{wt}{A vector of weights (per coefficient)}
 
 \item{lambda}{A decreasing sequence of regularization parameters \eqn{\lambda}}
 
@@ -55,7 +55,7 @@ backtracking Lipschitz search.
 set.seed(1)
 A   <- matrix(runif(100, 0, 1), 10, 10)
 grp <- c(0, 0, 1, 1, 2, 2, 2, 2, 2, 3)
-wt  <- c(0.5, 0.5, 0.5, 0.5, 0.2, 0.2, 0.2, 0.2, 0.2, 1)
+wt  <- c(2, 2, 2, 2, 5, 5, 5, 5, 5, 1)
 x   <- c(0, 0, 5, 1, 0, 0, 0, 1, 0, 3)
 y   <- A \%*\% x
 lam <- 0.1 * (10:7)
