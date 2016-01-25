@@ -143,7 +143,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
                                              verbose=TRUE, dual.gap.tol=1e-6, 
                                              infeas.tol=1e-6, x.init=vector(), method="rcpp")
 {
-  # This is based on the source code available from
+  # This function is based on the source code available from
   # http://statweb.stanford.edu/~candes/SortedL1/software.html
   # under the GNU GPL-3 licence.
   #
