@@ -62,7 +62,7 @@ errorvector <- rnorm(n.obs,0,1)
 y <- A %*% b + errorvector
 
 # (5) Create B and z ~ B %*% b
-B <- matrix(rnorm(n.obs*1050, sd=1/n.obs), n.obs, 1050)
+B <- matrix(rnorm(n.obs*1050, sd=sqrt(1/n.obs)), n.obs, 1050)
 B.colnorms <- sqrt(apply(B^2, 2, sum))
 B <- B %*% diag(1/B.colnorms)
 z <- B %*% b + errorvector
