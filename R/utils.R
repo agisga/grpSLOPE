@@ -21,3 +21,22 @@ getGroupID <- function(group) {
   class(group.id) <- "groupID"
   return(group.id)
 }
+
+orthogonalizeGroups <- function(X, group.id) {
+  n.group <- length(group.id)
+
+  getGroupQR <- function(ids) {
+    submat <- X[ , ids]
+
+    if (length(ids) == 1) {
+      return(list(Q=as.matrix(submat), R=1, P=1))
+    } else {
+      submat.qr <- qr(submat, LAPACK=TRUE)
+      return(list(Q=qr.Q(submat.qr),
+                  R=qr.R(submat.qr),
+                  P=submat.qr$pivot))
+    }
+  }
+
+  return(lapply(group.id, getGroupQR))
+}
