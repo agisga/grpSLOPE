@@ -22,6 +22,10 @@ getGroupID <- function(group) {
   return(group.id)
 }
 
+# Orthogonalize each group of columns of a matrix A.
+# For i = 1, ..., m let A_i = A[ , group_i] and compute
+# A_i[ , P] = Q %*% R, where P is a permutation vector.
+#
 orthogonalizeGroups <- function(X, group.id) {
   n.group <- length(group.id)
 
