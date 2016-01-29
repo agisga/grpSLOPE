@@ -6,7 +6,7 @@
 \usage{
 grpSLOPE(X, y, group, fdr, lambda, sigma = NULL,
   n.MC = floor(length(unique(group))/2), MC.reps = 5000, verbose = FALSE,
-  ortho = TRUE, normalize = TRUE)
+  orthogonalize = TRUE, normalize = TRUE)
 }
 \arguments{
 \item{X}{The model matrix}
@@ -31,7 +31,7 @@ computed up to the index given by \code{n.MC} only. See Details.}
 
 \item{verbose}{Verbosity}
 
-\item{ortho}{Whether to orthogonalize the model matrix within each group.
+\item{orthogonalize}{Whether to orthogonalize the model matrix within each group.
 Only relevant if \code{lambda} is one of "chiOrthoMax", "chiOrthoMean",
 "chiEqual", "chiMean", "chiMC". Do not disable unless you are certain
 that your data is appropriately pre-processed.}

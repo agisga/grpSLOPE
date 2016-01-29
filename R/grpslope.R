@@ -500,7 +500,7 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
 #'    computed up to the index given by \code{n.MC} only. See Details.
 #' @param MC.reps The number of repetitions of the Monte Carlo procedure
 #' @param verbose Verbosity
-#' @param ortho Whether to orthogonalize the model matrix within each group.
+#' @param orthogonalize Whether to orthogonalize the model matrix within each group.
 #'    Only relevant if \code{lambda} is one of "chiOrthoMax", "chiOrthoMean",
 #'    "chiEqual", "chiMean", "chiMC". Do not disable unless you are certain
 #'    that your data is appropriately pre-processed.
@@ -527,8 +527,8 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
 #' @export
 grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
                      n.MC = floor(length(unique(group)) / 2),
-                     MC.reps = 5000, verbose = FALSE, ortho = TRUE,
-                     normalize = TRUE) {
+                     MC.reps = 5000, verbose = FALSE,
+                     orthogonalize = TRUE, normalize = TRUE) {
   group.id <- getGroupID(group)
   n.group  <- length(group.id)
   n  <- nrow(X)
@@ -546,15 +546,12 @@ grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
   }
 
   # within group orthogonalization ------------------------------------
-  if (ortho && (lambda %in% c("chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC"))) {
-    ORTHOGONALIZE <- TRUE
+  if (orthogonalize && (lambda %in% c("chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC"))) {
     ortho <- orthogonalizeGroups(X, group.id)
     for (i in 1:n.group) {
       X[ , group.id[[i]]] <- ortho[[i]]$Q
     }
-  } else {
-    ORTHOGONALIZE <-FALSE 
-  }
+  } 
 
   # regularizing sequence ---------------------------------------------
   lambda.seq <- lambdaGroupSLOPE(fdr=fdr, n.group=n.group, group=group,
@@ -603,7 +600,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
   sol$iter <- optim.result$iter
 
   # compute beta
-  if (ORTHOGONALIZE) {
+  if (orthogonalize) {
     sol$c <- as.vector(optim.result$x)
 
     # compute beta only if all groups have fewer predictors than observations
@@ -627,7 +624,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
   # compute group norms ||beta_I|| or ||X_I beta_I||
   sol$group.norms <- rep(NA, n.group)
   for (i in 1:n.group) {
-    if (ORTHOGONALIZE) {
+    if (orthogonalize) {
       Xbetai <- X[ , group.id[[i]]] %*% sol$c[group.id[[i]]]
       sol$group.norms[i] <- norm(as.matrix(Xbetai), "f")
     } else {
