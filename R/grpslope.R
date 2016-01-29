@@ -477,7 +477,15 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
 #' computed up to the index given by \code{n.MC} only. \code{n.MC} should be
 #' less than or equal to \code{n.group}. Since lambda sequences obtained via MC tend to
 #' flatten out quickly, it is reasonable to choose \code{n.MC} to be much smaller than the
-#' number of groups.
+#' number of groups. \cr
+#' Due to within group orthogonalization (see Section 2.1 in Brzyski et. al. (2015)), the solution vector
+#' \code{beta} cannot be  computed for methods "chiOrthoMax", "chiOrthoMean", "chiEqual", "chiMean",
+#' "chiMC" if there are more predictors in a selected group than there are observations.
+#' In that case only the solution vector \code{c} of the transformed (orthogonalized) model is returned.
+#' Additionally, in any case the vector \code{group.norms} is returned with its \eqn{i}th entry
+#' being \eqn{\| X_{I_i} \beta_{I_i} \|} or \eqn{\| \beta_{I_i} \|} (depending on method), i.e.,
+#' the overall effect of each group. Also, note that the vector \code{beta} corresponds to the normalized
+#' versions of \code{X} and \code{y}.
 #'
 #' @param X The model matrix
 #' @param y The response variable
@@ -489,19 +497,28 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
 #'    "chiEqual", "chiMean", "chiMC". See \code{\link{lambdaGroupSLOPE}} for detail.
 #' @param sigma Noise level. If ommited, estimated from the data. See details.
 #' @param n.MC When \code{method} is "gaussianMC" or "chiMC", the corrections of the entries of lambda will be 
-#'    computed up to the index given by \code{n.MC} only. See details.
+#'    computed up to the index given by \code{n.MC} only. See Details.
 #' @param MC.reps The number of repetitions of the Monte Carlo procedure
 #' @param verbose Verbosity
+#' @param ortho Whether to orthogonalize the model matrix within each group.
+#'    Only relevant if \code{lambda} is one of "chiOrthoMax", "chiOrthoMean",
+#'    "chiEqual", "chiMean", "chiMC". Do not disable unless you are certain
+#'    that your data is appropriately pre-processed.
+#' @param normalize Whether to center the input data and re-scale the columns
+#'    of the design matrix to have unit norm. Do not disable this unless you
+#'    are certain that your data is appropriately pre-processed.
 #'
 #' @return A list with members:
 #'   \describe{
-#'     \item{beta}{Solution vector}
+#'     \item{beta}{Solution vector. See Details.}
+#'     \item{c}{Solution vector of the transformed model. See Details.}
+#'     \item{group.norms}{Overall effect of each group. See Details.}
 #'     \item{selected}{Names of selected groups (i.e., groups of predictors with at least one coefficient estimate >0)}
 #'     \item{optimal}{Convergence status}
 #'     \item{iter}{Iterations of the proximal gradient method}
 #'     \item{lambda}{Regularizing sequence}
 #'     \item{lambda.method}{Method used to construct the regularizing sequence}
-#'     \item{sigma}{(Sequence of) (estimated) noise levels used}
+#'     \item{sigma}{(Estimated) noise level}
 #'   }
 #'
 #' @references A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
@@ -510,66 +527,123 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
 #' @export
 grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
                      n.MC = floor(length(unique(group)) / 2),
-                     MC.reps = 5000, verbose=FALSE) {
+                     MC.reps = 5000, verbose = FALSE, ortho = TRUE,
+                     normalize = TRUE) {
   group.id <- getGroupID(group)
   n.group  <- length(group.id)
-
+  n  <- nrow(X)
+  p  <- ncol(X)
   wt <- sapply(group.id, length)
   wt <- sqrt(wt)
-
-  n <- nrow(X)
-  p <- ncol(X)
-  # backup original X
-  X.orig <- X
+  wt.per.coef <- rep(NA, p)
+  for (i in 1:n.group) { wt.per.coef[group.id[[i]]] <- wt[i] }
 
   # normalize X and y in order to have a model without intercept
-  X <- scale(X.orig, center=TRUE, scale=FALSE)
-  X <- apply(X, 2, function(x) x/sqrt(sum(x^2)) )
-  y <- y - mean(y)
+  if (normalize) {
+    X <- scale(X, center=TRUE, scale=FALSE)
+    X <- apply(X, 2, function(x) x/sqrt(sum(x^2)) )
+    y <- y - mean(y)
+  }
 
-  # within group orthogonalization
-  if (lambda %in% c("chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC")) {
-    ortho   <- orthogonalizeGroups(X, group.id)
+  # within group orthogonalization ------------------------------------
+  if (ortho && (lambda %in% c("chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC"))) {
+    ORTHOGONALIZE <- TRUE
+    ortho <- orthogonalizeGroups(X, group.id)
     for (i in 1:n.group) {
       X[ , group.id[[i]]] <- ortho[[i]]$Q
     }
+  } else {
+    ORTHOGONALIZE <-FALSE 
   }
 
-  # regularizing sequence
+  # regularizing sequence ---------------------------------------------
   lambda.seq <- lambdaGroupSLOPE(fdr=fdr, n.group=n.group, group=group,
                                  A=X, y=y, wt=wt, n.obs=n, method=lambda,
                                  n.MC=n.MC, MC.reps=MC.reps)
 
+  # optimization ------------------------------------------------------
   if (!is.null(sigma)) {
-    lambda.seq <- sigma * lambda.seq
-    wt.per.coef <- rep(NA, p)
-    for (i in 1:n.group) { wt.per.coef[group.id[[i]]] <- wt[i] }
+    sigma.lambda <- sigma * lambda.seq
     optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=group,
                                                      wt=wt.per.coef, 
-                                                     lambda=lambda.seq,
+                                                     lambda=sigma.lambda,
                                                      verbose=verbose)
   } else {
-  # TODO: sigma needs to be estimated
+    # sigma needs to be estimated
+    sigma <- sd(y)
+    sigma.lambda <- sigma * lambda.seq
+    optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=group,
+                                                     wt=wt.per.coef, 
+                                                     lambda=sigma.lambda,
+                                                     verbose=verbose)
+    S.new <- which(optim.result$x != 0)
+    S <- c()
+    while(!isTRUE(all.equal(S, S.new))) {
+      S <- S.new
+      if (length(S) > n) {
+        stop("Sigma estimation fails because more predictors got selected than there are observations.")
+      }
+      OLS <- lm(y ~ 0 + X[ , S])
+      sigma <- sqrt( sum(OLS$res^2) / (n - length(S)) )
+
+      sigma.lambda <- sigma * lambda.seq
+      optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=group,
+                                                       wt=wt.per.coef, 
+                                                       lambda=sigma.lambda,
+                                                       verbose=verbose)
+      S.new <- which(optim.result$x != 0)
+    }
   }
 
-  # create Group SLOPE solution object
+  # create Group SLOPE solution object ---------------------------------
   sol <- list()
   sol$lambda <- lambda.seq
   sol$lambda.method <- lambda
   sol$sigma <- sigma
-  # TODO: beta is different if orthogonalization was performed!
-  sol$beta <- as.vector(optim.result$x)
   sol$iter <- optim.result$iter
+
+  # compute beta
+  if (ORTHOGONALIZE) {
+    sol$c <- as.vector(optim.result$x)
+
+    # compute beta only if all groups have fewer predictors than observations
+    group.length <- sapply(group.id, length)
+    if (all(group.length <= n)) {
+      sol$beta <- rep(NA, length(sol$c))
+      for (i in 1:n.group) {
+        ci <- sol$c[group.id[[i]]]
+        bi <- backsolve(ortho[[i]]$R, ci)
+        li <- group.length[i]
+        or <- rep(NA, li)
+        for (j in 1:li) { or[j] <- which(ortho[[i]]$P == j) }
+        betai <- bi[or]
+        sol$beta[group.id[[i]]] <- betai
+      }
+    }
+  } else {
+    sol$beta <- as.vector(optim.result$x)
+  }
+
+  # compute group norms ||beta_I|| or ||X_I beta_I||
+  sol$group.norms <- rep(NA, n.group)
+  for (i in 1:n.group) {
+    if (ORTHOGONALIZE) {
+      Xbetai <- X[ , group.id[[i]]] %*% sol$c[group.id[[i]]]
+      sol$group.norms[i] <- norm(as.matrix(Xbetai), "f")
+    } else {
+      sol$group.norms[i] <- norm(as.matrix(sol$beta[group.id[[i]]]), "f") 
+    }
+  }
+  group.names <- names(group.id)
+  names(sol$group.norms) <- group.names 
+
+  # selected groups
+  sol$selected <- group.names[which(sol$group.norms != 0)]
+
   if (optim.result$status == 1) {
     sol$optimal <- TRUE
   } else {
     sol$optimal <- FALSE
-  }
-  sol$selected <- c()
-  for (i in 1:n.group) {
-    if (any(sol$beta[group.id[[i]]] != 0)) {
-      sol$selected <- c(sol$selected, names(group.id)[i])
-    }
   }
 
   class(sol) <- "grpSLOPE"

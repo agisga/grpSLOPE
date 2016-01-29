@@ -5,7 +5,8 @@
 \title{Group SLOPE (Group Sorted L-One Penalized Estimation)}
 \usage{
 grpSLOPE(X, y, group, fdr, lambda, sigma = NULL,
-  n.MC = floor(length(unique(group))/2), MC.reps = 5000, verbose = FALSE)
+  n.MC = floor(length(unique(group))/2), MC.reps = 5000, verbose = FALSE,
+  ortho = TRUE, normalize = TRUE)
 }
 \arguments{
 \item{X}{The model matrix}
@@ -24,22 +25,33 @@ values are "BH", "gaussian", "gaussianMC", "chiOrthoMax", "chiOrthoMean",
 \item{sigma}{Noise level. If ommited, estimated from the data. See details.}
 
 \item{n.MC}{When \code{method} is "gaussianMC" or "chiMC", the corrections of the entries of lambda will be 
-computed up to the index given by \code{n.MC} only. See details.}
+computed up to the index given by \code{n.MC} only. See Details.}
 
 \item{MC.reps}{The number of repetitions of the Monte Carlo procedure}
 
 \item{verbose}{Verbosity}
+
+\item{ortho}{Whether to orthogonalize the model matrix within each group.
+Only relevant if \code{lambda} is one of "chiOrthoMax", "chiOrthoMean",
+"chiEqual", "chiMean", "chiMC". Do not disable unless you are certain
+that your data is appropriately pre-processed.}
+
+\item{normalize}{Whether to center the input data and re-scale the columns
+of the design matrix to have unit norm. Do not disable this unless you
+are certain that your data is appropriately pre-processed.}
 }
 \value{
 A list with members:
   \describe{
-    \item{beta}{Solution vector}
+    \item{beta}{Solution vector. See Details.}
+    \item{c}{Solution vector of the transformed model. See Details.}
+    \item{group.norms}{Overall effect of each group. See Details.}
     \item{selected}{Names of selected groups (i.e., groups of predictors with at least one coefficient estimate >0)}
     \item{optimal}{Convergence status}
     \item{iter}{Iterations of the proximal gradient method}
     \item{lambda}{Regularizing sequence}
     \item{lambda.method}{Method used to construct the regularizing sequence}
-    \item{sigma}{(Sequence of) (estimated) noise levels used}
+    \item{sigma}{(Estimated) noise level}
   }
 }
 \description{
@@ -59,7 +71,15 @@ When \code{method} is "gaussianMC" or "chiMC", the corrections of the entries of
 computed up to the index given by \code{n.MC} only. \code{n.MC} should be
 less than or equal to \code{n.group}. Since lambda sequences obtained via MC tend to
 flatten out quickly, it is reasonable to choose \code{n.MC} to be much smaller than the
-number of groups.
+number of groups. \cr
+Due to within group orthogonalization (see Section 2.1 in Brzyski et. al. (2015)), the solution vector
+\code{beta} cannot be  computed for methods "chiOrthoMax", "chiOrthoMean", "chiEqual", "chiMean",
+"chiMC" if there are more predictors in a selected group than there are observations.
+In that case only the solution vector \code{c} of the transformed (orthogonalized) model is returned.
+Additionally, in any case the vector \code{group.norms} is returned with its \eqn{i}th entry
+being \eqn{\| X_{I_i} \beta_{I_i} \|} or \eqn{\| \beta_{I_i} \|} (depending on method), i.e.,
+the overall effect of each group. Also, note that the vector \code{beta} corresponds to the normalized
+versions of \code{X} and \code{y}.
 }
 \references{
 A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
