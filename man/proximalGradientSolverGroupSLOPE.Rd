@@ -5,7 +5,7 @@
 \title{Proximal gradient method for Group SLOPE}
 \usage{
 proximalGradientSolverGroupSLOPE(y, A, group, wt, lambda, max.iter = 10000,
-  verbose = TRUE, dual.gap.tol = 1e-06, infeas.tol = 1e-06,
+  verbose = FALSE, dual.gap.tol = 1e-06, infeas.tol = 1e-06,
   x.init = vector(), method = "rcpp")
 }
 \arguments{

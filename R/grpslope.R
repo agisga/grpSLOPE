@@ -140,7 +140,7 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "rcpp") {
 #'
 #' @export
 proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1e4,
-                                             verbose=TRUE, dual.gap.tol=1e-6, 
+                                             verbose=FALSE, dual.gap.tol=1e-6, 
                                              infeas.tol=1e-6, x.init=vector(), method="rcpp")
 {
   # This function is based on the source code available from
@@ -336,6 +336,11 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 #'            in Brzyski et. al. (2015). Requires that rank(\code{A}) is greater than
 #'            the sum of the number of elements in any \code{n.MC} groups. 
 #' }
+#' When \code{method} is "gaussianMC" or "chiMC", the corrections of the entries of lambda will be 
+#' computed up to the index given by \code{n.MC} only. \code{n.MC} should be
+#' less than or equal to \code{n.group}. Since lambda sequences obtained via MC tend to
+#' flatten out quickly, it is reasonable to choose \code{n.MC} to be much smaller than the
+#' number of groups.
 #'
 #' @param fdr Target false discovery rate
 #' @param n.groups Number of groups
@@ -347,9 +352,8 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 #' @param n.obs Number of observations (i.e., number of rows in \code{A})
 #' @param method Possible values are "BH", "gaussian", "gaussianMC",
 #'    "chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC". See under Details.
-#' @param n.MC The corrections of the entries of lambda will be 
-#'    computed up to the index given by \code{n.MC} only. \code{n.MC} should be
-#'    less than or equal to \code{n.group}.
+#' @param n.MC When \code{method} is "gaussianMC" or "chiMC", the corrections of the entries of lambda will be 
+#'    computed up to the index given by \code{n.MC} only. See details.
 #' @param MC.reps The number of repetitions of the Monte Carlo procedure
 #'
 #' @examples
@@ -377,7 +381,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 #' @export
 lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
                              A=NULL, y=NULL, wt=NULL, n.obs=NULL, method,
-                             n.MC=n.group, MC.reps=5000)
+                             n.MC=floor(n.group/2), MC.reps=5000)
 {
   # Prepare grouping information
   if (!is.null(group)) {
@@ -454,4 +458,121 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
   } else {
     stop(paste(method, "is not a valid method."))
   }
+}
+
+#' Group SLOPE (Group Sorted L-One Penalized Estimation)
+#' 
+#' Performs selection of significant groups of predictors and estimation of the
+#' corresonding coefficients using the Group SLOPE method (see Brzyski et. al. (2015)
+#' and Gossmann et. al. (2015)).
+#'
+#' Multiple methods are available to generate the regularizing sequence \code{lambda},
+#' see \code{\link{lambdaGroupSLOPE}} for detail.
+#' If \code{method} is one of "chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC",
+#' then the model matrix is transformed by orthogonalization within each group (see Section 2.1
+#' in Brzyski et. al.), and penalization is imposed on \eqn{\| X_{I_i} \beta_{I_i} \|}.
+#' For other methods penalization is imposed directly on \eqn{\| \beta_{I_i} \|},
+#' as in Gossmann et. al. (2015).
+#' When \code{method} is "gaussianMC" or "chiMC", the corrections of the entries of lambda will be 
+#' computed up to the index given by \code{n.MC} only. \code{n.MC} should be
+#' less than or equal to \code{n.group}. Since lambda sequences obtained via MC tend to
+#' flatten out quickly, it is reasonable to choose \code{n.MC} to be much smaller than the
+#' number of groups.
+#'
+#' @param X The model matrix
+#' @param y The response variable
+#' @param group A vector describing the grouping structure. It should 
+#'    contain a group id for each predictor variable.
+#' @param fdr Target false discovery rate
+#' @param lambda Method used to obtain the regularizing sequence lambda. Possible
+#'    values are "BH", "gaussian", "gaussianMC", "chiOrthoMax", "chiOrthoMean",
+#'    "chiEqual", "chiMean", "chiMC". See \code{\link{lambdaGroupSLOPE}} for detail.
+#' @param sigma Noise level. If ommited, estimated from the data. See details.
+#' @param n.MC When \code{method} is "gaussianMC" or "chiMC", the corrections of the entries of lambda will be 
+#'    computed up to the index given by \code{n.MC} only. See details.
+#' @param MC.reps The number of repetitions of the Monte Carlo procedure
+#' @param verbose Verbosity
+#'
+#' @return A list with members:
+#'   \describe{
+#'     \item{beta}{Solution vector}
+#'     \item{selected}{Names of selected groups (i.e., groups of predictors with at least one coefficient estimate >0)}
+#'     \item{optimal}{Convergence status}
+#'     \item{iter}{Iterations of the proximal gradient method}
+#'     \item{lambda}{Regularizing sequence}
+#'     \item{lambda.method}{Method used to construct the regularizing sequence}
+#'     \item{sigma}{(Sequence of) (estimated) noise levels used}
+#'   }
+#'
+#' @references A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
+#' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE — adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+#'
+#' @export
+grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
+                     n.MC = floor(length(unique(group)) / 2),
+                     MC.reps = 5000, verbose=FALSE) {
+  group.id <- getGroupID(group)
+  n.group  <- length(group.id)
+
+  wt <- sapply(group.id, length)
+  wt <- sqrt(wt)
+
+  n <- nrow(X)
+  p <- ncol(X)
+  # backup original X
+  X.orig <- X
+
+  # normalize X and y in order to have a model without intercept
+  X <- scale(X.orig, center=TRUE, scale=FALSE)
+  X <- apply(X, 2, function(x) x/sqrt(sum(x^2)) )
+  y <- y - mean(y)
+
+  # within group orthogonalization
+  if (lambda %in% c("chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC")) {
+    ortho   <- orthogonalizeGroups(X, group.id)
+    for (i in 1:n.group) {
+      X[ , group.id[[i]]] <- ortho[[i]]$Q
+    }
+  }
+
+  # regularizing sequence
+  lambda.seq <- lambdaGroupSLOPE(fdr=fdr, n.group=n.group, group=group,
+                                 A=X, y=y, wt=wt, n.obs=n, method=lambda,
+                                 n.MC=n.MC, MC.reps=MC.reps)
+
+  if (!is.null(sigma)) {
+    lambda.seq <- sigma * lambda.seq
+    wt.per.coef <- rep(NA, p)
+    for (i in 1:n.group) { wt.per.coef[group.id[[i]]] <- wt[i] }
+    optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=group,
+                                                     wt=wt.per.coef, 
+                                                     lambda=lambda.seq,
+                                                     verbose=verbose)
+  } else {
+  # TODO: sigma needs to be estimated
+  }
+
+  # create Group SLOPE solution object
+  sol <- list()
+  sol$lambda <- lambda.seq
+  sol$lambda.method <- lambda
+  sol$sigma <- sigma
+  # TODO: beta is different if orthogonalization was performed!
+  sol$beta <- as.vector(optim.result$x)
+  sol$iter <- optim.result$iter
+  if (optim.result$status == 1) {
+    sol$optimal <- TRUE
+  } else {
+    sol$optimal <- FALSE
+  }
+  sol$selected <- c()
+  for (i in 1:n.group) {
+    if (any(sol$beta[group.id[[i]]] != 0)) {
+      sol$selected <- c(sol$selected, names(group.id)[i])
+    }
+  }
+
+  class(sol) <- "grpSLOPE"
+
+  return(sol)
 }

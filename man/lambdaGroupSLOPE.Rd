@@ -5,7 +5,7 @@
 \title{Regularizing sequence for Group SLOPE}
 \usage{
 lambdaGroupSLOPE(fdr = 0.1, n.group = NULL, group = NULL, A = NULL,
-  y = NULL, wt = NULL, n.obs = NULL, method, n.MC = n.group,
+  y = NULL, wt = NULL, n.obs = NULL, method, n.MC = floor(n.group/2),
   MC.reps = 5000)
 }
 \arguments{
@@ -25,9 +25,8 @@ contain a group id for each predictor variable.}
 \item{method}{Possible values are "BH", "gaussian", "gaussianMC",
 "chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC". See under Details.}
 
-\item{n.MC}{The corrections of the entries of lambda will be 
-computed up to the index given by \code{n.MC} only. \code{n.MC} should be
-less than or equal to \code{n.group}.}
+\item{n.MC}{When \code{method} is "gaussianMC" or "chiMC", the corrections of the entries of lambda will be 
+computed up to the index given by \code{n.MC} only. See details.}
 
 \item{MC.reps}{The number of repetitions of the Monte Carlo procedure}
 
@@ -51,6 +50,11 @@ Multiple methods are available to generate the regularizing sequence \code{lambd
            in Brzyski et. al. (2015). Requires that rank(\code{A}) is greater than
            the sum of the number of elements in any \code{n.MC} groups. 
 }
+When \code{method} is "gaussianMC" or "chiMC", the corrections of the entries of lambda will be 
+computed up to the index given by \code{n.MC} only. \code{n.MC} should be
+less than or equal to \code{n.group}. Since lambda sequences obtained via MC tend to
+flatten out quickly, it is reasonable to choose \code{n.MC} to be much smaller than the
+number of groups.
 }
 \examples{
 fdr     <- 0.1
