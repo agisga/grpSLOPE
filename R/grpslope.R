@@ -575,7 +575,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
                                                      verbose=verbose)
     S.new <- which(optim.result$x != 0)
     S <- c()
-    while(!isTRUE(all.equal(S, S.new))) {
+    while(!isTRUE(all.equal(S, S.new)) && (length(S.new) > 0) ) {
       S <- S.new
       if (length(S) > n) {
         stop("Sigma estimation fails because more predictors got selected than there are observations.")
