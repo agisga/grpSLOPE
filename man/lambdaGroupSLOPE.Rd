@@ -11,6 +11,8 @@ lambdaGroupSLOPE(fdr = 0.1, n.group = NULL, group = NULL, A = NULL,
 \arguments{
 \item{fdr}{Target false discovery rate}
 
+\item{n.group}{Number of groups}
+
 \item{group}{A vector describing the grouping structure. It should 
 contain a group id for each predictor variable.}
 
@@ -29,8 +31,6 @@ contain a group id for each predictor variable.}
 computed up to the index given by \code{n.MC} only. See details.}
 
 \item{MC.reps}{The number of repetitions of the Monte Carlo procedure}
-
-\item{n.groups}{Number of groups}
 }
 \description{
 Generate the regularizing sequence \code{lambda} for the Group SLOPE
