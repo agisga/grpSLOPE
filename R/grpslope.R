@@ -343,7 +343,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 #' number of groups.
 #'
 #' @param fdr Target false discovery rate
-#' @param n.groups Number of groups
+#' @param n.group Number of groups
 #' @param group A vector describing the grouping structure. It should 
 #'    contain a group id for each predictor variable.
 #' @param A The model matrix
