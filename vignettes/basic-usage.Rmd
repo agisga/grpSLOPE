@@ -1,0 +1,100 @@
+---
+title: "Basic usage of grpSLOPE"
+author: "Alexej Gossmann"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Basic usage of grpSLOPE}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Introduction
+
+Group SLOPE is a penalized linear regression method that is used for adaptive selection of groups of significant predictors in a high-dimensional linear model.
+
+## Data generation
+
+We simulate a SNP-data-like model matrix:
+
+```{r}
+set.seed(1)
+
+p     <- 500
+probs <- runif(p, 0.1, 0.5)
+probs <- t(probs) %x% matrix(1,p,2)
+X0    <- matrix(rbinom(2*p*p, 1, probs), p, 2*p)
+X     <- X0 %*% (diag(p) %x% matrix(1,2,1))
+
+# Upper left 10x10 corner of X:
+X[1:10, 1:10]
+```
+
+We divide the predictors into 100 groups of sizes from 3 to 7:
+
+```{r}
+library(grpSLOPE)
+
+group <- c(rep(1:20, each=3),
+           rep(21:40, each=4),
+           rep(41:60, each=5),
+           rep(61:80, each=6),
+           rep(81:100, each=7))
+group.id <- getGroupID(group)
+n.group <- length(group.id)
+group.length <- sapply(group.id, FUN=length)
+```
+
+Then we generate the vector of predictor coefficients and the response vector according to a linear model with noise level equal to one:
+
+```{r}
+
+n.signif        <- 10                          # number of truely significant groups
+ind.relevant    <- sample(1:n.group, n.signif) # ids of significant groups
+signal.strength <- 4 * sqrt(2 * log(p))        # magnitude of the group effect ||X_I b_I||
+
+b <- rep(0, p)
+for (j in ind.relevant) {
+  X1 <- apply(as.matrix(X[ , group.id[[j]]]), 1, sum)
+  b[group.id[[j]]] <- (signal.strength / norm(as.matrix(X1), "f")) * rep(1, group.length[j])
+}
+
+# generate the response vector
+y <- X %*% b + rnorm(p, sd=1)
+```
+
+## Fitting the Group SLOPE model
+
+We fit the Group SLOPE model to the simulated data:
+
+```{r}
+result <- grpSLOPE(X=X, y=y, group=group, fdr=0.1, lambda="chiMean")
+
+# selected groups:
+result$selected
+```
+
+We check the performance of the method by computing the resulting false discovery rate (FDR) and power:
+
+```{r}
+n.selected <- length(result$selected)
+true.relevant <- names(group.id)[ind.relevant]
+truepos <- intersect(result$selected, true.relevant)
+n.truepos <- length(truepos)
+n.falsepos <- n.selected - n.truepos
+
+FDR <- n.falsepos / max(1, n.selected)
+FDR
+pow <- n.truepos / length(true.relevant)
+pow
+```
+
+## Lambda sequence
+
+Multiple ways to select the regularizing sequence $\lambda$ are available.
+
+If a group structure with little correlation between groups can be assumed (i.e., groups in the standardized model matrix are nearly orthogonal), then we suggest to use the sequence `chiMean`. When groups of predictors cannot be assumed to be nearly orthogonal then the Monte Carlo based sequences `chiMC` and `gaussianMC` can be used. However this can increase the computation time significantly.
+
+The sequences `chiOrthoMean` and `chiOrthoMax` can be used together with the options `orthogonalize=FALSE` and `normalize=FALSE`, when the columns of the model matrix are exactly orthogonal to each other.
+
+We do not suggest to use any of the other sequences unless you are an expert on the SLOPE method.
