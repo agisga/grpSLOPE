@@ -4,7 +4,7 @@
 
 ## Installation
 
-Use the R package `devtools` to install the latest development version of `grpSLOPE`:
+The easiest way to install the latest development version of `grpSLOPE` is by using the R package `devtools`. Just open up an R session and run:
 
 ```R
 # Install devtools, if you haven't already.
@@ -13,6 +13,13 @@ install.packages("devtools")
 library(devtools)
 install_github("agisga/grpSLOPE")
 ```
+
+If you don't want to use `devtools`, you can install `grpSLOPE` by downloading the source code and then following these steps:
+
+1. Go to the directory that contains the `grpSLOPE` source code directory.
+2. Open an R session and run `Rcpp::compileAttributes("./grpSLOPE")`. Then quit R.
+3. Run `R CMD build grpSLOPE`. You should then have a file like `grpSLOPE_0.1.0.tar.gz`.
+4. Run `R CMD INSTALL grpSLOPE_0.1.0.tar.gz` to install the package.
 
 ## Contributing
 
