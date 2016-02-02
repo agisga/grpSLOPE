@@ -5,11 +5,14 @@
 #include <algorithm>    // std::random_shuffle, sort
 #include <utility>      // std::pair
 #include <vector>       // std::vector
-#include <ctime>        // std::time
-#include <cstdlib>      // std::rand, std::srand
 
 using namespace Eigen;
 using namespace Rcpp;
+
+// wrapper around R's RNG such that we get a uniform distribution over
+// [0,n) as required by the STL algorithm
+// (source: http://gallery.rcpp.org/articles/stl-random-shuffle )
+inline int randWrapper(const int n) { return floor(unif_rand()*n); }
 
 typedef std::pair<double,int> value_index_pair;
 
@@ -49,8 +52,6 @@ double correctViaMCGaussian(const MatrixXd& X, const VectorXd& lambda,
     double v(0.0);
     double correction(0.0);
 
-    std::srand ( unsigned ( std::time(0) ) );
-
     std::vector<int> indices;
     //std::iota(indices.begin(), indices.end(), 0);
     for (int k=0; k<X.cols(); k++)
@@ -61,7 +62,7 @@ double correctViaMCGaussian(const MatrixXd& X, const VectorXd& lambda,
     for (int i=0; i<number_of_drawings; i++)
     {
         //Randomly select s indices (columns of matrix X)
-        std::random_shuffle(indices.begin(), indices.end());
+        std::random_shuffle(indices.begin(), indices.end(), randWrapper);
         //Fill Xs with the selected columns
         for (int j=0; j<s; j++)
         {
@@ -209,8 +210,6 @@ double lambdaChiMCAdjustment(const Eigen::Map<Eigen::VectorXd>& y,
     // number of known enries of lambda
     int s(lambda.size());
 
-    std::srand ( unsigned ( std::time(0) ) );
-
     std::vector<int> indices;
     for (int k=0; k<p; k++)
     {
@@ -225,7 +224,7 @@ double lambdaChiMCAdjustment(const Eigen::Map<Eigen::VectorXd>& y,
     for (int i=0; i<number_of_drawings; i++)
     {
         // Randomly select s indices (s groups of columns of matrix X)
-        std::random_shuffle(indices.begin(), indices.end());
+        std::random_shuffle(indices.begin(), indices.end(), randWrapper);
 
         // Create matrix Xs filled with the selected columns
         int ncol_Xs = 0;
