@@ -16,7 +16,8 @@ install_github("agisga/grpSLOPE")
 
 If you don't want to use `devtools`, you can install `grpSLOPE` by downloading the source code and then following these steps:
 
-1. Go to the directory that contains the `grpSLOPE` source code directory.
+0. Install the R packages `Rcpp` and `RcppEigen` if you don't have them installed already.
+1. Go to the directory that contains the `grpSLOPE` directory (which contains the `grpSLOPE` source code).
 2. Open an R session and run `Rcpp::compileAttributes("./grpSLOPE")`. Then quit R.
 3. Run `R CMD build grpSLOPE`. You should then have a file like `grpSLOPE_0.1.0.tar.gz`.
 4. Run `R CMD INSTALL grpSLOPE_0.1.0.tar.gz` to install the package.
