@@ -12,7 +12,7 @@
 #'    computed up to the index given by \code{lambda_length} only.
 #' @param number_of_drawings The number of iterations in the Monte Carlo procedure
 #'
-#' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
+#' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE -- Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
 #'
 lambdaMC <- function(lambda_BH, X, lambda_length, number_of_drawings = 5000L) {
     .Call('grpSLOPE_lambdaMC', PACKAGE = 'grpSLOPE', lambda_BH, X, lambda_length, number_of_drawings)
@@ -34,7 +34,7 @@ lambdaMC <- function(lambda_BH, X, lambda_length, number_of_drawings = 5000L) {
 #' @param w A vector of weights per group
 #' @param number_of_drawings The number of iterations in the Monte Carlo procedure
 #'
-#' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE — adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+#' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
 #' @references \url{http://www.alexejgossmann.com/grpSLOPE/Lambda/}
 #'
 lambdaChiMCAdjustment <- function(y, X, group_id, lambda, w, number_of_drawings = 5000L) {

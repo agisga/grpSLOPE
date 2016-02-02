@@ -147,7 +147,7 @@ VectorXd makeNonIncreasing(const VectorXd& cy)
 //'    computed up to the index given by \code{lambda_length} only.
 //' @param number_of_drawings The number of iterations in the Monte Carlo procedure
 //'
-//' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
+//' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE -- Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
 //'
 // [[Rcpp::export]]
 Eigen::VectorXd lambdaMC(const Eigen::Map<Eigen::VectorXd>& lambda_BH, 
@@ -187,7 +187,7 @@ Eigen::VectorXd lambdaMC(const Eigen::Map<Eigen::VectorXd>& lambda_BH,
 //' @param w A vector of weights per group
 //' @param number_of_drawings The number of iterations in the Monte Carlo procedure
 //'
-//' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE — adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+//' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
 //' @references \url{http://www.alexejgossmann.com/grpSLOPE/Lambda/}
 //'
 // [[Rcpp::export]]

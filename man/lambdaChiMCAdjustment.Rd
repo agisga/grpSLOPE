@@ -29,7 +29,7 @@ that the first s coefficients are known. It is required that rank(X) is greater 
 sum of the number of elements in any s groups.
 }
 \references{
-D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE — adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
 
 \url{http://www.alexejgossmann.com/grpSLOPE/Lambda/}
 }

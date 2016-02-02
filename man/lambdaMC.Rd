@@ -21,6 +21,6 @@ computed up to the index given by \code{lambda_length} only.}
    the data via a Monte Carlo approach which assumes normality of the error terms.
 }
 \references{
-M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE - Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
+M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE -- Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
 }
 
