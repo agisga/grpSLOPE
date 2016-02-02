@@ -1,6 +1,6 @@
 # Group SLOPE
 
-[![Travis-CI Build Status](https://travis-ci.com/agisga/grpSLOPE.svg?branch=master)](https://travis-ci.com/agisga/grpSLOPE)
+[![Travis-CI Build Status](https://travis-ci.com/agisga/grpSLOPE.svg?token=MrDRsseBxwE6bVK4mNQS&branch=master)](https://travis-ci.com/agisga/grpSLOPE)
 
 ## Installation
 
