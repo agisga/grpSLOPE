@@ -572,7 +572,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
     optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=group,
                                                      wt=wt.per.coef, 
                                                      lambda=sigma.lambda,
-                                                     verbose=verbose
+                                                     verbose=verbose,
                                                      max.iter=max.iter,
                                                      dual.gap.tol=dual.gap.tol, 
                                                      infeas.tol=infeas.tol,
