@@ -508,6 +508,11 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
 #' @param normalize Whether to center the input data and re-scale the columns
 #'    of the design matrix to have unit norm. Do not disable this unless you
 #'    are certain that your data is appropriately pre-processed.
+#' @param max.iter See \code{\link{proximalGradientSolverGroupSLOPE}}.
+#' @param dual.gap.tol See \code{\link{proximalGradientSolverGroupSLOPE}}.
+#' @param infeas.tol See \code{\link{proximalGradientSolverGroupSLOPE}}.
+#' @param x.init See \code{\link{proximalGradientSolverGroupSLOPE}}.
+#' @param prox Same as argument \code{method} in \code{\link{proximalGradientSolverGroupSLOPE}}.
 #'
 #' @return A list with members:
 #'   \describe{
@@ -529,7 +534,9 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
 grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
                      n.MC = floor(length(unique(group)) / 2),
                      MC.reps = 5000, verbose = FALSE,
-                     orthogonalize = TRUE, normalize = TRUE) {
+                     orthogonalize = TRUE, normalize = TRUE,
+                     max.iter=1e4, dual.gap.tol=1e-6, infeas.tol=1e-6,
+                     x.init=vector(), prox="rcpp") {
   group.id <- getGroupID(group)
   n.group  <- length(group.id)
   n  <- nrow(X)
@@ -565,7 +572,11 @@ grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
     optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=group,
                                                      wt=wt.per.coef, 
                                                      lambda=sigma.lambda,
-                                                     verbose=verbose)
+                                                     verbose=verbose
+                                                     max.iter=max.iter,
+                                                     dual.gap.tol=dual.gap.tol, 
+                                                     infeas.tol=infeas.tol,
+                                                     x.init=x.init, method=prox)
   } else {
     # sigma needs to be estimated
     sigma <- sd(y)
@@ -573,7 +584,11 @@ grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
     optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=group,
                                                      wt=wt.per.coef, 
                                                      lambda=sigma.lambda,
-                                                     verbose=verbose)
+                                                     verbose=verbose,
+                                                     max.iter=max.iter,
+                                                     dual.gap.tol=dual.gap.tol, 
+                                                     infeas.tol=infeas.tol,
+                                                     x.init=x.init, method=prox)
     S.new <- which(optim.result$x != 0)
     S <- c()
     while(!isTRUE(all.equal(S, S.new)) && (length(S.new) > 0) ) {
@@ -588,7 +603,11 @@ grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
       optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=group,
                                                        wt=wt.per.coef, 
                                                        lambda=sigma.lambda,
-                                                       verbose=verbose)
+                                                       verbose=verbose,
+                                                       max.iter=max.iter,
+                                                       dual.gap.tol=dual.gap.tol, 
+                                                       infeas.tol=infeas.tol,
+                                                       x.init=x.init, method=prox)
       S.new <- which(optim.result$x != 0)
     }
   }
