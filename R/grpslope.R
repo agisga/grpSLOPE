@@ -502,9 +502,7 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
 #' @param MC.reps The number of repetitions of the Monte Carlo procedure
 #' @param verbose Verbosity
 #' @param orthogonalize Whether to orthogonalize the model matrix within each group.
-#'    Only relevant if \code{lambda} is one of "chiOrthoMax", "chiOrthoMean",
-#'    "chiEqual", "chiMean", "chiMC". Do not disable unless you are certain
-#'    that your data is appropriately pre-processed.
+#'    Do not set manually unless you are certain that your data is appropriately pre-processed.
 #' @param normalize Whether to center the input data and re-scale the columns
 #'    of the design matrix to have unit norm. Do not disable this unless you
 #'    are certain that your data is appropriately pre-processed.
@@ -534,7 +532,7 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
 grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
                      n.MC = floor(length(unique(group)) / 2),
                      MC.reps = 5000, verbose = FALSE,
-                     orthogonalize = TRUE, normalize = TRUE,
+                     orthogonalize = NULL, normalize = TRUE,
                      max.iter=1e4, dual.gap.tol=1e-6, infeas.tol=1e-6,
                      x.init=vector(), prox="rcpp") {
   group.id <- getGroupID(group)
@@ -554,7 +552,15 @@ grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
   }
 
   # within group orthogonalization ------------------------------------
-  if (orthogonalize && (lambda %in% c("chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC"))) {
+  if (is.null(orthogonalize)) {
+    if (lambda %in% c("chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC")) {
+      orthogonalize <- TRUE
+    } else {
+      orthogonalize <- FALSE
+    }
+  }
+
+  if (orthogonalize) {
     ortho <- orthogonalizeGroups(X, group.id)
     for (i in 1:n.group) {
       X[ , group.id[[i]]] <- ortho[[i]]$Q
@@ -645,7 +651,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
   sol$group.norms <- rep(NA, n.group)
   for (i in 1:n.group) {
     if (orthogonalize) {
-      Xbetai <- X[ , group.id[[i]]] %*% sol$c[group.id[[i]]]
+      Xbetai <- X[ , group.id[[i]]] %*% as.matrix(sol$c[group.id[[i]]])
       sol$group.norms[i] <- norm(as.matrix(Xbetai), "f")
     } else {
       sol$group.norms[i] <- norm(as.matrix(sol$beta[group.id[[i]]]), "f") 

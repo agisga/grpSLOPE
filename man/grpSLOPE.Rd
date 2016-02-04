@@ -6,7 +6,9 @@
 \usage{
 grpSLOPE(X, y, group, fdr, lambda, sigma = NULL,
   n.MC = floor(length(unique(group))/2), MC.reps = 5000, verbose = FALSE,
-  orthogonalize = TRUE, normalize = TRUE)
+  orthogonalize = NULL, normalize = TRUE, max.iter = 10000,
+  dual.gap.tol = 1e-06, infeas.tol = 1e-06, x.init = vector(),
+  prox = "rcpp")
 }
 \arguments{
 \item{X}{The model matrix}
@@ -32,13 +34,21 @@ computed up to the index given by \code{n.MC} only. See Details.}
 \item{verbose}{Verbosity}
 
 \item{orthogonalize}{Whether to orthogonalize the model matrix within each group.
-Only relevant if \code{lambda} is one of "chiOrthoMax", "chiOrthoMean",
-"chiEqual", "chiMean", "chiMC". Do not disable unless you are certain
-that your data is appropriately pre-processed.}
+Do not set manually unless you are certain that your data is appropriately pre-processed.}
 
 \item{normalize}{Whether to center the input data and re-scale the columns
 of the design matrix to have unit norm. Do not disable this unless you
 are certain that your data is appropriately pre-processed.}
+
+\item{max.iter}{See \code{\link{proximalGradientSolverGroupSLOPE}}.}
+
+\item{dual.gap.tol}{See \code{\link{proximalGradientSolverGroupSLOPE}}.}
+
+\item{infeas.tol}{See \code{\link{proximalGradientSolverGroupSLOPE}}.}
+
+\item{x.init}{See \code{\link{proximalGradientSolverGroupSLOPE}}.}
+
+\item{prox}{Same as argument \code{method} in \code{\link{proximalGradientSolverGroupSLOPE}}.}
 }
 \value{
 A list with members:
