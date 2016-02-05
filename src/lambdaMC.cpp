@@ -295,7 +295,7 @@ double lambdaChiMCAdjustment(const Eigen::Map<Eigen::VectorXd>& y,
         // and
         // v2 = Xi.transpose() * ( Identity - Xs * (Xs.transpose() * Xs).inverse() Xs.transpose() ) * z,
         // where z is a standard normal vector.
-        // Then the sum is updated with v1.squaredNorm() + v2.squaredNorm().
+        // Then the sum is updated with (v1 + v2).squaredNorm()
         Eigen::MatrixXd LinSys = Xs.transpose() * Xs;
         Eigen::MatrixXd RHS = Xs.transpose() * Xi;
         Eigen::MatrixXd tmp_mat = LinSys.ldlt().solve(RHS);
@@ -308,9 +308,7 @@ double lambdaChiMCAdjustment(const Eigen::Map<Eigen::VectorXd>& y,
         for (int j=0; j<nXs; j++) { zvec(j) = R::rnorm(0.0,1.0); }
         Eigen::VectorXd v2 = Xi.transpose() * tmp_mat3 * zvec;
         
-        MC_sum += v1.squaredNorm();
-        MC_sum += v2.squaredNorm();
-
+        MC_sum += (v1 + v2).squaredNorm();
         total_summands += v1.size();
     }
 
