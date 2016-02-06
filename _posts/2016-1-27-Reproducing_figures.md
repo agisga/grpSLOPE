@@ -45,15 +45,15 @@ In order to test whether the R package grpSLOPE functions as intended, we reprod
 
 ### (a)
 
-![Brzyski figure 4 (a)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_4a.png)
+![Brzyski figure 4 (a)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_4a.jpg)
 
 ### (b)
 
-![Brzyski figure 4 (b)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_4b.png)
+![Brzyski figure 4 (b)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_4b.jpg)
 
 ### (c)
 
-![Brzyski figure 4 (c)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_4c.png)
+![Brzyski figure 4 (c)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_4c.jpg)
 
 
 ## Gossmann et. al. (2015) figures
