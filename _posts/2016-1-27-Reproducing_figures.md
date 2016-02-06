@@ -39,6 +39,23 @@ In order to test whether the R package grpSLOPE functions as intended, we reprod
 ![Brzyski figure 3 (c)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_3c.png)
 
 
+## Brzyski et. al. (2015) figure 4
+
+[Code](https://github.com/agisga/grpSLOPE_examples/blob/master/Brzyski_figure_4.R)
+
+### (a)
+
+![Brzyski figure 4 (a)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_4a.png)
+
+### (b)
+
+![Brzyski figure 4 (b)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_4b.png)
+
+### (c)
+
+![Brzyski figure 4 (c)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_4c.png)
+
+
 ## Gossmann et. al. (2015) figures
 
 [Code](https://github.com/agisga/grpSLOPE_examples/blob/master/Gossmann_paper_figures.R)
