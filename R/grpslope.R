@@ -529,7 +529,7 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
 #' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
 #'
 #' @export
-grpSLOPE <- function(X, y, group, fdr, lambda, sigma = NULL,
+grpSLOPE <- function(X, y, group, fdr, lambda = "chiMean", sigma = NULL,
                      n.MC = floor(length(unique(group)) / 2),
                      MC.reps = 5000, verbose = FALSE,
                      orthogonalize = NULL, normalize = TRUE,

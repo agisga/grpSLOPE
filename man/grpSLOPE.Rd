@@ -4,7 +4,7 @@
 \alias{grpSLOPE}
 \title{Group SLOPE (Group Sorted L-One Penalized Estimation)}
 \usage{
-grpSLOPE(X, y, group, fdr, lambda, sigma = NULL,
+grpSLOPE(X, y, group, fdr, lambda = "chiMean", sigma = NULL,
   n.MC = floor(length(unique(group))/2), MC.reps = 5000, verbose = FALSE,
   orthogonalize = NULL, normalize = TRUE, max.iter = 10000,
   dual.gap.tol = 1e-06, infeas.tol = 1e-06, x.init = vector(),
