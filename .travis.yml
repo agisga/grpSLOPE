@@ -1,5 +1,6 @@
-# Sample .travis.yml for R projects
-
 language: r
 warnings_are_errors: true
 sudo: required
+install:
+  - Rscript -e 'install.packages("devtools", repos = "http://cran.rstudio.com")'
+  - Rscript -e 'install.packages(c("Rcpp", "RcppEigen", "SLOPE", "testthat", "knitr", "rmarkdown"), repos = "http://cran.rstudio.com")'
