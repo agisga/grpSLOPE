@@ -2,6 +2,9 @@
 
 [![Travis-CI Build Status](https://travis-ci.com/agisga/grpSLOPE.svg?token=MrDRsseBxwE6bVK4mNQS&branch=master)](https://travis-ci.com/agisga/grpSLOPE)
 
+Group SLOPE is a penalized linear regression method that is used for adaptive selection of groups of significant predictors in a high-dimensional linear model. It was introduced in [Brzyski et. al. (2015) *Group SLOPE &mdash; adaptive selection of groups of predictors*](http://arxiv.org/abs/1511.09078) and [Gossmann et. al. (2015) *Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE*](http://dx.doi.org/10.1145/2808719.2808743).
+A unique feature of the Group SLOPE method is that it offers (group) false discovery rate control (i.e., control of the expected proportion of irrelevant groups among the total number of groups selected by the Group SLOPE method).
+
 ## Installation
 
 The easiest way to install the latest development version of `grpSLOPE` is by using the R package `devtools`. Just open up an R session and run:
