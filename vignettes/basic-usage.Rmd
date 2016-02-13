@@ -73,7 +73,9 @@ y <- X %*% b + rnorm(p)
 We fit the Group SLOPE model to the simulated data. The function argument `fdr` signifies the target (group-wise) false discovery rate of the variable selection procedure.
 
 ```{r}
-result <- grpSLOPE::grpSLOPE(X=X, y=y, group=group, fdr=0.1, lambda="chiMean")
+library(grpSLOPE)
+
+result <- grpSLOPE::grpSLOPE(X=X, y=y, group=group, fdr=0.1)
 ```
 
 We can display which groups were selected as significant by the Group SLOPE method.
