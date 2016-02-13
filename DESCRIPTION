@@ -1,7 +1,7 @@
 Package: grpSLOPE
 Type: Package
 Title: Group SLOPE (Sorted L1 Penalized Estimation)
-Version: 0.1.0
+Version: 0.0.0.9000
 Authors@R: person("Alexej", "Gossmann", email = "alexej.go@googlemail.com", role = c("aut", "cre"))
 Description: The Group SLOPE method can be used to select groups of predictor
     variables in a linear regression model with pre-specified group structures among
@@ -16,7 +16,7 @@ Imports:
     RcppEigen (>= 0.3.2.4.0),
     SLOPE (>= 0.1.1)
 LinkingTo: Rcpp, RcppEigen
-RoxygenNote: 5.0.1
+RoxygenNote: 5.0.0
 Suggests:
     testthat,
     knitr,
