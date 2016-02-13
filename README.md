@@ -31,6 +31,16 @@ If you don't want to use `devtools`, you can install `grpSLOPE` by downloading t
 
 ## Usage
 
+The basic model fitting procedure is:
+
+```R
+library(grpSLOPE)
+
+result <- grpSLOPE(X=X, y=y, group=group, fdr=0.1)
+```
+
+where `X` is the model matrix, `y` the response vector, `group` a vector specifying group memberships of the predictor variables, and `fdr` the target (group) false discovery rate of the variable selection procedure.
+
 A basic usage example can be found [here](http://www.alexejgossmann.com/grpSLOPE/basic-usage/).
 
 More complicated example codes (of varying quality and readability) are available in the repository [grpSLOPE_examples](https://github.com/agisga/grpSLOPE_examples).
