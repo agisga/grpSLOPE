@@ -1,4 +1,4 @@
-# Group SLOPE
+# grpSLOPE
 
 [![Build Status](https://travis-ci.org/agisga/grpSLOPE.svg?branch=master)](https://travis-ci.org/agisga/grpSLOPE)
 
