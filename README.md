@@ -39,11 +39,11 @@ library(grpSLOPE)
 result <- grpSLOPE(X=X, y=y, group=group, fdr=0.1)
 ```
 
-where `X` is the model matrix, `y` the response vector, `group` a vector specifying group memberships of the predictor variables, and `fdr` the target (group) false discovery rate of the variable selection procedure.
+where `X` is the model matrix, `y` the response vector, `group` a vector specifying group memberships of the predictor variables, and `fdr` the target (group) false discovery rate for the variable selection procedure.
 
-A basic usage example can be found [here](http://www.alexejgossmann.com/grpSLOPE/basic-usage/).
+A detailed basic usage example can be found [here](http://www.alexejgossmann.com/grpSLOPE/basic-usage/).
 
-More complicated example codes (of varying quality and readability) are available in the repository [grpSLOPE_examples](https://github.com/agisga/grpSLOPE_examples).
+More complicated (and less helpful) example codes (of varying quality and readability) are available in the repository [grpSLOPE_examples](https://github.com/agisga/grpSLOPE_examples).
 
 ## Contributing
 
