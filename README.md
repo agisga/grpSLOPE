@@ -7,6 +7,8 @@ A unique feature of the Group SLOPE method is that it offers (group) false disco
 
 ## Installation
 
+### With devtools (recommended)
+
 The easiest way to install the latest development version of `grpSLOPE` is by using the R package `devtools`. Just open up an R session and run:
 
 ```R
@@ -17,6 +19,8 @@ library(devtools)
 install_github("agisga/grpSLOPE")
 ```
 
+### Without devtools (not recommended)
+
 If you don't want to use `devtools`, you can install `grpSLOPE` by downloading the source code and then following these steps:
 
 0. Install the R packages `Rcpp` and `RcppEigen` if you don't have them installed already.
@@ -24,6 +28,12 @@ If you don't want to use `devtools`, you can install `grpSLOPE` by downloading t
 2. Open an R session and run `Rcpp::compileAttributes("./grpSLOPE")`. Then quit R.
 3. Run `R CMD build grpSLOPE`. You should then have a file like `grpSLOPE_0.1.0.tar.gz`.
 4. Run `R CMD INSTALL grpSLOPE_0.1.0.tar.gz` to install the package.
+
+## Usage
+
+A basic usage example can be found [here](http://www.alexejgossmann.com/grpSLOPE/basic-usage/).
+
+More complicated example codes (of varying quality and readability) are available in the repository [grpSLOPE_examples](https://github.com/agisga/grpSLOPE_examples).
 
 ## Contributing
 
