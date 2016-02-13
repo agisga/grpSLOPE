@@ -18,7 +18,7 @@ A unique feature of the Group SLOPE method is that it offers (group) false disco
 
 We simulate a SNP-data-like model matrix. 
 
-**Note:** In fact, the Group SLOPE method is designed to work with a data matrix, where the columns corresponding to different groups of predictors are nearly orthogonal. Only for the brevity of exposition we do not check for or enforce low between group correlations in this example.
+**Note:** In fact, the Group SLOPE method is designed to work with a data matrix, where the columns corresponding to different groups of predictors are nearly uncorrelated. Only for the brevity of exposition we do not check for or enforce low between group correlations in this example.
 
 ```{r}
 set.seed(1)
@@ -36,7 +36,7 @@ Upper left $10 \times 10$ corner of $X$:
 pander::pandoc.table(X[1:10, 1:10])
 ```
 
-We divide the predictors into 100 groups of sizes from ranging from 3 to 7.
+We divide the predictors into 100 groups of sizes ranging from 3 to 7.
 
 ```{r}
 group <- c(rep(1:20, each=3),
@@ -61,6 +61,7 @@ Then we generate the vector of predictor coefficients and the response vector ac
 ```{r}
 b <- rep(0, p)
 for (j in ind.relevant) {
+  # generate effect sizes from the Uniform(0,1) distribution
   b[group.id[[j]]] <- runif(group.length[j])
 }
 
