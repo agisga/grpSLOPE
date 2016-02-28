@@ -516,7 +516,7 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
 #' @param lambda Method used to obtain the regularizing sequence lambda. Possible
 #'    values are "BH", "gaussian", "gaussianMC", "chiOrthoMax", "chiOrthoMean",
 #'    "chiEqual", "chiMean", "chiMC". See \code{\link{lambdaGroupSLOPE}} for detail.
-#'    Alternatively, any non-increasing sequence of the right length can be passed.
+#'    Alternatively, any non-increasing sequence of the correct length can be passed.
 #' @param sigma Noise level. If ommited, estimated from the data. See details.
 #' @param n.MC When \code{method} is "gaussianMC" or "chiMC", the corrections of the entries of lambda will be 
 #'    computed up to the index given by \code{n.MC} only. See Details.
@@ -574,6 +574,10 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "chiMean", sigma = NULL,
 
   # within group orthogonalization ------------------------------------
   if (is.null(orthogonalize)) {
+    if (is.numeric(lambda)) {
+      stop("If lambda is numeric, the argument orthogonalize must be set manually.")
+    }
+
     if (lambda %in% c("chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC")) {
       orthogonalize <- TRUE
     } else {
