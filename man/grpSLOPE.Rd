@@ -22,7 +22,8 @@ contain a group id for each predictor variable.}
 
 \item{lambda}{Method used to obtain the regularizing sequence lambda. Possible
 values are "BH", "gaussian", "gaussianMC", "chiOrthoMax", "chiOrthoMean",
-"chiEqual", "chiMean", "chiMC". See \code{\link{lambdaGroupSLOPE}} for detail.}
+"chiEqual", "chiMean", "chiMC". See \code{\link{lambdaGroupSLOPE}} for detail.
+Alternatively, any non-increasing sequence of the right length can be passed.}
 
 \item{sigma}{Noise level. If ommited, estimated from the data. See details.}
 
