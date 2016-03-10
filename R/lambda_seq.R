@@ -53,7 +53,7 @@ lambdaGaussianMC <- function(fdr, n.group, group.id, A, n.MC, MC.reps) {
 
   mA <- matrix(NA, nrow(A), n.group)
   for (i in 1:n.group) {
-    mA[ , i] <- apply(A[ , group.id[[i]] ], 1, mean)
+    mA[ , i] <- apply(as.matrix(A[ , group.id[[i]] ]), 1, mean)
     mA[ , i] <- mA[ , i] / sqrt(sum(mA[ , i]^2))
   }
 
