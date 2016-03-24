@@ -667,8 +667,16 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "chiMean", sigma = NULL,
       sol$beta <- rep(NA, length(sol$c))
       for (i in 1:n.group) {
         ci <- sol$c[group.id[[i]]]
-        bi <- backsolve(ortho[[i]]$R, ci)
         li <- group.length[i]
+
+        bi <- tryCatch({ 
+          backsolve(ortho[[i]]$R, ci) 
+        }, error = function(err) {
+          print("grpSLOPE caught an error:")
+          print(err)
+          return(rep(NA, li))
+        })
+
         or <- rep(NA, li)
         for (j in 1:li) { or[j] <- which(ortho[[i]]$P == j) }
         betai <- bi[or]
