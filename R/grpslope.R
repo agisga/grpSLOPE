@@ -33,6 +33,12 @@ NULL
 #' @param y A vector
 #' @param lambda A vector whose entries should form a nonincreasing sequence
 #'
+#' @examples
+#' y <- seq(100, 10, l=10)
+#' lambda <- 10:1
+#' proxSortedL1(y, lambda)
+#' #  [1] 90 81 72 63 54 45 36 27 18  9
+#'
 #' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE -- Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
 #'
 #' @export
@@ -77,6 +83,8 @@ proxSortedL1 <- function (y, lambda)
 #' @examples
 #' grp <- c(0,0,0,1,1,0,2,1,0,2)
 #' proxGroupSortedL1(y = 1:10, group = grp, lambda = 10:1)
+#' #  [1] 0.2032270 0.4064540 0.6096810 0.8771198 1.0963997 1.2193620 1.3338960
+#' #  [8] 1.7542395 1.8290430 1.9055657
 #'
 #' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE -- Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
 #'
@@ -155,9 +163,20 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "rcpp") {
 #' lam <- 0.1 * (10:7)
 #' result <- proximalGradientSolverGroupSLOPE(y=y, A=A, group=grp, wt=wt, lambda=lam, verbose=FALSE)
 #' result$x
+#' #           [,1]
+#' #  [1,] 0.000000
+#' #  [2,] 0.000000
+#' #  [3,] 3.856005
+#' #  [4,] 2.080736
+#' #  [5,] 0.000000
+#' #  [6,] 0.000000
+#' #  [7,] 0.000000
+#' #  [8,] 0.000000
+#' #  [9,] 0.000000
+#' # [10,] 3.512833
 #'
-#' @references A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
 #' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+#' @references A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
 #'
 #' @export
 proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1e4,
@@ -381,23 +400,25 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 #' fdr     <- 0.1
 #' n.obs   <- 700
 #' n.group <- 90
+#' # generate 90 groups of sizes 5, 10, and 20
 #' group   <- vector()
 #' for (i in 1:30) {
 #'   tmp <- rep((i-1)*3+c(1,2,3), c(5,10,20))
 #'   group <- c(group, tmp)
 #' }
+#' # set the weight for each group to the square root of the group's size
 #' wt <- rep(c(sqrt(5), sqrt(10), sqrt(20)), 30)
 #' names(wt) <- names(getGroupID(group))
-#'
+#' # compute different lambda sequences
 #' lambda.BH <- lambdaGroupSLOPE(fdr=fdr, n.group=n.group, method="BH")
 #' lambda.G <- lambdaGroupSLOPE(fdr=fdr, n.group=n.group, n.obs=n.obs, method="gaussian")
 #' lambda.max <- lambdaGroupSLOPE(fdr=fdr, group=group, wt=wt, method="chiOrthoMax") 
 #' lambda.mean <- lambdaGroupSLOPE(fdr=fdr, group=group, wt=wt, method="chiOrthoMean") 
 #' lambda.chi <- lambdaGroupSLOPE(fdr=fdr, n.obs=n.obs, group=group, wt=wt, method="chiMean")
 #'
-#' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE -- Adaptive variable selection via convex optimization}, Annals of Applied Statistics
-#' @references A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
 #' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+#' @references A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
+#' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE -- Adaptive variable selection via convex optimization}, Annals of Applied Statistics
 #'
 #' @export
 lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
@@ -546,8 +567,24 @@ lambdaGroupSLOPE <- function(fdr=0.1, n.group=NULL, group=NULL,
 #'     \item{sigma}{(Estimated) noise level}
 #'   }
 #'
-#' @references A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
+#' @examples
+#' # generate some data
+#' set.seed(1)
+#' A   <- matrix(rnorm(100^2), 100, 100)
+#' grp <- rep(rep(1:20), each=5)
+#' b   <- c(runif(20), rep(0, 80))
+#' # (i.e., groups 1, 2, 3, 4, are truly significant)
+#' y   <- A %*% b + rnorm(10) 
+#' fdr <- 0.1 # target false discovery rate
+#' # fit a Group SLOPE model
+#' result <- grpSLOPE(X=A, y=y, group=grp, fdr=fdr)
+#' result$selected
+#' # [1] "1"  "2"  "3"  "4"  "14"
+#' result$sigma
+#' # [1] 0.7968632
+#'
 #' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+#' @references A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
 #'
 #' @export
 grpSLOPE <- function(X, y, group, fdr, lambda = "chiMean", sigma = NULL,

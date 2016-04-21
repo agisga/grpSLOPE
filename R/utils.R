@@ -29,6 +29,22 @@
 #'    vectors of indices corresponding to each group. The names of
 #'    the list members are the corresponding group names.
 #'
+#' @examples
+#' group  <- c("A", "A", 2, 9, "A", 9, 9, 2, "A")
+#' group.id <- getGroupID(group)
+#' group.id
+#' # $A
+#' # [1] 1 2 5 9
+#' # 
+#' # $`2`
+#' # [1] 3 8
+#' # 
+#' # $`9`
+#' # [1] 4 6 7
+#' # 
+#' # attr(,"class")
+#' # [1] "groupID"
+#'
 #' @export
 getGroupID <- function(group) {
   group.unique <- unique(group)
