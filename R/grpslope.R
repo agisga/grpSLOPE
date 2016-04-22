@@ -20,7 +20,6 @@
 
 #' @useDynLib grpSLOPE
 #' @importFrom Rcpp sourceCpp
-#' @import RcppEigen
 NULL
 #> NULL
 
