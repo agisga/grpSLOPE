@@ -92,9 +92,26 @@ being \eqn{\| X_{I_i} \beta_{I_i} \|} or \eqn{\| \beta_{I_i} \|} (depending on m
 the overall effect of each group. Also, note that the vector \code{beta} corresponds to the normalized
 versions of \code{X} and \code{y}.
 }
-\references{
-A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
+\examples{
+# generate some data
+set.seed(1)
+A   <- matrix(rnorm(100^2), 100, 100)
+grp <- rep(rep(1:20), each=5)
+b   <- c(runif(20), rep(0, 80))
+# (i.e., groups 1, 2, 3, 4, are truly significant)
+y   <- A \%*\% b + rnorm(10) 
+fdr <- 0.1 # target false discovery rate
+# fit a Group SLOPE model
+result <- grpSLOPE(X=A, y=y, group=grp, fdr=fdr)
+result$selected
+# [1] "1"  "2"  "3"  "4"  "14"
+result$sigma
+# [1] 0.7968632
 
+}
+\references{
 D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+
+A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
 }
 

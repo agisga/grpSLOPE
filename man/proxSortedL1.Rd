@@ -17,6 +17,13 @@ A fast stack-based algorithm for the prox for the Sorted L1 norm.
 \details{
 See Algorithm 4 in Bogdan et. al. (2015).
 }
+\examples{
+y <- seq(100, 10, l=10)
+lambda <- 10:1
+proxSortedL1(y, lambda)
+#  [1] 90 81 72 63 54 45 36 27 18  9
+
+}
 \references{
 M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE -- Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
 }

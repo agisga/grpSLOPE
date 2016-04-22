@@ -60,14 +60,16 @@ number of groups.
 fdr     <- 0.1
 n.obs   <- 700
 n.group <- 90
+# generate 90 groups of sizes 5, 10, and 20
 group   <- vector()
 for (i in 1:30) {
   tmp <- rep((i-1)*3+c(1,2,3), c(5,10,20))
   group <- c(group, tmp)
 }
+# set the weight for each group to the square root of the group's size
 wt <- rep(c(sqrt(5), sqrt(10), sqrt(20)), 30)
 names(wt) <- names(getGroupID(group))
-
+# compute different lambda sequences
 lambda.BH <- lambdaGroupSLOPE(fdr=fdr, n.group=n.group, method="BH")
 lambda.G <- lambdaGroupSLOPE(fdr=fdr, n.group=n.group, n.obs=n.obs, method="gaussian")
 lambda.max <- lambdaGroupSLOPE(fdr=fdr, group=group, wt=wt, method="chiOrthoMax") 
@@ -76,10 +78,10 @@ lambda.chi <- lambdaGroupSLOPE(fdr=fdr, n.obs=n.obs, group=group, wt=wt, method=
 
 }
 \references{
-M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE -- Adaptive variable selection via convex optimization}, Annals of Applied Statistics
+D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
 
 A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
 
-D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE -- Adaptive variable selection via convex optimization}, Annals of Applied Statistics
 }
 

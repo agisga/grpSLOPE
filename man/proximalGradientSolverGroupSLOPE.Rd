@@ -61,11 +61,22 @@ y   <- A \%*\% x
 lam <- 0.1 * (10:7)
 result <- proximalGradientSolverGroupSLOPE(y=y, A=A, group=grp, wt=wt, lambda=lam, verbose=FALSE)
 result$x
+#           [,1]
+#  [1,] 0.000000
+#  [2,] 0.000000
+#  [3,] 3.856005
+#  [4,] 2.080736
+#  [5,] 0.000000
+#  [6,] 0.000000
+#  [7,] 0.000000
+#  [8,] 0.000000
+#  [9,] 0.000000
+# [10,] 3.512833
 
 }
 \references{
-A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
-
 D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+
+A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
 }
 
