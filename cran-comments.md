@@ -6,11 +6,17 @@
 ## R CMD check results
 There were no ERRORs or WARNINGs. 
 
-There was 1 NOTE:
+There were 2 NOTEs:
 
 * checking installed package size ... NOTE
   installed size is  7.7Mb
   sub-directories of 1Mb or more:
     libs   7.6Mb 
 
-  The size is due to a .so file resulting from the usage of Rcpp and RcppEigen
+  The size is due to a .so file resulting from the usage of Rcpp and RcppEigen.
+
+* checking CRAN incoming feasibility ... NOTE
+  Maintainer: 'Alexej Gossmann <alexej.go@googlemail.com>'
+  New submission
+
+  It's my first CRAN submission.
