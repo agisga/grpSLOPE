@@ -12,7 +12,7 @@ vignette: >
 ## Introduction
 
 Group SLOPE is a penalized linear regression method that is used for adaptive selection of groups of significant predictors in a high-dimensional linear model. It was introduced in [Brzyski et. al. (2015) *Group SLOPE &mdash; adaptive selection of groups of predictors*](http://arxiv.org/abs/1511.09078) and [Gossmann et. al. (2015) *Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE*](http://dx.doi.org/10.1145/2808719.2808743).
-A unique feature of the Group SLOPE method is that it offers (group) false discovery rate control (i.e., control of the expected proportion of irrelevant groups among the total number of groups selected by the Group SLOPE method).
+A unique property of the Group SLOPE method is that it offers (group) false discovery rate control (i.e., control of the expected proportion of irrelevant groups among the total number of groups selected by the Group SLOPE method).
 
 ## Data generation
 
@@ -56,7 +56,7 @@ ind.relevant <- sample(1:n.group, 10)
 print(sort(ind.relevant))
 ```
 
-Then we generate the vector of predictor coefficients and the response vector according to a linear model.
+Then we generate the regression coefficient vector and the response vector according to a linear model.
 
 ```{r}
 b <- rep(0, p)
@@ -79,10 +79,21 @@ library(grpSLOPE)
 result <- grpSLOPE::grpSLOPE(X=X, y=y, group=group, fdr=0.1)
 ```
 
+## Model fit results
+
 We can display which groups were selected as significant by the Group SLOPE method.
 
 ```{r}
 result$selected
+```
+
+Similarly, we can look at the estimates of the noise level and the regression coefficients.
+
+```{r}
+# estimated sigma (true sigma is equal to one)
+result$sigma
+# first 14 entries of b estimate:
+result$beta[1:14]
 ```
 
 It might also be interesting to plot the first few elements of the regularizing sequence $\lambda$ used by the Group SLOPE method for the given inputs.
@@ -90,9 +101,6 @@ It might also be interesting to plot the first few elements of the regularizing 
 ```{r}
 plot(result$lambda[1:10], xlab = "Index", ylab = "Lambda", type="l")
 ```
-
-
-## Evaluating the results
 
 We check the performance of the method by computing the resulting (group) false discovery proportion (gFDP) and power.
 
@@ -104,14 +112,14 @@ truepos       <- intersect(result$selected, true.relevant)
 n.truepos  <- length(truepos)
 n.falsepos <- n.selected - n.truepos
 
-FDP <- n.falsepos / max(1, n.selected)
+gFDP <- n.falsepos / max(1, n.selected)
 pow <- n.truepos / length(true.relevant)
 
-print(paste("FDP =", FDP))
+print(paste("gFDP =", gFDP))
 print(paste("Power =", pow))
 ```
 
-We see that the method indeed did not exceed the target FDR, while maintaining a high power.
+We see that the method indeed did not exceed the target gFDR, while maintaining a high power.
 
 ## Lambda sequence
 
@@ -119,8 +127,8 @@ Multiple ways to select the regularizing sequence $\lambda$ are available.
 
 If a group structure with little correlation between groups can be assumed (i.e., groups in the standardized model matrix are nearly orthogonal), then we suggest to use the sequence `chiMean`, which is the default.
 
-When groups of predictors cannot be assumed to be nearly orthogonal then the Monte Carlo based sequences `chiMC` and `gaussianMC` can be used. However this can increase the computation time significantly.
+When groups of predictors cannot be assumed to be nearly orthogonal then the Monte Carlo based sequences `chiMC` and `gaussianMC` might be advantageous. However this will increase the computation time significantly.
 
 The sequences `chiOrthoMean` and `chiOrthoMax` can be used together with the options `orthogonalize=FALSE` and `normalize=FALSE`, when the columns of the model matrix are exactly orthogonal to each other.
 
-We do not suggest to use any of the other sequences unless you are an expert on the SLOPE method.
+Alternatively, any non-increasing sequence of appropriate length can be used. However, we do not suggest to use any other sequences unless you are an expert on the (Group) SLOPE method.
