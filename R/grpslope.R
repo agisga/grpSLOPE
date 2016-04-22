@@ -20,6 +20,7 @@
 
 #' @useDynLib grpSLOPE
 #' @importFrom Rcpp sourceCpp
+#' @importFrom stats lm pchisq qchisq qnorm rnorm sd uniroot
 NULL
 #> NULL
 

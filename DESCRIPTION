@@ -12,9 +12,9 @@ Authors@R: c(person("Alexej", "Gossmann", email = "alexej.go@googlemail.com", ro
       comment = "Some optimization code was extracted from http://statweb.stanford.edu/~candes/SortedL1/software.html under the GNU GPL-3 licence"))
 Description: Group SLOPE is a penalized linear regression method that is used
     for adaptive selection of groups of significant predictors in a
-    high-dimensional linear model. 
+    high-dimensional linear model.
     The Group SLOPE method can control the (group) false discovery rate at a
-    user-specified level (i.e., control the expected proportion of irrelevant 
+    user-specified level (i.e., control the expected proportion of irrelevant
     among all selected groups of predictors).
 License: GPL-3
 URL: https://github.com/agisga/grpSLOPE.git
@@ -24,7 +24,7 @@ Imports:
     Rcpp (>= 0.12.1),
     SLOPE (>= 0.1.1)
 LinkingTo: Rcpp, RcppEigen
-RoxygenNote: 5.0.0
+RoxygenNote: 5.0.1
 Suggests:
     testthat,
     knitr,
