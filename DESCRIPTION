@@ -2,13 +2,20 @@ Package: grpSLOPE
 Type: Package
 Title: Group SLOPE (Group Sorted L1 Penalized Estimation)
 Version: 0.0.0.9000
-Authors@R: person("Alexej", "Gossmann", email = "alexej.go@googlemail.com", role = c("aut", "cre"))
+Authors@R: c(person("Alexej", "Gossmann", email = "alexej.go@googlemail.com", role = c("aut", "cre")),
+    person("Damian", "Brzyski", role = "aut"),
+    person("Weijie", "Su", role = "aut"),
+    person("Malgorzata", "Bogdan", role = "aut"),
+    person("Ewout", "van den Berg", role = "ctb",
+      comment = "Some optimization code was extracted from http://statweb.stanford.edu/~candes/SortedL1/software.html under the GNU GPL-3 licence"),
+    person("Emmanuel", "Candes", role = "ctb",
+      comment = "Some optimization code was extracted from http://statweb.stanford.edu/~candes/SortedL1/software.html under the GNU GPL-3 licence"))
 Description: Group SLOPE is a penalized linear regression method that is used
     for adaptive selection of groups of significant predictors in a
     high-dimensional linear model. 
     The Group SLOPE method can control the (group) false discovery rate at a
-    user-specified level (i.e., control the expected proportion of irrelevant
-    groups among the total number of groups of predictors selected by method).
+    user-specified level (i.e., control the expected proportion of irrelevant 
+    among all selected groups of predictors).
 License: GPL-3
 URL: https://github.com/agisga/grpSLOPE.git
 BugReports: https://github.com/agisga/grpSLOPE/issues
