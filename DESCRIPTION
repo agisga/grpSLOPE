@@ -7,9 +7,9 @@ Authors@R: c(person("Alexej", "Gossmann", email = "alexej.go@googlemail.com", ro
     person("Weijie", "Su", role = "aut"),
     person("Malgorzata", "Bogdan", role = "aut"),
     person("Ewout", "van den Berg", role = "ctb",
-      comment = "Some optimization code was extracted from http://statweb.stanford.edu/~candes/SortedL1/software.html under the GNU GPL-3 licence"),
+      comment = "A part of the optimization code was obtained from http://statweb.stanford.edu/~candes/SortedL1/software.html under GNU GPL-3"),
     person("Emmanuel", "Candes", role = "ctb",
-      comment = "Some optimization code was extracted from http://statweb.stanford.edu/~candes/SortedL1/software.html under the GNU GPL-3 licence"))
+      comment = "A part of the optimization code was obtained from http://statweb.stanford.edu/~candes/SortedL1/software.html under GNU GPL-3"))
 Description: Group SLOPE is a penalized linear regression method that is used
     for adaptive selection of groups of significant predictors in a
     high-dimensional linear model.
@@ -24,7 +24,7 @@ Imports:
     Rcpp (>= 0.12.1),
     SLOPE (>= 0.1.1)
 LinkingTo: Rcpp, RcppEigen
-RoxygenNote: 5.0.1
+RoxygenNote: 5.0.0
 Suggests:
     testthat,
     knitr,
