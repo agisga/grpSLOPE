@@ -219,7 +219,7 @@ double lambdaChiMCAdjustment(const Eigen::Map<Eigen::VectorXd>& y,
     // number of groups
     int p(group_id.size());
     // Array of vectors of indices of group membership
-    NumericVector groups[p];
+    NumericVector *groups = new NumericVector[p];
     for (int i=0; i < p; i++)
     {
         groups[i] = group_id[i];
@@ -331,6 +331,8 @@ double lambdaChiMCAdjustment(const Eigen::Map<Eigen::VectorXd>& y,
         MC_sum += (v1 + v2).squaredNorm();
         total_summands += v1.size();
     }
+
+    delete[] groups;
 
     double MC_correction = sqrt(MC_sum / ((double)(total_summands)));
     return MC_correction;
