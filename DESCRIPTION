@@ -1,6 +1,6 @@
 Package: grpSLOPE
 Type: Package
-Title: Group SLOPE (Group Sorted L1 Penalized Estimation)
+Title: Group Sorted L1 Penalized Estimation
 Version: 0.1.0
 Authors@R: c(person("Alexej", "Gossmann", email = "alexej.go@googlemail.com", role = c("aut", "cre")),
     person("Damian", "Brzyski", role = "aut"),

@@ -24,3 +24,7 @@ There were 2 NOTEs:
   New submission
 
   It's my first CRAN submission.
+
+## Resubmission
+
+This is a resubmission. In this version I have changed the title in DESCRIPTION as was suggested by Uwe Ligges.
