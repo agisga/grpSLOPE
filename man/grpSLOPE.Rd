@@ -91,6 +91,9 @@ result$selected
 # [1] "1"  "2"  "3"  "4"  "14"
 result$sigma
 # [1] 0.7968632
+head(result$group.norms)
+#         1         2         3         4         5         6 
+#  2.905449  5.516103  8.964201 10.253792  0.000000  0.000000 
 
 }
 \references{
