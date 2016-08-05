@@ -24,7 +24,7 @@ Imports:
     Rcpp (>= 0.12.1),
     SLOPE (>= 0.1.1)
 LinkingTo: Rcpp, RcppEigen
-RoxygenNote: 5.0.0
+RoxygenNote: 5.0.1
 Suggests:
     testthat,
     knitr,

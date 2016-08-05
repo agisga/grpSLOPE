@@ -4,11 +4,10 @@
 \alias{grpSLOPE}
 \title{Group SLOPE (Group Sorted L-One Penalized Estimation)}
 \usage{
-grpSLOPE(X, y, group, fdr, lambda = "chiMean", sigma = NULL,
-  n.MC = floor(length(unique(group))/2), MC.reps = 5000, verbose = FALSE,
-  orthogonalize = NULL, normalize = TRUE, max.iter = 10000,
-  dual.gap.tol = 1e-06, infeas.tol = 1e-06, x.init = vector(),
-  prox = "rcpp")
+grpSLOPE(X, y, group, fdr, lambda = "corrected", sigma = NULL,
+  verbose = FALSE, orthogonalize = NULL, normalize = TRUE,
+  max.iter = 10000, dual.gap.tol = 1e-06, infeas.tol = 1e-06,
+  x.init = vector(), prox = "rcpp")
 }
 \arguments{
 \item{X}{The model matrix}
@@ -18,28 +17,23 @@ grpSLOPE(X, y, group, fdr, lambda = "chiMean", sigma = NULL,
 \item{group}{A vector describing the grouping structure. It should 
 contain a group id for each predictor variable.}
 
-\item{fdr}{Target false discovery rate}
+\item{fdr}{Target group false discovery rate (gFDR)}
 
 \item{lambda}{Method used to obtain the regularizing sequence lambda. Possible
-values are "BH", "gaussian", "gaussianMC", "chiOrthoMax", "chiOrthoMean",
-"chiEqual", "chiMean", "chiMC". See \code{\link{lambdaGroupSLOPE}} for detail.
-Alternatively, any non-increasing sequence of the correct length can be passed.}
+values are "max", "mean", and "corrected" (default).
+See \code{\link{lambdaGroupSLOPE}} for detail. Alternatively, any
+non-increasing sequence of the correct length can be passed.}
 
-\item{sigma}{Noise level. If ommited, estimated from the data. See details.}
+\item{sigma}{Noise level. If ommited, estimated from the data, using Procedure 3 in Brzyski et. al. (2015).}
 
-\item{n.MC}{When \code{method} is "gaussianMC" or "chiMC", the corrections of the entries of lambda will be 
-computed up to the index given by \code{n.MC} only. See Details.}
-
-\item{MC.reps}{The number of repetitions of the Monte Carlo procedure}
-
-\item{verbose}{Verbosity}
+\item{verbose}{A \code{logical} specifying whether to print output or not}
 
 \item{orthogonalize}{Whether to orthogonalize the model matrix within each group.
 Do not set manually unless you are certain that your data is appropriately pre-processed.}
 
 \item{normalize}{Whether to center the input data and re-scale the columns
-of the design matrix to have unit norm. Do not disable this unless you
-are certain that your data is appropriately pre-processed.}
+of the design matrix to have unit norms. Do not disable this unless you
+are certain that your data are appropriately pre-processed.}
 
 \item{max.iter}{See \code{\link{proximalGradientSolverGroupSLOPE}}.}
 
@@ -57,7 +51,7 @@ A list with members:
     \item{beta}{Solution vector. See Details.}
     \item{c}{Solution vector of the transformed model. See Details.}
     \item{group.norms}{Overall effect of each group. See Details.}
-    \item{selected}{Names of selected groups (i.e., groups of predictors with at least one coefficient estimate >0)}
+    \item{selected}{Names of selected groups (i.e., groups of predictors with at least one non-zero coefficient estimate)}
     \item{optimal}{Convergence status}
     \item{iter}{Iterations of the proximal gradient method}
     \item{lambda}{Regularizing sequence}
@@ -67,30 +61,20 @@ A list with members:
 }
 \description{
 Performs selection of significant groups of predictors and estimation of the
-corresonding coefficients using the Group SLOPE method (see Brzyski et. al. (2015)
-and Gossmann et. al. (2015)).
+corresonding coefficients using the Group SLOPE method (see Brzyski et. al., 2015).
 }
 \details{
 Multiple methods are available to generate the regularizing sequence \code{lambda},
 see \code{\link{lambdaGroupSLOPE}} for detail.
-If \code{method} is one of "chiOrthoMax", "chiOrthoMean",  "chiEqual", "chiMean", "chiMC",
-then the model matrix is transformed by orthogonalization within each group (see Section 2.1
-in Brzyski et. al.), and penalization is imposed on \eqn{\| X_{I_i} \beta_{I_i} \|}.
-For other methods penalization is imposed directly on \eqn{\| \beta_{I_i} \|},
-as in Gossmann et. al. (2015).
-When \code{method} is "gaussianMC" or "chiMC", the corrections of the entries of lambda will be 
-computed up to the index given by \code{n.MC} only. \code{n.MC} should be
-less than or equal to \code{n.group}. Since lambda sequences obtained via MC tend to
-flatten out quickly, it is reasonable to choose \code{n.MC} to be much smaller than the
-number of groups. \cr
-Due to within group orthogonalization (see Section 2.1 in Brzyski et. al. (2015)), the solution vector
-\code{beta} cannot be  computed for methods "chiOrthoMax", "chiOrthoMean", "chiEqual", "chiMean",
-"chiMC" if there are more predictors in a selected group than there are observations.
+The model matrix is transformed by orthogonalization within each group (see Section 2.1
+in Brzyski et. al., 2015), and penalization is imposed on \eqn{\| X_{I_i} \beta_{I_i} \|}.
+Due to within group orthogonalization (see Section 2.1 in Brzyski et. al., 2015),
+the solution vector \code{beta} cannot be  computed if there are more predictors
+in a selected group than there are observations.
 In that case only the solution vector \code{c} of the transformed (orthogonalized) model is returned.
 Additionally, in any case the vector \code{group.norms} is returned with its \eqn{i}th entry
-being \eqn{\| X_{I_i} \beta_{I_i} \|} or \eqn{\| \beta_{I_i} \|} (depending on method), i.e.,
-the overall effect of each group. Also, note that the vector \code{beta} corresponds to the normalized
-versions of \code{X} and \code{y}.
+being \eqn{\| X_{I_i} \beta_{I_i} \|}, i.e., the overall effect of each group.
+Note that all results are returned on the scale of the normalized versions of \code{X} and \code{y}.
 }
 \examples{
 # generate some data
@@ -111,7 +95,5 @@ result$sigma
 }
 \references{
 D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
-
-A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
 }
 
