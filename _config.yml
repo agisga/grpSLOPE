@@ -8,8 +8,13 @@ url: "http://www.alexejgossmann.com/" # the base hostname & protocol for your si
 github_username: agisga 
 
 # Build settings
-markdown: redcarpet
-highlighter: pygments
+highlighter: rouge
+markdown: kramdown
+kramdown:
+  input: GFM
+  auto_ids: true
+  syntax_highlighter: rouge
+
 permalink: /:title/
 gems:
   - jemoji # Enable emoji
