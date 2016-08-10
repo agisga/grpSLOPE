@@ -18,45 +18,10 @@
 #
 ###############################################################################
 
-#' @useDynLib grpSLOPE
-#' @importFrom Rcpp sourceCpp
+#' @importFrom SLOPE prox_sorted_L1
 #' @importFrom stats lm pchisq qchisq qnorm rnorm sd uniroot
 NULL
 #> NULL
-
-#' Fast prox for the Sorted L1 norm
-#' 
-#' A fast stack-based algorithm for the prox for the Sorted L1 norm.
-#'
-#' See Algorithm 4 in Bogdan et. al. (2015).
-#'
-#' @param y A vector
-#' @param lambda A vector whose entries should form a nonincreasing sequence
-#'
-#' @examples
-#' y <- seq(100, 10, l=10)
-#' lambda <- 10:1
-#' proxSortedL1(y, lambda)
-#' #  [1] 90 81 72 63 54 45 36 27 18  9
-#'
-#' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE -- Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
-#'
-#' @export
-proxSortedL1 <- function (y, lambda) 
-{
-  if (is.complex(y)) {
-    sgn = complex(modulus=1, argument=Arg(y))
-    y = Mod(y)
-  } else {
-    sgn = sign(y)
-    y = abs(y)
-  }
-  y.sorted = sort(y, decreasing=TRUE, index.return=TRUE)
-  result <- proxSortedL1Rcpp(as.double(y.sorted$x), as.double(lambda))
-  result[y.sorted$ix] <- result
-  result <- result * sgn
-  return(result)
-}
 
 #' Prox for group SLOPE
 #'
@@ -64,21 +29,14 @@ proxSortedL1 <- function (y, lambda)
 #'
 #' \code{proxGroupSortedL1} evaluates the proximal mapping of the group SLOPE problem
 #' by reducing it to the prox for the (regular) SLOPE and then applying the fast prox
-#' algorithm for the Sorted L1 norm. The argument \code{method} specifies which 
-#' implementation of the Sorted L1 norm prox should be used. 
-#' Possible values are \code{"rcpp"} (default), \code{"c"}, and \code{"isotone"}.
-#' The default option \code{"rcpp"} uses the internal implementation in
-#' \code{\link{proxSortedL1}}. The alternative options \code{"c"} and
-#' \code{"isotone"} call the function \code{\link[SLOPE]{prox_sorted_L1}} from the
-#' package \code{SLOPE} (see there for detail on these two options).
+#' algorithm for the Sorted L1 norm.
 #'
 #' @param y The response vector
-#' @param group A vector or an object of class \code{groupID} (e.g. as produced by 
+#' @param group Either a vector or an object of class \code{groupID} (e.g. as produced by 
 #'   \code{\link{getGroups}}), which is describing the grouping structure. If it is
 #'   a vector, then it should contain a group id for each predictor variable.
 #' @param lambda A decreasing sequence of regularization parameters \eqn{\lambda}
-#' @param method Specifies which implementation of the Sorted L1 norm prox should be used. 
-#'   Possible values are \code{"rcpp"} (default), \code{"c"}, and \code{"isotone"}. See detail.
+#' @param ... Options passed to \code{\link[SLOPE]{prox_sorted_L1}}
 #'
 #' @examples
 #' grp <- c(0,0,0,1,1,0,2,1,0,2)
@@ -89,7 +47,7 @@ proxSortedL1 <- function (y, lambda)
 #' @references M. Bogdan, E. van den Berg, C. Sabatti, W. Su, E. Candes (2015), \emph{SLOPE -- Adaptive variable selection via convex optimization}, \url{http://arxiv.org/abs/1407.3824}
 #'
 #' @export
-proxGroupSortedL1 <- function(y, group, lambda, method = "rcpp") {
+proxGroupSortedL1 <- function(y, group, lambda, ...) {
   if (inherits(group, "groupID")) {
     n.group <- length(group)
     group.id <- group
@@ -106,11 +64,7 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "rcpp") {
   }
 
   # get Euclidean norms of the solution vector
-  if (method == "rcpp") {
-    prox.norm <- proxSortedL1(group.norm, lambda)
-  } else {
-    prox.norm <- SLOPE::prox_sorted_L1(group.norm, lambda, method)
-  }
+  prox.norm <- SLOPE::prox_sorted_L1(group.norm, lambda, ...)
 
   # compute the solution
   prox.solution <- rep(NA, length(y))
@@ -141,8 +95,7 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "rcpp") {
 #' @param dual.gap.tol The tolerance used in the stopping criteria for the duality gap
 #' @param infeas.tol The tolerance used in the stopping criteria for the infeasibility
 #' @param x.init An optional initial value for the iterative algorithm
-#' @param method Specifies which implementation of the Sorted L1 norm prox should be used. 
-#'   See \code{\link{proxGroupSortedL1}} for detail.
+#' @param ... Options passed to \code{\link[SLOPE]{prox_sorted_L1}}
 #'
 #' @return A list with members:
 #'   \describe{
@@ -181,7 +134,7 @@ proxGroupSortedL1 <- function(y, group, lambda, method = "rcpp") {
 #' @export
 proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1e4,
                                              verbose=FALSE, dual.gap.tol=1e-6, 
-                                             infeas.tol=1e-6, x.init=vector(), method="rcpp")
+                                             infeas.tol=1e-6, x.init=vector(), ...)
 {
   # This function is based on the source code available from
   # http://statweb.stanford.edu/~candes/SortedL1/software.html
@@ -333,7 +286,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
     
     # Lipschitz search
     while (TRUE) {
-      x  <- proxGroupSortedL1(y = b - (1/L)*g, group = group.id, lambda = lambda/L, method=method)
+      x  <- proxGroupSortedL1(y = b - (1/L)*g, group = group.id, lambda = lambda/L, ...)
       d  <- x - b
       Ax <- A %*% x
       r  <- Ax-y
@@ -481,7 +434,7 @@ lambdaGroupSLOPE <- function(method, fdr, group, wt, n.obs=NULL)
 #' @param dual.gap.tol See \code{\link{proximalGradientSolverGroupSLOPE}}.
 #' @param infeas.tol See \code{\link{proximalGradientSolverGroupSLOPE}}.
 #' @param x.init See \code{\link{proximalGradientSolverGroupSLOPE}}.
-#' @param prox Same as argument \code{method} in \code{\link{proximalGradientSolverGroupSLOPE}}.
+#' @param ... Options passed to \code{\link[SLOPE]{prox_sorted_L1}}
 #'
 #' @return A list with members:
 #'   \describe{
@@ -521,7 +474,7 @@ lambdaGroupSLOPE <- function(method, fdr, group, wt, n.obs=NULL)
 grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
                      verbose = FALSE, orthogonalize = NULL, normalize = TRUE,
                      max.iter=1e4, dual.gap.tol=1e-6, infeas.tol=1e-6,
-                     x.init=vector(), prox="rcpp") {
+                     x.init=vector(), ...) {
   group.id <- getGroupID(group)
   n.group  <- length(group.id)
   n  <- nrow(X)
@@ -576,7 +529,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
                                                      max.iter=max.iter,
                                                      dual.gap.tol=dual.gap.tol, 
                                                      infeas.tol=infeas.tol,
-                                                     x.init=x.init, method=prox)
+                                                     x.init=x.init, ...)
   } else {
     # sigma needs to be estimated
     sigma <- sd(y)
@@ -588,7 +541,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
                                                      max.iter=max.iter,
                                                      dual.gap.tol=dual.gap.tol, 
                                                      infeas.tol=infeas.tol,
-                                                     x.init=x.init, method=prox)
+                                                     x.init=x.init, ...)
     S.new <- which(optim.result$x != 0)
     S <- c()
     while( !isTRUE(all.equal(S, S.new)) && (length(S.new) > 0) ) {
@@ -607,7 +560,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
                                                        max.iter=max.iter,
                                                        dual.gap.tol=dual.gap.tol, 
                                                        infeas.tol=infeas.tol,
-                                                       x.init=x.init, method=prox)
+                                                       x.init=x.init, ...)
       S.new <- which(optim.result$x != 0)
     }
   }

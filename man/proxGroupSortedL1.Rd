@@ -4,19 +4,18 @@
 \alias{proxGroupSortedL1}
 \title{Prox for group SLOPE}
 \usage{
-proxGroupSortedL1(y, group, lambda, method = "rcpp")
+proxGroupSortedL1(y, group, lambda, ...)
 }
 \arguments{
 \item{y}{The response vector}
 
-\item{group}{A vector or an object of class \code{groupID} (e.g. as produced by 
+\item{group}{Either a vector or an object of class \code{groupID} (e.g. as produced by 
 \code{\link{getGroups}}), which is describing the grouping structure. If it is
 a vector, then it should contain a group id for each predictor variable.}
 
 \item{lambda}{A decreasing sequence of regularization parameters \eqn{\lambda}}
 
-\item{method}{Specifies which implementation of the Sorted L1 norm prox should be used. 
-Possible values are \code{"rcpp"} (default), \code{"c"}, and \code{"isotone"}. See detail.}
+\item{...}{Options passed to \code{\link[SLOPE]{prox_sorted_L1}}}
 }
 \description{
 Evaluate the proximal mapping for the group SLOPE problem.
@@ -24,13 +23,7 @@ Evaluate the proximal mapping for the group SLOPE problem.
 \details{
 \code{proxGroupSortedL1} evaluates the proximal mapping of the group SLOPE problem
 by reducing it to the prox for the (regular) SLOPE and then applying the fast prox
-algorithm for the Sorted L1 norm. The argument \code{method} specifies which 
-implementation of the Sorted L1 norm prox should be used. 
-Possible values are \code{"rcpp"} (default), \code{"c"}, and \code{"isotone"}.
-The default option \code{"rcpp"} uses the internal implementation in
-\code{\link{proxSortedL1}}. The alternative options \code{"c"} and
-\code{"isotone"} call the function \code{\link[SLOPE]{prox_sorted_L1}} from the
-package \code{SLOPE} (see there for detail on these two options).
+algorithm for the Sorted L1 norm.
 }
 \examples{
 grp <- c(0,0,0,1,1,0,2,1,0,2)

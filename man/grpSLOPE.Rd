@@ -7,7 +7,7 @@
 grpSLOPE(X, y, group, fdr, lambda = "corrected", sigma = NULL,
   verbose = FALSE, orthogonalize = NULL, normalize = TRUE,
   max.iter = 10000, dual.gap.tol = 1e-06, infeas.tol = 1e-06,
-  x.init = vector(), prox = "rcpp")
+  x.init = vector(), ...)
 }
 \arguments{
 \item{X}{The model matrix}
@@ -43,7 +43,7 @@ are certain that your data are appropriately pre-processed.}
 
 \item{x.init}{See \code{\link{proximalGradientSolverGroupSLOPE}}.}
 
-\item{prox}{Same as argument \code{method} in \code{\link{proximalGradientSolverGroupSLOPE}}.}
+\item{...}{Options passed to \code{\link[SLOPE]{prox_sorted_L1}}}
 }
 \value{
 A list with members:

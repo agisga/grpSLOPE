@@ -6,7 +6,7 @@
 \usage{
 proximalGradientSolverGroupSLOPE(y, A, group, wt, lambda, max.iter = 10000,
   verbose = FALSE, dual.gap.tol = 1e-06, infeas.tol = 1e-06,
-  x.init = vector(), method = "rcpp")
+  x.init = vector(), ...)
 }
 \arguments{
 \item{y}{the response vector}
@@ -30,8 +30,7 @@ contain a group id for each predictor variable.}
 
 \item{x.init}{An optional initial value for the iterative algorithm}
 
-\item{method}{Specifies which implementation of the Sorted L1 norm prox should be used. 
-See \code{\link{proxGroupSortedL1}} for detail.}
+\item{...}{Options passed to \code{\link[SLOPE]{prox_sorted_L1}}}
 }
 \value{
 A list with members:
