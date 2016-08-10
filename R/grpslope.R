@@ -287,7 +287,8 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
     duality.gap <- crossprod(b, g) + crossprod(lambda, b.norms.sorted)
 
     # Compute the infeasibility
-    # (derivation of this infeasibility criterion: http://www.alexejgossmann.com/grpSLOPE/Infeasibility/)
+    # (a comment on the derivation of this infeasibility criterion can be found at:
+    # https://github.com/agisga/grpSLOPE/blob/gh-pages/_posts/outdated_2015-12-4-Infeasibility.md)
     g.norms <- rep(NA, n.group)
     for (i in 1:n.group) {
       selected <- group.id[[i]]
