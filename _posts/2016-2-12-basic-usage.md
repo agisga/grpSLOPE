@@ -58,6 +58,7 @@ pander::pandoc.table(X[1:10, 1:10])
 1 0 1 1 0 1 2 0 0 0
 
 0 0 1 1 1 2 1 0 0 0
+
 - - - - - - - - - -
 
 We divide the predictors into 100 groups of sizes ranging from 3 to 7.
@@ -103,14 +104,15 @@ y <- X %*% b + rnorm(p)
 
 ## Fitting the Group SLOPE model
 
-We fit the Group SLOPE model to the simulated data. The function argument `fdr` signifies the target (group-wise) false discovery rate of the variable selection procedure.
-
+We fit the Group SLOPE model to the simulated data. The function argument `fdr` signifies the target group-wise false discovery rate (gFDR) of the variable selection procedure.
 
 {% highlight r %}
 library(grpSLOPE)
 
 result <- grpSLOPE(X=X, y=y, group=group, fdr=0.1)
 {% endhighlight %}
+
+## Model fit results
 
 We can display which groups were selected as significant by the Group SLOPE method.
 
@@ -119,10 +121,28 @@ We can display which groups were selected as significant by the Group SLOPE meth
 result$selected
 {% endhighlight %}
 
-
-
 {% highlight text %}
 ##  [1] "4"  "10" "19" "24" "26" "28" "42" "50" "55" "67" "74"
+{% endhighlight %}
+
+Similarly, we can look at the estimates of the noise level and the regression coefficients (note that the estimated parameters are returned on the scale of the normalized versions of `X` and `y`).
+  
+
+{% highlight r %}
+result$sigma
+{% endhighlight %}
+
+{% highlight text %}
+## [1] 0.9751941
+{% endhighlight %}
+
+{% highlight r %}
+result$beta[1:14]
+{% endhighlight %}
+
+{% highlight text %}
+##  [1] 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+##  [8] 0.000000 0.000000 7.374246 2.030661 1.071715 0.000000 0.000000
 {% endhighlight %}
 
 It might also be interesting to plot the first few elements of the regularizing sequence $\lambda$ used by the Group SLOPE method for the given inputs.
@@ -135,9 +155,7 @@ plot(result$lambda[1:10], xlab = "Index", ylab = "Lambda", type="l")
 ![Plot of the lambda sequence](/grpSLOPE/img/2016-2-12-basic-usage/unnamed-chunk-8-1.png)
 
 
-## Evaluating the results
-
-We check the performance of the method by computing the resulting (group) false discovery proportion (gFDP) and power.
+We check the performance of the method by computing the resulting group false discovery proportion (gFDP) and power.
 
 
 {% highlight r %}
@@ -163,16 +181,14 @@ print(paste("Power =", pow))
 
 [1] "Power = 1"
 
-We see that the method indeed did not exceed the target FDR, while maintaining a high power.
+We see that the method indeed did not exceed the target gFDR, while maintaining a high power.
 
 ## Lambda sequence
 
 Multiple ways to select the regularizing sequence $\lambda$ are available.
 
-If a group structure with little correlation between groups can be assumed (i.e., groups in the standardized model matrix are nearly orthogonal), then we suggest to use the sequence `chiMean`, which is the default.
+If a group structure with little correlation between groups can be assumed (i.e., groups in the standardized model matrix are nearly orthogonal), then we suggest to use the sequence `corrected`, which is the default.
 
-When groups of predictors cannot be assumed to be nearly orthogonal then the Monte Carlo based sequences `chiMC` and `gaussianMC` can be used. However this can increase the computation time significantly.
+The sequences `mean` and `max` can be used together with the options `orthogonalize=FALSE` and `normalize=FALSE`, when the columns of the model matrix are exactly orthogonal to each other.
 
-The sequences `chiOrthoMean` and `chiOrthoMax` can be used together with the options `orthogonalize=FALSE` and `normalize=FALSE`, when the columns of the model matrix are exactly orthogonal to each other.
-
-We do not suggest to use any of the other sequences unless you are an expert on the SLOPE method.
+Alternatively, any non-increasing sequence of appropriate length can be used. However, we do not suggest to use any other sequences unless you are an expert on the (Group) SLOPE method.
