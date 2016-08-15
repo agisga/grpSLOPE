@@ -477,12 +477,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
                      x.init=vector(), ...) {
   group.id <- getGroupID(group)
   n.group  <- length(group.id)
-  n  <- nrow(X)
-  p  <- ncol(X)
-  wt <- sapply(group.id, length)
-  wt <- sqrt(wt)
-  wt.per.coef <- rep(NA, p)
-  for (i in 1:n.group) { wt.per.coef[group.id[[i]]] <- wt[i] }
+  n <- nrow(X)
 
   # normalize X and y in order to have a model without intercept
   if (normalize) {
@@ -496,21 +491,46 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
     if (is.numeric(lambda)) {
       stop("If lambda is numeric, the argument orthogonalize must be set manually.")
     }
-
     orthogonalize <- TRUE
   }
 
   if (orthogonalize) {
     ortho <- orthogonalizeGroups(X, group.id)
+    # determine sizes of orthogonalized groups:
+    ortho.group.length <- rep(NA, n.group)
+    names(ortho.group.length) <- names(group.id)
     for (i in 1:n.group) {
-      # TODO: check if this creates a problem when a group has more predictors than samples
-      X[ , group.id[[i]]] <- ortho[[i]]$Q
+      ortho.group.length[i] <- ncol(ortho[[i]]$Q)
     }
-  } 
+    # overwrite X with a matrix that contains orthogonalizations of the original blocks of X;
+    # and set up grouping info for the orthogonalized version of X to be used in the optimization:
+    X <- matrix(nrow = n, ncol = sum(ortho.group.length))
+    grp <- rep(NA, sum(ortho.group.length))
+    block.end <- cumsum(ortho.group.length)
+    block.start <- head(c(1, block.end + 1), n.group)
+    for (i in 1:n.group) {
+      ind <- block.start[i]:block.end[i]
+      grp[ind] <- names(group.id)[i]
+      X[ , ind] <- ortho[[i]]$Q
+    }
+    ortho.group.id <- getGroupID(grp)
+    # set prior weights per group:
+    wt <- sqrt(ortho.group.length)
+    wt.per.coef <- rep(NA, ncol(X))
+    for (i in 1:n.group) { wt.per.coef[ ortho.group.id[[i]] ] <- wt[i] }
+  } else {
+    # grouping structure to be used in the optimization:
+    grp <- group
+    # set prior weights per group:
+    wt <- sapply(group.id, length)
+    wt <- sqrt(wt)
+    wt.per.coef <- rep(NA, ncol(X))
+    for (i in 1:n.group) { wt.per.coef[ group.id[[i]] ] <- wt[i] }
+  }
 
   # regularizing sequence ---------------------------------------------
   if (is.character(lambda)) { 
-    lambda.seq <- lambdaGroupSLOPE(method=lambda, fdr=fdr, group=group, 
+    lambda.seq <- lambdaGroupSLOPE(method=lambda, fdr=fdr, group=grp, 
                                    wt=wt, n.obs=n)
   } else if (is.numeric(lambda)) {
     lambda.seq <- lambda
@@ -522,7 +542,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
   # optimization ------------------------------------------------------
   if (!is.null(sigma)) {
     sigma.lambda <- sigma * lambda.seq
-    optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=group,
+    optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=grp,
                                                      wt=wt.per.coef, 
                                                      lambda=sigma.lambda,
                                                      verbose=verbose,
@@ -534,7 +554,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
     # sigma needs to be estimated
     sigma <- sd(y)
     sigma.lambda <- sigma * lambda.seq
-    optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=group,
+    optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=grp,
                                                      wt=wt.per.coef, 
                                                      lambda=sigma.lambda,
                                                      verbose=verbose,
@@ -553,7 +573,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
       sigma <- sqrt( sum(OLS$res^2) / (n - length(S)) )
 
       sigma.lambda <- sigma * lambda.seq
-      optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=group,
+      optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=grp,
                                                        wt=wt.per.coef, 
                                                        lambda=sigma.lambda,
                                                        verbose=verbose,
@@ -575,25 +595,28 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
   # compute beta
   sol$c <- as.vector(optim.result$x)
   if (orthogonalize) {
-    # compute beta only if all groups have fewer predictors than observations
+    # compute beta only if all groups have have the same number of columns
+    # after orthogonalization as they did before
     group.length <- sapply(group.id, length)
-    if (all(group.length <= n)) {
+    if (all(group.length == ortho.group.length)) {
       sol$beta <- rep(NA, length(sol$c))
       for (i in 1:n.group) {
-        ci <- sol$c[group.id[[i]]]
-        li <- group.length[i]
+        # c corresponds to the (reordered) group structure in orthogonalized version of X
+        ci <- sol$c[ortho.group.id[[i]]]
+        li <- ortho.group.length[i]
 
         bi <- tryCatch({ 
           backsolve(ortho[[i]]$R, ci) 
         }, error = function(err) {
-          print("grpSLOPE caught an error:")
-          print(err)
+          warning(paste("grpSLOPE caught an error:", err))
           return(rep(NA, li))
         })
 
         or <- rep(NA, li)
         for (j in 1:li) { or[j] <- which(ortho[[i]]$P == j) }
         betai <- bi[or]
+
+        # beta corresponds to the group structure in the original matrix
         sol$beta[group.id[[i]]] <- betai
       }
     }
@@ -605,7 +628,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
   sol$group.norms <- rep(NA, n.group)
   for (i in 1:n.group) {
     if (orthogonalize) {
-      sol$group.norms[i] <- norm(as.matrix(sol$c[group.id[[i]]]), "f") 
+      sol$group.norms[i] <- norm(as.matrix(sol$c[ortho.group.id[[i]]]), "f") 
     } else {
       Xbetai <- X[ , group.id[[i]]] %*% as.matrix(sol$beta[group.id[[i]]])
       sol$group.norms[i] <- norm(as.matrix(Xbetai), "f")
