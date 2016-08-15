@@ -239,57 +239,6 @@ test_that("when group submatrix has more columns than rows", {
 })
 
 #--------------------------------------------------------------------------
-context("grpSLOPE(lambda = 'mean')")
-
-sol.c <- c(0, 0, 17.520986, 5.045372, 0, 0, 0, 0, 0, 0)
-sol.beta <- c(0, 0,18.085076, 5.076808, 0, 0, 0, 0, 0, 0)
-sol.group.norms <- c(0, 18.23296, 0, 0)
-
-test_that("when the groups are consequtive blocks", {
-  result <- grpSLOPE(X=A, y=y, group=grp, fdr=fdr, lambda="mean")
-  expect_equal(result$beta, sol.beta, tolerance=1e-6)
-  expect_equal(result$c, sol.c, tolerance=1e-6)
-  expect_equal(as.numeric(result$group.norms), sol.group.norms, tolerance=1e-6)
-  expect_identical(as.numeric(result$selected), c(1))
-  expect_true(result$optimal)
-  expect_is(result$iter, "numeric")
-  expect_is(result$lambda, "numeric")
-  expect_true(result$lambda.method == "mean")
-  expect_is(result$sigma, "numeric")
-})
-
-test_that("when the groups are not consequtive blocks", {
-  ord <- sample(1:10, 10)
-  result <- grpSLOPE(X=A[ , ord], y=y, group=grp[ord], fdr=fdr, lambda="mean")
-  expect_equal(result$beta, sol.beta[ord], tolerance=1e-6)
-  expect_equal(as.numeric(result$group.norms["1"]), sol.group.norms[2], tolerance=1e-6)
-  expect_true(result$optimal)
-  expect_is(result$iter, "numeric")
-  expect_is(result$lambda, "numeric")
-  expect_true(result$lambda.method == "mean")
-  expect_is(result$sigma, "numeric")
-})
-
-test_that("when group submatrix has more columns than rows", {
-  M <- cbind(A, A[ , 1:3])
-  bm <- c(b, 0, 10, 10)
-  grp.M <- c(rep(1, 11), 2, 2)
-  y <- M %*% bm + eps
-
-  result <- grpSLOPE(X=M, y=y, group=grp.M, fdr=fdr, lambda="mean")
-  expect_null(result$beta)
-  expect_equal(as.numeric(result$group.norms), c(0, 21.88972), tolerance=1e-6)
-  expect_equal(length(result$c), 12)
-  expect_equal(ncol(M), 13)
-  expect_identical(result$selected, "2")
-  expect_true(result$optimal)
-  expect_is(result$iter, "numeric")
-  expect_is(result$lambda, "numeric")
-  expect_true(result$lambda.method == "mean")
-  expect_is(result$sigma, "numeric")
-})
-
-#--------------------------------------------------------------------------
 context("grpSLOPE(lambda = 'max')")
 
 sol.c <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
