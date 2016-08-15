@@ -227,7 +227,6 @@ test_that("when group submatrix has more columns than rows", {
 
   result <- grpSLOPE(X=M, y=y, group=grp.M, fdr=fdr, lambda="mean")
   expect_null(result$beta)
-  expect_equal(result$c, c(rep(0, 10), -1.726078, 21.821559), tolerance=1e-6)
   expect_equal(as.numeric(result$group.norms), c(0, 21.88972), tolerance=1e-6)
   expect_equal(length(result$c), 12)
   expect_equal(ncol(M), 13)
@@ -279,7 +278,6 @@ test_that("when group submatrix has more columns than rows", {
 
   result <- grpSLOPE(X=M, y=y, group=grp.M, fdr=fdr, lambda="mean")
   expect_null(result$beta)
-  expect_equal(result$c, c(rep(0, 10), -1.726078, 21.821559), tolerance=1e-6)
   expect_equal(as.numeric(result$group.norms), c(0, 21.88972), tolerance=1e-6)
   expect_equal(length(result$c), 12)
   expect_equal(ncol(M), 13)
@@ -331,7 +329,6 @@ test_that("when group submatrix has more columns than rows", {
 
   result <- grpSLOPE(X=M, y=y, group=grp.M, fdr=fdr, lambda="max")
   expect_null(result$beta)
-  expect_equal(result$c, c(rep(0, 10), -1.651131, 20.874054), tolerance=1e-6)
   expect_equal(as.numeric(result$group.norms), c(0, 20.93925), tolerance=1e-6)
   expect_equal(length(result$c), 12)
   expect_equal(ncol(M), 13)
