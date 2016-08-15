@@ -42,13 +42,6 @@ test_that("when the groups are not consequtive blocks", {
   expect_is(result$sigma, "numeric")
 })
 
-test_that("when rank of group submatrix is smaller than the group size, then beta can't be computed after orthogonalization", {
-  B <- A
-  B[ , 5] <- B[ , 6] <- B[ , 7]
-  y <- B %*% b + eps
-  expect_warning(grpSLOPE(X=B, y=y, group=grp, fdr=fdr, lambda="corrected"))
-})
-
 test_that("corrected lambdas can't be computed unless groups sizes are small enough compared to sample size", {
   M <- cbind(A, matrix(1:30, 10, 3))
   bm <- c(b, 0, 100, 1000)
@@ -159,7 +152,7 @@ test_that("when the groups are not consequtive blocks", {
   expect_equal(result$beta, sol.beta[ord], tolerance=1e-6)
   expect_equal(result$c, sol.beta[ord], tolerance=1e-6)
   expect_equal(as.numeric(result$group.norms["1"]), sol.group.norms[2], tolerance=1e-6)
-  expect_identical(as.numeric(result$selected), c(1, 3))
+  expect_identical(sort(as.numeric(result$selected)), c(1, 3))
   expect_true(result$optimal)
   expect_is(result$iter, "numeric")
   expect_is(result$lambda, "numeric")
@@ -226,23 +219,18 @@ test_that("when the groups are not consequtive blocks", {
   expect_is(result$sigma, "numeric")
 })
 
-test_that("when rank of group submatrix is smaller than the group size, then beta can't be computed after within group orthogonalization", {
-  B <- A
-  B[ , 5] <- B[ , 6] <- B[ , 7]
-  y <- B %*% b + eps
-  expect_warning(grpSLOPE(X=B, y=y, group=grp, fdr=fdr, lambda="mean"))
-})
-
 test_that("when group submatrix has more columns than rows", {
-  M <- cbind(A, matrix(1:30, 10, 3))
-  bm <- c(b, 0, 100, 1000)
+  M <- cbind(A, A[ , 1:3])
+  bm <- c(b, 0, 10, 10)
   grp.M <- c(rep(1, 11), 2, 2)
   y <- M %*% bm + eps
 
   result <- grpSLOPE(X=M, y=y, group=grp.M, fdr=fdr, lambda="mean")
   expect_null(result$beta)
-  expect_equal(result$c, c(rep(0, 10), 9964.877897, 2.709834), tolerance=1e-6)
-  expect_equal(as.numeric(result$group.norms), c(0, 9964.878), tolerance=1e-6)
+  expect_equal(result$c, c(rep(0, 10), -1.726078, 21.821559), tolerance=1e-6)
+  expect_equal(as.numeric(result$group.norms), c(0, 21.88972), tolerance=1e-6)
+  expect_equal(length(result$c), 12)
+  expect_equal(ncol(M), 13)
   expect_identical(result$selected, "2")
   expect_true(result$optimal)
   expect_is(result$iter, "numeric")
@@ -283,23 +271,18 @@ test_that("when the groups are not consequtive blocks", {
   expect_is(result$sigma, "numeric")
 })
 
-test_that("when rank of group submatrix is smaller than the group size, then beta can't be computed after within group orthogonalization", {
-  B <- A
-  B[ , 5] <- B[ , 6] <- B[ , 7]
-  y <- B %*% b + eps
-  expect_warning(grpSLOPE(X=B, y=y, group=grp, fdr=fdr, lambda="mean"))
-})
-
 test_that("when group submatrix has more columns than rows", {
-  M <- cbind(A, matrix(1:30, 10, 3))
-  bm <- c(b, 0, 100, 1000)
+  M <- cbind(A, A[ , 1:3])
+  bm <- c(b, 0, 10, 10)
   grp.M <- c(rep(1, 11), 2, 2)
   y <- M %*% bm + eps
 
   result <- grpSLOPE(X=M, y=y, group=grp.M, fdr=fdr, lambda="mean")
   expect_null(result$beta)
-  expect_equal(result$c, c(rep(0, 10), 9964.877897, 2.709834), tolerance=1e-6)
-  expect_equal(as.numeric(result$group.norms), c(0, 9964.878), tolerance=1e-6)
+  expect_equal(result$c, c(rep(0, 10), -1.726078, 21.821559), tolerance=1e-6)
+  expect_equal(as.numeric(result$group.norms), c(0, 21.88972), tolerance=1e-6)
+  expect_equal(length(result$c), 12)
+  expect_equal(ncol(M), 13)
   expect_identical(result$selected, "2")
   expect_true(result$optimal)
   expect_is(result$iter, "numeric")
@@ -340,23 +323,18 @@ test_that("when the groups are not consequtive blocks", {
   expect_is(result$sigma, "numeric")
 })
 
-test_that("when rank of group submatrix is smaller than the group size, then beta can't be computed after within group orthogonalization", {
-  B <- A
-  B[ , 5] <- B[ , 6] <- B[ , 7]
-  y <- B %*% b + eps
-  expect_warning(grpSLOPE(X=B, y=y, group=grp, fdr=fdr, lambda="max"))
-})
-
 test_that("when group submatrix has more columns than rows", {
-  M <- cbind(A, matrix(1:30, 10, 3))
-  bm <- c(b, 0, 100, 1000)
+  M <- cbind(A, A[ , 1:3])
+  bm <- c(b, 0, 10, 10)
   grp.M <- c(rep(1, 11), 2, 2)
   y <- M %*% bm + eps
 
   result <- grpSLOPE(X=M, y=y, group=grp.M, fdr=fdr, lambda="max")
   expect_null(result$beta)
-  expect_equal(result$c, c(rep(0, 10), 9962.457693, 2.709176), tolerance=1e-6)
-  expect_equal(as.numeric(result$group.norms), c(0, 9962.458), tolerance=1e-6)
+  expect_equal(result$c, c(rep(0, 10), -1.651131, 20.874054), tolerance=1e-6)
+  expect_equal(as.numeric(result$group.norms), c(0, 20.93925), tolerance=1e-6)
+  expect_equal(length(result$c), 12)
+  expect_equal(ncol(M), 13)
   expect_identical(result$selected, "2")
   expect_true(result$optimal)
   expect_is(result$iter, "numeric")
