@@ -479,11 +479,18 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
   n.group  <- length(group.id)
   n <- nrow(X)
 
-  # normalize X and y in order to have a model without intercept
+  # normalize X and y -------------------------------------------------
+  # (save scaling values in order to obtain parameter estimates on the original scale later on)
   if (normalize) {
-    X <- scale(X, center=TRUE, scale=FALSE)
-    X <- apply(X, 2, function(x) x/sqrt(sum(x^2)) )
-    y <- y - mean(y)
+    # center X, so that columns have means equal to zero:
+    X.mean <- apply(X, 2, mean)
+    X <- X - matrix(rep(X.mean, each = n), nrow = n)
+    # scale X, so that columns have norms equal to one:
+    X.scaling <- apply(X, 2, function(col.of.X) { 1 / sqrt(sum(col.of.X^2)) })
+    X <- X %*% diag(X.scaling)
+    # center y to have unit norm:
+    y.mean <- mean(y)
+    y <- y - y.mean
   }
 
   # within group orthogonalization ------------------------------------
@@ -594,7 +601,9 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
 
   # compute beta
   sol$c <- as.vector(optim.result$x)
-  if (orthogonalize) {
+  if (!orthogonalize) {
+    sol$beta <- sol$c
+  } else {
     # compute beta only if all groups have have the same number of columns
     # after orthogonalization as they did before
     group.length <- sapply(group.id, length)
@@ -619,9 +628,9 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
         # beta corresponds to the group structure in the original matrix
         sol$beta[group.id[[i]]] <- betai
       }
+    } else {
+      sol$beta <- NULL
     }
-  } else {
-    sol$beta <- sol$c
   }
 
   # compute group norms ||X_I beta_I||
@@ -646,7 +655,21 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
     sol$optimal <- FALSE
   }
 
-  class(sol) <- "grpSLOPE"
+  # estimates on original scale
+  if (is.null(sol$beta)) {
+    sol$original.scale <- list("intercept" = NULL, "beta" = NULL)
+  } else {
+    if (normalize) {
+      beta.original.scale <- diag(X.scaling) %*% sol$beta
+      intercept <- y.mean - crossprod(X.mean, beta.original.scale)
+    } else {
+      intercept <- 0
+      beta.original.scale <- sol$beta
+    }
+    sol$original.scale <- list("intercept" = as.double(intercept), 
+                               "beta" = as.vector(beta.original.scale))
+  }
 
+  class(sol) <- "grpSLOPE"
   return(sol)
 }
