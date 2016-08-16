@@ -4,12 +4,14 @@
 \alias{coef.grpSLOPE}
 \title{Extract model coefficients}
 \usage{
-\method{coef}{grpSLOPE}(object, scaled = TRUE)
+\method{coef}{grpSLOPE}(object, scaled = TRUE, ...)
 }
 \arguments{
 \item{object}{A \code{grpSLOPE} object}
 
 \item{scaled}{Should the coefficients be returned for the normalized version of the design matrix?}
+
+\item{...}{Potentially further arguments passed to and from methods}
 }
 \description{
 Extract the regression coefficients from a \code{grpSLOPE} object, either on the

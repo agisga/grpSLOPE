@@ -19,7 +19,8 @@
 ###############################################################################
 
 #' @importFrom SLOPE prox_sorted_L1
-#' @importFrom stats lm pchisq qchisq qnorm rnorm sd uniroot
+#' @importFrom stats lm pchisq qchisq qnorm rnorm sd uniroot sigma
+#' @importFrom utils head
 NULL
 #> NULL
 

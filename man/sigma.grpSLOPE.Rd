@@ -4,10 +4,12 @@
 \alias{sigma.grpSLOPE}
 \title{Extract (estimated) noise level}
 \usage{
-\method{sigma}{grpSLOPE}(object)
+\method{sigma}{grpSLOPE}(object, ...)
 }
 \arguments{
 \item{object}{A \code{grpSLOPE} object}
+
+\item{...}{Potentially further arguments passed to and from methods}
 }
 \description{
 Extract the noise level of the \code{grpSLOPE} model.

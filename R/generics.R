@@ -34,6 +34,7 @@
 #'
 #' @param object A \code{grpSLOPE} object 
 #' @param scaled Should the coefficients be returned for the normalized version of the design matrix?
+#' @param ... Potentially further arguments passed to and from methods
 #'
 #' @examples
 #' set.seed(1)
@@ -50,7 +51,7 @@
 #' #  -0.4418113   0.8886878   0.8372108   0.8422089   0.8629597   0.8615827 
 #' 
 #' @export
-coef.grpSLOPE <- function(object, scaled = TRUE) {
+coef.grpSLOPE <- function(object, scaled = TRUE, ...) {
   if(is.null(object$beta)) {
     stop("beta is set to NULL. Maybe one of the group submatrices did not have full column rank? See documentation to grpSLOPE().")
   }
@@ -71,6 +72,7 @@ coef.grpSLOPE <- function(object, scaled = TRUE) {
 #' Extract the noise level of the \code{grpSLOPE} model.
 #'
 #' @param object A \code{grpSLOPE} object 
+#' @param ... Potentially further arguments passed to and from methods
 #'
 #' @examples
 #' set.seed(1)
@@ -88,7 +90,7 @@ coef.grpSLOPE <- function(object, scaled = TRUE) {
 #' # [1] 1
 #' 
 #' @export
-sigma.grpSLOPE <- function(object) {
+sigma.grpSLOPE <- function(object, ...) {
   return(object$sigma)
 }
 
