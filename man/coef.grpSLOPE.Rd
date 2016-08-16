@@ -18,12 +18,12 @@ or on the original scale.
 }
 \details{
 If \code{scaled} is set to \code{TRUE}, then the coefficients are returned for the 
-normalized version of the design matrix, which is the scale on which they are computed. 
+normalized version of the design matrix, which is the scale on which they were computed. 
 If \code{scaled} is set to \code{FALSE}, then the coefficients are transformed to
-to correspond to the original unaltered design matrix.
+correspond to the original (unaltered) design matrix.
 In case that \code{scaled = FALSE}, an estimate for the intercept term is returned with
 the other coefficients. In case that \code{scaled = TRUE}, the estimate of the intercept 
-is always equal to zero.
+is always equal to zero, and is not explicitly provided.
 }
 \examples{
 set.seed(1)

@@ -15,16 +15,17 @@ Extract the noise level of the \code{grpSLOPE} model.
 \examples{
 set.seed(1)
 A   <- matrix(rnorm(100^2), 100, 100)
-grp <- rep(rep(1:20), each=5)
+grp <- rep(rep(1:20), each = 5)
 b   <- c(rep(1, 20), rep(0, 80))
 y   <- A \%*\% b + rnorm(10) 
-result <- grpSLOPE(X=A, y=y, group=grp, fdr=0.1)
-head(coef(result))
-#        X1        X2        X3        X4        X5        X6 
-#  7.942177  7.979269  8.667013  8.514861 10.026664  8.963364 
-head(coef(result, scaled = FALSE))
-# (Intercept)          X1          X2          X3          X4          X5 
-#  -0.4418113   0.8886878   0.8372108   0.8422089   0.8629597   0.8615827 
+# model with unknown noise level
+result <- grpSLOPE(X = A, y = y, group = grp, fdr = 0.1)
+sigma(result)
+# [1] 0.6505558
+# model with known noise level
+result <- grpSLOPE(X = A, y = y, group = grp, fdr = 0.1, sigma = 1)
+sigma(result)
+# [1] 1
 
 }
 
