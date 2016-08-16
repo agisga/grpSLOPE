@@ -68,9 +68,9 @@ Multiple methods are available to generate the regularizing sequence \code{lambd
 see \code{\link{lambdaGroupSLOPE}} for detail.
 The model matrix is transformed by orthogonalization within each group (see Section 2.1
 in Brzyski et. al., 2015), and penalization is imposed on \eqn{\| X_{I_i} \beta_{I_i} \|}.
-Due to within group orthogonalization (see Section 2.1 in Brzyski et. al., 2015),
-the solution vector \code{beta} cannot be  computed if there are more predictors
-in a selected group than there are observations.
+When \code{orthogonalize = TRUE}, due to within group orthogonalization (see Section 2.1 in Brzyski et. al., 2015),
+the solution vector \code{beta} cannot be computed, if a group submatrix does not have full
+column rank (e.g., if there are more predictors in a selected group than there are observations).
 In that case only the solution vector \code{c} of the transformed (orthogonalized) model is returned.
 Additionally, in any case the vector \code{group.norms} is returned with its \eqn{i}th entry
 being \eqn{\| X_{I_i} \beta_{I_i} \|}, i.e., the overall effect of each group.
