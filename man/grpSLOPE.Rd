@@ -57,24 +57,31 @@ A list with members:
     \item{lambda}{Regularizing sequence}
     \item{lambda.method}{Method used to construct the regularizing sequence}
     \item{sigma}{(Estimated) noise level}
+    \item{group}{The provided grouping structure (corresponding to \code{beta})}
+    \item{group.c}{Grouping structure of the transformed model (corresponding to \code{c})}
+    \item{original.scale}{A list containing the estimated intercept and regression coefficients on the original scale. See Details.}
   }
 }
 \description{
 Performs selection of significant groups of predictors and estimation of the
-corresonding coefficients using the Group SLOPE method (see Brzyski et. al., 2015).
+corresponding coefficients using the Group SLOPE method (see Brzyski et. al., 2015).
 }
 \details{
 Multiple methods are available to generate the regularizing sequence \code{lambda},
 see \code{\link{lambdaGroupSLOPE}} for detail.
 The model matrix is transformed by orthogonalization within each group (see Section 2.1
 in Brzyski et. al., 2015), and penalization is imposed on \eqn{\| X_{I_i} \beta_{I_i} \|}.
-When \code{orthogonalize = TRUE}, due to within group orthogonalization (see Section 2.1 in Brzyski et. al., 2015),
+When \code{orthogonalize = TRUE}, due to within group orthogonalization,
 the solution vector \code{beta} cannot be computed, if a group submatrix does not have full
 column rank (e.g., if there are more predictors in a selected group than there are observations).
 In that case only the solution vector \code{c} of the transformed (orthogonalized) model is returned.
 Additionally, in any case the vector \code{group.norms} is returned with its \eqn{i}th entry
 being \eqn{\| X_{I_i} \beta_{I_i} \|}, i.e., the overall effect of each group.
-Note that all results are returned on the scale of the normalized versions of \code{X} and \code{y}.
+Note that all of these results are returned on the scale of the normalized versions of \code{X} and \code{y}.
+However, \code{original.scale} contains the regression coefficients transformed to correspond to 
+the original (unaltered) \code{X} and \code{y}. In that case, an estimate for the intercept term is also
+returned with the other coefficients in \code{original.scale} (while on the normalized scale the estimate
+of the intercept is always equal to zero, and is not explicitly provided in the \code{grpSLOPE} output).
 }
 \examples{
 # generate some data
