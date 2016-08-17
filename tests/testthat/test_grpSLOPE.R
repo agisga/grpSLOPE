@@ -18,7 +18,7 @@ sol.group.norms <- c(0, 18.23296, 0, 0)
 sol.beta.original.scale <- c(0, 0, 33.444461, 5.946028, 0, 0, 0, 0, 0, 0)
 sol.intercept <- 1.659951
 
-test_that("when the groups are consequtive blocks", {
+test_that("when the groups are consecutive blocks", {
   result <- grpSLOPE(X=A, y=y, group=grp, fdr=fdr, lambda="corrected")
   expect_equal(result$beta, sol.beta, tolerance=1e-5)
   expect_equal(result$c, sol.c, tolerance=1e-5)
@@ -34,7 +34,7 @@ test_that("when the groups are consequtive blocks", {
   expect_equal(result$original.scale$intercept, sol.intercept, tolerance=1e-5)
 })
 
-test_that("when the groups are not consequtive blocks", {
+test_that("when the groups are not consecutive blocks", {
   ord <- sample(1:10, 10)
   result <- grpSLOPE(X=A[ , ord], y=y, group=grp[ord], fdr=fdr, lambda="corrected")
   expect_equal(result$beta, sol.beta[ord], tolerance=1e-5)
@@ -85,7 +85,7 @@ sol.group.norms <- c(0, 18.01676, 0, 0)
 sol.beta.original.scale <- c(0, 0, 33.200145, 5.269929, 0, 0, 0, 0, 0, 0)
 sol.intercept <- 1.734726
 
-test_that("when the groups are consequtive blocks", {
+test_that("when the groups are consecutive blocks", {
   result <- grpSLOPE(X=A, y=y, group=grp, fdr=fdr, lambda="corrected", orthogonalize = FALSE)
   expect_equal(result$beta, sol.beta, tolerance=1e-5)
   expect_equal(result$c, sol.beta, tolerance=1e-5)
@@ -102,7 +102,7 @@ test_that("when the groups are consequtive blocks", {
   expect_equal(result$original.scale$intercept, sol.intercept, tolerance=1e-5)
 })
 
-test_that("when the groups are not consequtive blocks", {
+test_that("when the groups are not consecutive blocks", {
   ord <- sample(1:10, 10)
   result <- grpSLOPE(X=A[ , ord], y=y, group=grp[ord], fdr=fdr, lambda="corrected", orthogonalize = FALSE)
   expect_equal(result$beta, sol.beta[ord], tolerance=1e-5)
@@ -176,7 +176,7 @@ z <- N %*% b + eps
 sol.beta <- c(0, 0,37.621344, 7.061173, 0, 0, 0, 0, 0, 20.869200)
 sol.group.norms <- c(0, 38.27827, 0, 20.869200)
 
-test_that("when the groups are consequtive blocks", {
+test_that("when the groups are consecutive blocks", {
   result <- grpSLOPE(X=N, y=z, group=grp, fdr=fdr, lambda="corrected",
                      orthogonalize = FALSE, normalize = FALSE)
   expect_equal(result$beta, sol.beta, tolerance=1e-5)
@@ -210,7 +210,7 @@ test_that("with orthogonalize = TRUE it gives the same result", {
   expect_equal(result$original.scale$intercept, 0, tolerance=1e-5)
 })
 
-test_that("when the groups are not consequtive blocks", {
+test_that("when the groups are not consecutive blocks", {
   ord <- sample(1:10, 10)
   result <- grpSLOPE(X=N[ , ord], y=z, group=grp[ord], fdr=fdr, lambda="corrected",
                      orthogonalize = FALSE, normalize = FALSE)
@@ -269,7 +269,7 @@ sol.group.norms <- c(0, 18.23296, 0, 0)
 sol.beta.original.scale <- c(0, 0, 33.444464, 5.946028, 0, 0, 0, 0, 0, 0)
 sol.intercept <- 1.659951
 
-test_that("when the groups are consequtive blocks", {
+test_that("when the groups are consecutive blocks", {
   result <- grpSLOPE(X=A, y=y, group=grp, fdr=fdr, lambda="mean")
   expect_equal(result$beta, sol.beta, tolerance=1e-5)
   expect_equal(result$c, sol.c, tolerance=1e-5)
@@ -285,7 +285,7 @@ test_that("when the groups are consequtive blocks", {
   expect_equal(result$original.scale$intercept, sol.intercept, tolerance=1e-5)
 })
 
-test_that("when the groups are not consequtive blocks", {
+test_that("when the groups are not consecutive blocks", {
   ord <- sample(1:10, 10)
   result <- grpSLOPE(X=A[ , ord], y=y, group=grp[ord], fdr=fdr, lambda="mean")
   expect_equal(result$beta, sol.beta[ord], tolerance=1e-5)
@@ -347,7 +347,7 @@ sol.group.norms <- c(0, 0, 0, 0)
 sol.beta.original.scale <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 sol.intercept <- 4.101428 
 
-test_that("when the groups are consequtive blocks", {
+test_that("when the groups are consecutive blocks", {
   result <- grpSLOPE(X=A, y=y, group=grp, fdr=fdr, lambda="max")
   expect_equal(result$beta, sol.beta, tolerance=1e-5)
   expect_equal(result$c, sol.c, tolerance=1e-5)
@@ -363,7 +363,7 @@ test_that("when the groups are consequtive blocks", {
   expect_equal(result$original.scale$intercept, sol.intercept, tolerance=1e-5)
 })
 
-test_that("when the groups are not consequtive blocks", {
+test_that("when the groups are not consecutive blocks", {
   ord <- sample(1:10, 10)
   result <- grpSLOPE(X=A[ , ord], y=y, group=grp[ord], fdr=fdr, lambda="max")
   expect_equal(result$beta, sol.beta[ord], tolerance=1e-5)

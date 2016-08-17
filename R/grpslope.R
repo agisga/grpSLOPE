@@ -19,7 +19,7 @@
 ###############################################################################
 
 #' @importFrom SLOPE prox_sorted_L1
-#' @importFrom stats lm pchisq qchisq qnorm rnorm sd uniroot sigma coef
+#' @importFrom stats lm pchisq qchisq qnorm rnorm sd uniroot sigma coef predict
 #' @importFrom utils head
 NULL
 #> NULL
