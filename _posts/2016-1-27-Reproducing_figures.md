@@ -22,17 +22,17 @@ In order to test whether the R package grpSLOPE functions as intended, we reprod
 
 [Code](https://github.com/agisga/grpSLOPE_examples/blob/master/Brzyski_figure_3.R)
 
-### (a)
+### (a) and (b)
 
-![Brzyski figure 3 (a)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_3a.png)
-
-### (b)
-
-![Brzyski figure 3 (b)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_3b.png)
+![Brzyski figure 3 (a)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/figures/Brzyski_3ab.png)
 
 ### (c)
 
-![Brzyski figure 3 (c)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_3c.png)
+![Brzyski figure 3 (c)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/figures/Brzyski_3c.png)
+
+### Estimated power
+
+![Brzyski figure 3, estimated power](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/figures/Brzyski_3_power.png)
 
 
 ## Brzyski et. al. (2015) Figure 4
