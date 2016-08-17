@@ -36,19 +36,21 @@
 #' @param scaled Should the coefficients be returned for the normalized version of the design matrix?
 #' @param ... Potentially further arguments passed to and from methods
 #'
+#' @return A names vector of regression coefficients where the names signify the group that each entry belongs to
+#'
 #' @examples
 #' set.seed(1)
 #' A   <- matrix(rnorm(100^2), 100, 100)
-#' grp <- rep(rep(1:20), each=5)
+#' grp <- rep(rep(letters[1:20]), each=5)
 #' b   <- c(rep(1, 20), rep(0, 80))
 #' y   <- A %*% b + rnorm(10) 
 #' result <- grpSLOPE(X=A, y=y, group=grp, fdr=0.1)
-#' head(coef(result))
-#' #        X1        X2        X3        X4        X5        X6 
-#' #  7.942177  7.979269  8.667013  8.514861 10.026664  8.963364 
-#' head(coef(result, scaled = FALSE))
-#' # (Intercept)          X1          X2          X3          X4          X5 
-#' #  -0.4418113   0.8886878   0.8372108   0.8422089   0.8629597   0.8615827 
+#' head(coef(result), 8)
+#' #       a_1       a_2       a_3       a_4       a_5       b_1       b_2       b_3 
+#' #  7.942177  7.979269  8.667013  8.514861 10.026664  8.963364 10.037355 10.448692 
+#' head(coef(result, scaled = FALSE), 8)
+#' # (Intercept)         a_1         a_2         a_3         a_4         a_5         b_1         b_2 
+#' #  -0.4418113   0.8886878   0.8372108   0.8422089   0.8629597   0.8615827   0.9323849   0.9333445 
 #' 
 #' @export
 coef.grpSLOPE <- function(object, scaled = TRUE, ...) {
@@ -56,12 +58,20 @@ coef.grpSLOPE <- function(object, scaled = TRUE, ...) {
     stop("beta is set to NULL. Maybe one of the group submatrices did not have full column rank? See documentation to grpSLOPE().")
   }
 
+  coef.names <- rep(NA, length(object$beta))
+  group.id <- getGroupID(object$group)
+  group.length <- sapply(group.id, length)
+  n.group <- length(group.id)
+  for (i in 1:n.group) {
+    coef.names[ group.id[[i]] ] <- paste0(names(group.id)[i], "_", 1:group.length[i])
+  }
+
   if(scaled) {
     coefs <- object$beta
-    names(coefs) <- paste0("X", 1:length(coefs))
+    names(coefs) <- coef.names
   } else {
     coefs <- c(object$original.scale$intercept, object$original.scale$beta)
-    names(coefs) <- c("(Intercept)", paste0("X", 1:length(object$original.scale$beta)))
+    names(coefs) <- c("(Intercept)", coef.names)
   }
 
   return(coefs)
