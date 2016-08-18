@@ -9,7 +9,7 @@ In order to test whether the R package grpSLOPE functions as intended, we reprod
 
 ## Brzyski et. al. (2015) Figure 1
 
-[Simulation and visualization code](https://github.com/agisga/grpSLOPE_examples/blob/master/Brzyski_figure_1.R)
+[:page_facing_up: View simulation and visualization code](https://github.com/agisga/grpSLOPE_examples/blob/master/Brzyski_figure_1.R)
 
 ### (a) and (b)
 
@@ -22,7 +22,7 @@ In order to test whether the R package grpSLOPE functions as intended, we reprod
 
 ## Brzyski et. al. (2015) Figure 3
 
-[Simulation and visualization code](https://github.com/agisga/grpSLOPE_examples/blob/master/Brzyski_figure_3.R)
+[:page_facing_up: View simulation and visualization code](https://github.com/agisga/grpSLOPE_examples/blob/master/Brzyski_figure_3.R)
 
 ### (a) and (b)
 
@@ -39,7 +39,7 @@ In order to test whether the R package grpSLOPE functions as intended, we reprod
 
 ## Brzyski et. al. (2015) Figure 4
 
-[Simulation and visualization code](https://github.com/agisga/grpSLOPE_examples/blob/master/Brzyski_figure_4.R)
+[:page_facing_up: View simulation and visualization code](https://github.com/agisga/grpSLOPE_examples/blob/master/Brzyski_figure_4.R)
 
 ### (a)
 
