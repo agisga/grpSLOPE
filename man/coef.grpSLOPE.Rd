@@ -14,7 +14,7 @@
 \item{...}{Potentially further arguments passed to and from methods}
 }
 \value{
-A names vector of regression coefficients where the names signify the group that each entry belongs to
+A named vector of regression coefficients where the names signify the group that each entry belongs to
 }
 \description{
 Extract the regression coefficients from a \code{grpSLOPE} object, either on the

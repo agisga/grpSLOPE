@@ -30,7 +30,7 @@ Multiple methods are available to generate the regularizing sequence \code{lambd
 \itemize{
   \item "max" -- lambdas as in Theorem 2.5 in Brzyski et. al. (2015).
     Provalby controls gFDR in orthogonal designs.
-  \item "mean" -- lambdas of equation (2.14) in Brzyski et. al. (2015)
+  \item "mean" -- lambdas of equation (2.14) in Brzyski et. al. (2015).
     Applicable for gFDR control in orthogonal designs. Less conservative than "max".
   \item "corrected" -- lambdas of Procedure 1 in Brzyski et. al. (2015) if all 
     group sizes are equal and \code{wt} is a constant vector; otherwise, lambdas

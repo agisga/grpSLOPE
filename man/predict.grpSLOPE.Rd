@@ -14,7 +14,7 @@
 \item{...}{Potentially further arguments passed to and from methods}
 }
 \description{
-Obtain predictions form the \code{grpSLOPE} model on new data
+Obtain predictions from a \code{grpSLOPE} model on new data
 }
 \details{
 Note that \code{newdata} must have the same shape, and must contain
