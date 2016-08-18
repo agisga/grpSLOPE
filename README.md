@@ -24,14 +24,14 @@ One can access various estimated parameters of the fitted model, such as the sel
 # groups that have a non-zero effect
 result$selected
 # noise level
-result$sigma
+sigma(result)
 # coefficient vector
-result$beta
+coef(result)
 ```
 
 [A detailed basic usage example can be found here](http://www.alexejgossmann.com/grpSLOPE/basic-usage/).
 
-More complicated (and less helpful) example codes (of varying quality and readability) are available in the repository [grpSLOPE_examples](https://github.com/agisga/grpSLOPE_examples).
+More complicated (and possibly less helpful) example codes are available in the repository [grpSLOPE_examples](https://github.com/agisga/grpSLOPE_examples).
 
 ## Installation
 
@@ -43,12 +43,6 @@ install.packages("grpSLOPE")
 
 ## Installation of the development version
 
-### Before installation
-
-Your R configuration must allow for a working Rcpp. This is generally not a problem on Unix/Linux, but setting it up on Windows may require some work.
-
-### Installation with devtools (recommended)
-
 The easiest way to install the latest development version of `grpSLOPE` is by using the R package `devtools`. Just open up an R session and run:
 
 ```R
@@ -58,16 +52,6 @@ install.packages("devtools")
 library(devtools)
 install_github("agisga/grpSLOPE")
 ```
-
-### Installation without devtools (not recommended)
-
-If you don't want to use `devtools`, you can install `grpSLOPE` by downloading the source code and then following these steps:
-
-0. Install the R packages `Rcpp` and `RcppEigen` if you don't have them installed already.
-1. Go to the directory that contains the `grpSLOPE` directory (which contains the `grpSLOPE` source code).
-2. Open an R session and run `Rcpp::compileAttributes("./grpSLOPE")`. Then quit R.
-3. Run `R CMD build grpSLOPE`. You should then have a file like `grpSLOPE_0.1.0.tar.gz`.
-4. Run `R CMD INSTALL grpSLOPE_0.1.0.tar.gz` to install the package.
 
 ## Contributing
 
@@ -86,3 +70,4 @@ Otherwise, I try to follow [Google's R style guide](https://google.github.io/sty
 3. Do "Build and Reload" from the menu (or CTRL-Shift-B).
 4. Do `devtools::test()` to run the unit tests.
 5. Install with `devtools::install()`
+6. Run checks with `devtools::check()`
