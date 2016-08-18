@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Regularizing sequences for Group SLOPE
+published: false
 ---
 
 Currently the package `grpSLOPE` offers the function `lambdaGroupSLOPE` to generate the regularizing sequence $\lambda\subscript{1}, \ldots, \lambda\subscript{J}$ according to one of the following methods (specified via the function argument `method`):

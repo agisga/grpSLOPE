@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Derivation of infeasibility as stopping criterion
+published: false
 ---
 
 As one stopping criterion for the Group SLOPE optimization problem, [Brzyski et. al. (2015) *Group SLOPE &mdash; adaptive selection of groups of predictors*](http://arxiv.org/abs/1511.09078) derives in Appendix I a measure of infeasibility of the following form (using a slightly different notation):

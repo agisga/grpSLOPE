@@ -1,6 +1,8 @@
 ---
 layout: post
 title: Reproducing figures from Brzyski et. al. (2015)
+date: 2016-08-18
+author: Alexej Gossmann
 ---
 
 In order to test whether the R package grpSLOPE functions as intended, we reproduce the simulation results from [Brzyski et. al. (2015) *Group SLOPE &mdash; adaptive selection of groups of predictors*](http://arxiv.org/abs/1511.09078). The code is provided.
@@ -41,12 +43,12 @@ In order to test whether the R package grpSLOPE functions as intended, we reprod
 
 ### (a)
 
-![Brzyski figure 4 (a)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_4a.jpg)
+![Brzyski figure 4 (a)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/figures/Brzyski_4a.png)
 
 ### (b)
 
-![Brzyski figure 4 (b)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_4b.jpg)
+![Brzyski figure 4 (b)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/figures/Brzyski_4b.png)
 
 ### (c)
 
-![Brzyski figure 4 (c)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/img/Brzyski_4c.jpg)
+![Brzyski figure 4 (c)](https://raw.githubusercontent.com/agisga/grpSLOPE_examples/master/figures/Brzyski_4c.png)
