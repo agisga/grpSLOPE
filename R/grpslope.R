@@ -34,7 +34,7 @@ NULL
 #'
 #' @param y The response vector
 #' @param group Either a vector or an object of class \code{groupID} (e.g. as produced by 
-#'   \code{\link{getGroups}}), which is describing the grouping structure. If it is
+#'   \code{\link{getGroupID}}), which is describing the grouping structure. If it is
 #'   a vector, then it should contain a group id for each predictor variable.
 #' @param lambda A decreasing sequence of regularization parameters \eqn{\lambda}
 #' @param ... Options passed to \code{\link[SLOPE]{prox_sorted_L1}}
