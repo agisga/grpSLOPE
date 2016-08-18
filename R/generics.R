@@ -36,7 +36,7 @@
 #' @param scaled Should the coefficients be returned for the normalized version of the design matrix?
 #' @param ... Potentially further arguments passed to and from methods
 #'
-#' @return A names vector of regression coefficients where the names signify the group that each entry belongs to
+#' @return A named vector of regression coefficients where the names signify the group that each entry belongs to
 #'
 #' @examples
 #' set.seed(1)
@@ -106,7 +106,7 @@ sigma.grpSLOPE <- function(object, ...) {
 
 #' Obtain predictions
 #' 
-#' Obtain predictions form the \code{grpSLOPE} model on new data
+#' Obtain predictions from a \code{grpSLOPE} model on new data
 #'
 #' Note that \code{newdata} must have the same shape, and must contain
 #' the same predictor variables as columns in the same order as the
