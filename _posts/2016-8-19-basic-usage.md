@@ -223,7 +223,7 @@ b[1:13]
 plot(model$lambda[1:10], xlab = "Index", ylab = "Lambda", type="l")
 {% endhighlight %}
 
-![plot of chunk unnamed-chunk-15](/grpSLOPEfigure/source/2016-8-19-basic-usage/unnamed-chunk-15-1.png)
+![plot of chunk unnamed-chunk-15](/grpSLOPE/figure/source/2016-8-19-basic-usage/unnamed-chunk-15-1.png)
 
 * We can further check the performance of the method by computing the resulting group false discovery proportion (gFDP) and power.
 
