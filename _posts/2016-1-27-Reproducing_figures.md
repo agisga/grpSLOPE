@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Reproducing figures from Brzyski et. al. (2015)
+title: "Reproducing figures from Brzyski et. al. (2015)"
 date: 2016-08-18
 author: Alexej Gossmann
 ---
