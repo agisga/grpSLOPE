@@ -3,7 +3,7 @@ title: grpSLOPE
 email: alexej.go@googlemail.com
 description: > # this means to ignore newlines until "baseurl:"
   Tutorials, examples, and other writeups for the R package grpSLOPE
-baseurl: "/grpSLOPE" # the subpath of your site, e.g. /blog/
+baseurl: "/grpSLOPE/" # the subpath of your site, e.g. /blog/
 url: "http://www.alexejgossmann.com/" # the base hostname & protocol for your site
 github_username: agisga 
 
