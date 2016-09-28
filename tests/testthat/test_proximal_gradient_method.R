@@ -7,7 +7,7 @@ y   <- 1:10
 grp <- c(1,1,1,2,2,2,3,3,3,4)
 sol <- c(0, 0, 0, 0.353261553, 0.441576942, 0.529892330, 
          1.974292890, 2.256334731, 2.538376572, 1.0000000001)
-lam <- 10:1
+lam <- c(10, 9, 8, 7)
 
 test_that("the prox is evaluated correctly when the groups are consequtive blocks", {
   x   <- proxGroupSortedL1(y = y, group = grp, lambda = lam)
