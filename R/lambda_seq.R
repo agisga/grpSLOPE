@@ -62,21 +62,23 @@ lambdaChiOrtho <- function(fdr, n.group, group.sizes, wt, method) {
 lambdaChiEqual <- function(fdr, n.obs, n.group, m, w) {
   lambda.chi    <- rep(NA, n.group)
   lambda.chi[1] <- sqrt(qchisq(1 - fdr / n.group, df=m)) / w
-  # make sure that the denominator in s is non-zero
-  imax <- floor((n.obs - 1) / m + 1)
-  imax <- min(n.group, imax)
-  for (i in 2:imax) {
+
+  for (i in 2:n.group) {
+    # prevent division by 0 or sqrt of a negative number later on
+    if ( (n.obs - m*(i-1) - 1) <= 0 ) {
+      stop("Corrected lambdas cannot be computed unless groups sizes are small enough compared to sample size.")
+    }
+
     s <- (n.obs - m*(i-1)) / n.obs + (w^2 * sum(lambda.chi[1:(i-1)]^2)) / (n.obs - m*(i-1) - 1)
     s <- sqrt(s)
     lambda.tmp <- (s/w) * sqrt(qchisq(1 - fdr * i / n.group, df=m))
     if (lambda.tmp <= lambda.chi[i-1]) {
       lambda.chi[i] <- lambda.tmp
     } else {
-      for (j in i:imax) { lambda.chi[j] <- lambda.chi[i-1] }
+      lambda.chi[i:n.group] <- lambda.chi[i-1]
       break
     }
   }
-  lambda.chi[imax:n.group] <- lambda.chi[imax]
 
   return(lambda.chi)
 }
@@ -112,10 +114,9 @@ lambdaChiMean <- function(fdr, n.obs, n.group, group.sizes, wt) {
   for (i in 2:n.group) {
     s <- rep(NA, n.group)
     for (j in 1:n.group) {
-      # prevent division by 0
+      # prevent division by 0 or sqrt of a negative number later on
       if ((n.obs - group.sizes[j]*(i-1) - 1) <= 0) {
-        for (k in i:n.group) { lambda.chi.mean[k] <- lambda.chi.mean[i-1] }
-        break
+        stop("Corrected lambdas cannot be computed unless groups sizes are small enough compared to sample size.")
       }
 
       s[j] <- (n.obs - group.sizes[j]*(i-1)) / n.obs + 
@@ -138,7 +139,7 @@ lambdaChiMean <- function(fdr, n.obs, n.group, group.sizes, wt) {
     if (cdfMean.inv <= lambda.chi.mean[i-1]) {
       lambda.chi.mean[i] <- cdfMean.inv 
     } else {
-      for (j in i:n.group) { lambda.chi.mean[j] <- lambda.chi.mean[i-1] }
+      lambda.chi.mean[i:n.group] <- lambda.chi.mean[i-1]
       break
     }
   }

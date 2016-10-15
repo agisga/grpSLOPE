@@ -72,7 +72,8 @@ test_that("corrected lambdas can't be computed unless groups sizes are small eno
   bm <- c(b, 0, 100, 1000)
   grp.M <- c(rep(1, 11), 2, 2)
   y <- M %*% bm + eps
-  expect_error(grpSLOPE(X=M, y=y, group=grp.M, fdr=fdr, lambda="corrected"))
+  expect_error(grpSLOPE(X=M, y=y, group=grp.M, fdr=fdr, lambda="corrected"),
+               regexp = "Corrected lambdas cannot be computed unless groups sizes are small enough compared to sample size.")
 })
 
 #--------------------------------------------------------------------------
@@ -165,7 +166,8 @@ test_that("corrected lambdas can't be computed unless groups sizes are small eno
   bm <- c(b, 0, 100, 1000)
   grp.M <- c(rep(1, 11), 2, 2)
   y <- M %*% bm + eps
-  expect_error(grpSLOPE(X=M, y=y, group=grp.M, fdr=fdr, lambda="corrected", orthogonalize = FALSE))
+  expect_error(grpSLOPE(X=M, y=y, group=grp.M, fdr=fdr, lambda="corrected", orthogonalize = FALSE),
+               regexp = "Corrected lambdas cannot be computed unless groups sizes are small enough compared to sample size.")
 })
 
 #--------------------------------------------------------------------------
@@ -257,7 +259,8 @@ test_that("corrected lambdas can't be computed unless groups sizes are small eno
   grp.M <- c(rep(1, 11), 2, 2)
   y <- M %*% bm + eps
   expect_error(grpSLOPE(X=M, y=y, group=grp.M, fdr=fdr, lambda="corrected",
-                        orthogonalize = FALSE, normalize = FALSE))
+                        orthogonalize = FALSE, normalize = FALSE),
+               regexp = "Corrected lambdas cannot be computed unless groups sizes are small enough compared to sample size.")
 })
 
 #--------------------------------------------------------------------------
