@@ -15,7 +15,7 @@ context("coef()")
 
 test_that("it returns the regression coefficients on the normalized scale", {
   expect_equal(as.numeric(coef(fit)), 
-               c(0, 0, 40.04346, 71.74828, 0, 0, 0, 0, 0, 239.30532),
+               c(0, 0, 39.80272, 71.35317, 0, 0, 0, 0, 0, 238.98865),
                tolerance = 1e-4)
   expect_identical(as.numeric(coef(fit)), fit$beta)
   expect_identical(names(coef(fit)),
@@ -24,7 +24,7 @@ test_that("it returns the regression coefficients on the normalized scale", {
 
 test_that("it returns the regression coefficients on the original scale", {
   expect_equal(as.numeric(coef(fit, scaled = FALSE)), 
-               c(12.82320, 0, 0, 43.47748, 98.20002, 0, 0, 0, 0, 0, 293.98983),
+               c(13.43961, 0, 0, 43.21609, 97.65925, 0, 0, 0, 0, 0, 293.60080),
                tolerance = 1e-4)
   expect_identical(as.numeric(coef(fit, scaled = FALSE)), 
                    c(fit$original.scale$intercept, fit$original.scale$beta))
@@ -36,7 +36,7 @@ test_that("it returns the regression coefficients on the original scale", {
 context("sigma()")
 
 test_that("it returns the estimated noise level", {
-  expect_equal(sigma(fit), 2.19058, tolerance = 1e-4)
+  expect_equal(sigma(fit), 2.366097, tolerance = 1e-4)
   expect_identical(sigma(fit), fit$sigma)
 })
 
@@ -55,5 +55,5 @@ newvec <- c(0.26550866,0.37212390,0.57285336,0.90820779,0.20168193,0.89838968,0.
 newdata <- matrix(newvec, 2, 10)
 
 test_that("it computes predictions on new data", {
-  expect_equal(predict(fit, newdata), c(226.0854, 345.3343), tolerance = 1e-3)
+  expect_equal(predict(fit, newdata), c(225.9904, 345.0560), tolerance = 1e-3)
 })

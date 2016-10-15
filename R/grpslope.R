@@ -589,7 +589,11 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
         stop("Sigma estimation fails because more predictors got selected than there are observations.")
       }
       OLS <- lm(y ~ 0 + X[ , S])
-      sigma <- sqrt( sum(OLS$res^2) / (n - length(S)) )
+      if (normalize) {
+        sigma <- sqrt( sum(OLS$res^2) / (n - length(S) - 1) )
+      } else {
+        sigma <- sqrt( sum(OLS$res^2) / (n - length(S)) )
+      }
 
       sigma.lambda <- sigma * lambda.seq
       optim.result <- proximalGradientSolverGroupSLOPE(y=y, A=X, group=grp,

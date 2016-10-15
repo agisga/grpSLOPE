@@ -12,11 +12,11 @@ fdr <- 0.1
 #--------------------------------------------------------------------------
 context("grpSLOPE(lambda = 'corrected')")
 
-sol.c <- c(0, 0, 17.520987, 5.045372, 0, 0, 0, 0, 0, 0)
-sol.beta <- c(0, 0,18.085076, 5.076808, 0, 0, 0, 0, 0, 0)
-sol.group.norms <- c(0, 18.23296, 0, 0)
-sol.beta.original.scale <- c(0, 0, 33.444461, 5.946028, 0, 0, 0, 0, 0, 0)
-sol.intercept <- 1.659951
+sol.c <- c(0, 0, 17.022493, 4.901825, 0, 0, 0, 0, 0, 0)
+sol.beta <- c(0, 0, 17.570533, 4.932366, 0, 0, 0, 0, 0, 0)
+sol.group.norms <- c(0, 17.71421, 0, 0)
+sol.beta.original.scale <- c(0, 0, 32.492927, 5.776856, 0, 0, 0, 0, 0, 0)
+sol.intercept <- 1.729414
 
 test_that("when the groups are consecutive blocks", {
   result <- grpSLOPE(X=A, y=y, group=grp, fdr=fdr, lambda="corrected")
@@ -64,7 +64,7 @@ test_that("with non-zero intercept", {
   expect_true(result$lambda.method == "corrected")
   expect_is(result$sigma, "numeric")
   expect_equal(result$original.scale$beta, sol.beta.original.scale[ord], tolerance=1e-5)
-  expect_equal(result$original.scale$intercept, 101.66, tolerance=1e-5)
+  expect_equal(result$original.scale$intercept, 101.7294145, tolerance=1e-5)
 })
 
 test_that("corrected lambdas can't be computed unless groups sizes are small enough compared to sample size", {
@@ -80,10 +80,10 @@ context("grpSLOPE(lambda = 'corrected', orthogonalize = FALSE)")
 
 # not sure why results slightly differ from the case when orthogonalize=TRUE...
 # at least the results agree between orthogonalize=TRUE/FALSE in the example below, where normalize=FALSE...
-sol.beta <- c(0, 0,17.952961, 4.499544, 0, 0, 0, 0, 0, 0)
-sol.group.norms <- c(0, 18.01676, 0, 0)
-sol.beta.original.scale <- c(0, 0, 33.200145, 5.269929, 0, 0, 0, 0, 0, 0)
-sol.intercept <- 1.734726
+sol.beta <- c(0, 0, 17.427106, 4.330629, 0, 0, 0, 0, 0, 0)
+sol.group.norms <- c(0, 17.48391, 0, 0)
+sol.beta.original.scale <- c(0, 0, 32.227690, 5.072093, 0, 0, 0, 0, 0, 0)
+sol.intercept <- 1.807962
 
 test_that("when the groups are consecutive blocks", {
   result <- grpSLOPE(X=A, y=y, group=grp, fdr=fdr, lambda="corrected", orthogonalize = FALSE)
@@ -136,7 +136,7 @@ test_that("with non-zero intercept", {
   expect_true(result$lambda.method == "corrected")
   expect_is(result$sigma, "numeric")
   expect_equal(result$original.scale$beta, sol.beta.original.scale[ord], tolerance=1e-5)
-  expect_equal(result$original.scale$intercept, 201.7347, tolerance=1e-5)
+  expect_equal(result$original.scale$intercept, 201.8079616, tolerance=1e-5)
 })
 
 test_that("when rank of group submatrix is smaller than the group size", {
@@ -263,11 +263,11 @@ test_that("corrected lambdas can't be computed unless groups sizes are small eno
 #--------------------------------------------------------------------------
 context("grpSLOPE(lambda = 'mean')")
 
-sol.c <- c(0, 0, 17.520986, 5.045372, 0, 0, 0, 0, 0, 0)
-sol.beta <- c(0, 0,18.085076, 5.076808, 0, 0, 0, 0, 0, 0)
-sol.group.norms <- c(0, 18.23296, 0, 0)
-sol.beta.original.scale <- c(0, 0, 33.444464, 5.946028, 0, 0, 0, 0, 0, 0)
-sol.intercept <- 1.659951
+sol.beta <- c(0, 0, 17.570533, 4.932366, 0, 0, 0, 0, 0, 0)
+sol.c <- c(0, 0, 17.022493, 4.901825, 0, 0, 0, 0, 0, 0)
+sol.group.norms <- c(0, 17.71421, 0, 0)
+sol.beta.original.scale <- c(0, 0, 32.492927, 5.776856, 0, 0, 0, 0, 0, 0)
+sol.intercept <- 1.729414
 
 test_that("when the groups are consecutive blocks", {
   result <- grpSLOPE(X=A, y=y, group=grp, fdr=fdr, lambda="mean")
@@ -313,7 +313,7 @@ test_that("with non-zero intercept", {
   expect_true(result$lambda.method == "mean")
   expect_is(result$sigma, "numeric")
   expect_equal(result$original.scale$beta, sol.beta.original.scale[ord], tolerance=1e-5)
-  expect_equal(result$original.scale$intercept, -8.340049, tolerance=1e-5)
+  expect_equal(result$original.scale$intercept, -8.270585, tolerance=1e-5)
 })
 
 test_that("when group submatrix has more columns than rows", {
@@ -324,7 +324,7 @@ test_that("when group submatrix has more columns than rows", {
 
   result <- grpSLOPE(X=M, y=y, group=grp.M, fdr=fdr, lambda="mean")
   expect_null(result$beta)
-  expect_equal(as.numeric(result$group.norms), c(0, 21.88972), tolerance=1e-5)
+  expect_equal(as.numeric(result$group.norms), c(0, 21.34535), tolerance=1e-5)
   expect_equal(length(result$c), 12)
   expect_equal(ncol(M), 13)
   expect_identical(result$selected, "2")
@@ -402,7 +402,7 @@ test_that("when group submatrix has more columns than rows", {
 
   result <- grpSLOPE(X=M, y=y, group=grp.M, fdr=fdr, lambda="max")
   expect_null(result$beta)
-  expect_equal(as.numeric(result$group.norms), c(0, 20.93925), tolerance=1e-5)
+  expect_equal(as.numeric(result$group.norms), c(0, 20.32926), tolerance=1e-5)
   expect_equal(length(result$c), 12)
   expect_equal(ncol(M), 13)
   expect_identical(result$selected, "2")
