@@ -24,7 +24,7 @@ values are "max", "mean", and "corrected" (default).
 See \code{\link{lambdaGroupSLOPE}} for detail. Alternatively, any
 non-increasing sequence of the correct length can be passed.}
 
-\item{sigma}{Noise level. If ommited, estimated from the data, using Procedure 3 in Brzyski et. al. (2015).}
+\item{sigma}{Noise level. If ommited, estimated from the data, using Procedure 2 in Brzyski et. al. (2016).}
 
 \item{verbose}{A \code{logical} specifying whether to print output or not}
 
@@ -64,13 +64,13 @@ A list with members:
 }
 \description{
 Performs selection of significant groups of predictors and estimation of the
-corresponding coefficients using the Group SLOPE method (see Brzyski et. al., 2015).
+corresponding coefficients using the Group SLOPE method (see Brzyski et. al., 2016).
 }
 \details{
 Multiple methods are available to generate the regularizing sequence \code{lambda},
 see \code{\link{lambdaGroupSLOPE}} for detail.
 The model matrix is transformed by orthogonalization within each group (see Section 2.1
-in Brzyski et. al., 2015), and penalization is imposed on \eqn{\| X_{I_i} \beta_{I_i} \|}.
+in Brzyski et. al., 2016), and penalization is imposed on \eqn{\| X_{I_i} \beta_{I_i} \|}.
 When \code{orthogonalize = TRUE}, due to within group orthogonalization,
 the solution vector \code{beta} cannot be computed, if a group submatrix does not have full
 column rank (e.g., if there are more predictors in a selected group than there are observations).
@@ -104,6 +104,6 @@ head(result$group.norms)
 
 }
 \references{
-D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{https://arxiv.org/abs/1610.04960}
 }
 

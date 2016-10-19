@@ -133,8 +133,8 @@ proxGroupSortedL1 <- function(y, group, lambda, ...) {
 #' #  [9,] 0.000000
 #' # [10,] 3.512833
 #'
-#' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
-#' @references A. Gossmann, S. Cao, Y.-P. Wang (2015), \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
+#' @references D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{https://arxiv.org/abs/1610.04960}
+#' @references A. Gossmann, S. Cao, Y.-P. Wang (2015) \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
 #'
 #' @export
 proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1e4,
@@ -235,7 +235,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
     
     # Stopping criteria --------------------------------------------
 
-    # Compute duality gap (eq. (1.7) in Appendix I in Brzyski et. al. (2015))
+    # Compute duality gap (eq. (B.20) in Appendix I in Brzyski et. al. (2016))
     b.norms <- rep(NA, n.group)
     for (i in 1:n.group) {
       selected <- group.id[[i]]
@@ -324,13 +324,13 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 #'
 #' Multiple methods are available to generate the regularizing sequence \code{lambda}:
 #' \itemize{
-#'   \item "max" -- lambdas as in Theorem 2.5 in Brzyski et. al. (2015).
+#'   \item "max" -- lambdas as in Theorem 2.5 in Brzyski et. al. (2016).
 #'     Provalby controls gFDR in orthogonal designs.
-#'   \item "mean" -- lambdas of equation (2.14) in Brzyski et. al. (2015).
+#'   \item "mean" -- lambdas of equation (2.16) in Brzyski et. al. (2016).
 #'     Applicable for gFDR control in orthogonal designs. Less conservative than "max".
-#'   \item "corrected" -- lambdas of Procedure 1 in Brzyski et. al. (2015) if all 
-#'     group sizes are equal and \code{wt} is a constant vector; otherwise, lambdas
-#'     of Procedure 2 in Brzyski et. al. (2015).
+#'   \item "corrected" -- lambdas of Procedure 1 in Brzyski et. al. (2016);
+#'     in the special case that all group sizes are equal and \code{wt} is a constant vector, 
+#'     Procedure 6 of Brzyski et. al. (2016) is applied.
 #'     Applicable for gFDR control when predictors from different groups are stochastically independent.
 #' }
 #'
@@ -362,7 +362,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 #' # lambda.mean      1.880540 1.723559 1.626517 1.554561 1.496603 1.447609
 #' # lambda.corrected 1.880540 1.729811 1.637290 1.568971 1.514028 1.467551
 #'
-#' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+#' @references D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{https://arxiv.org/abs/1610.04960}
 #' @export
 lambdaGroupSLOPE <- function(method, fdr, group, wt, n.obs=NULL)
 {
@@ -384,13 +384,13 @@ lambdaGroupSLOPE <- function(method, fdr, group, wt, n.obs=NULL)
 
     # Check for equal group sizes and equal weights
     if ( (length(unique(group.sizes))==1) & (length(unique(wt))==1) ) {
-      # lambdas of Procedure 1 in Brzyski et. al. (2015)
+      # lambdas of Procedure 6 in Brzyski et. al. (2016)
       m <- unique(group.sizes)
       w <- unique(wt)
       lambda <- lambdaChiEqual(fdr=fdr, n.obs=n.obs, 
                                n.group=n.group, m=m, w=w)
     } else {
-      # lambdas of Procedure 2 in Brzyski et. al. (2015)
+      # lambdas of Procedure 1 in Brzyski et. al. (2016)
       lambda <- lambdaChiMean(fdr=fdr, n.obs=n.obs, n.group=n.group,
                               group.sizes=group.sizes, wt=wt)
     }
@@ -405,12 +405,12 @@ lambdaGroupSLOPE <- function(method, fdr, group, wt, n.obs=NULL)
 #' Group SLOPE (Group Sorted L-One Penalized Estimation)
 #' 
 #' Performs selection of significant groups of predictors and estimation of the
-#' corresponding coefficients using the Group SLOPE method (see Brzyski et. al., 2015).
+#' corresponding coefficients using the Group SLOPE method (see Brzyski et. al., 2016).
 #'
 #' Multiple methods are available to generate the regularizing sequence \code{lambda},
 #' see \code{\link{lambdaGroupSLOPE}} for detail.
 #' The model matrix is transformed by orthogonalization within each group (see Section 2.1
-#' in Brzyski et. al., 2015), and penalization is imposed on \eqn{\| X_{I_i} \beta_{I_i} \|}.
+#' in Brzyski et. al., 2016), and penalization is imposed on \eqn{\| X_{I_i} \beta_{I_i} \|}.
 #' When \code{orthogonalize = TRUE}, due to within group orthogonalization,
 #' the solution vector \code{beta} cannot be computed, if a group submatrix does not have full
 #' column rank (e.g., if there are more predictors in a selected group than there are observations).
@@ -432,7 +432,7 @@ lambdaGroupSLOPE <- function(method, fdr, group, wt, n.obs=NULL)
 #'    values are "max", "mean", and "corrected" (default).
 #'    See \code{\link{lambdaGroupSLOPE}} for detail. Alternatively, any
 #'    non-increasing sequence of the correct length can be passed.
-#' @param sigma Noise level. If ommited, estimated from the data, using Procedure 3 in Brzyski et. al. (2015).
+#' @param sigma Noise level. If ommited, estimated from the data, using Procedure 2 in Brzyski et. al. (2016).
 #' @param verbose A \code{logical} specifying whether to print output or not
 #' @param orthogonalize Whether to orthogonalize the model matrix within each group.
 #'    Do not set manually unless you are certain that your data is appropriately pre-processed.
@@ -480,7 +480,7 @@ lambdaGroupSLOPE <- function(method, fdr, group, wt, n.obs=NULL)
 #' #         1         2         3         4         5         6 
 #' #  2.905449  5.516103  8.964201 10.253792  0.000000  0.000000 
 #'
-#' @references D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+#' @references D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{https://arxiv.org/abs/1610.04960}
 #'
 #' @export
 grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,

@@ -18,7 +18,7 @@
 #
 ###############################################################################
 
-# lambdas of Theorem 2.5 and equation (2.14) in Brzyski et. al. (2015)
+# lambdas of Theorem 2.5 and equation (2.16) in Brzyski et. al. (2016)
 lambdaChiOrtho <- function(fdr, n.group, group.sizes, wt, method) {
   lambda.max <- rep(NA, n.group)
   lambda.min <- rep(NA, n.group)
@@ -58,7 +58,7 @@ lambdaChiOrtho <- function(fdr, n.group, group.sizes, wt, method) {
   return(lambda.mean)
 }
 
-# Procedure 1 in Brzyski et. al. (2015)
+# Procedure 6 in Brzyski et. al. (2016)
 lambdaChiEqual <- function(fdr, n.obs, n.group, m, w) {
   lambda.chi    <- rep(NA, n.group)
   lambda.chi[1] <- sqrt(qchisq(1 - fdr / n.group, df=m)) / w
@@ -83,7 +83,7 @@ lambdaChiEqual <- function(fdr, n.obs, n.group, m, w) {
   return(lambda.chi)
 }
 
-# Procedure 2 in Brzyski et. al. (2015)
+# Procedure 1 in Brzyski et. al. (2016)
 lambdaChiMean <- function(fdr, n.obs, n.group, group.sizes, wt) {
   lambda.chi.mean <- rep(NA, n.group)
 
@@ -127,7 +127,6 @@ lambdaChiMean <- function(fdr, n.obs, n.group, group.sizes, wt) {
     cdfMean <- function(x) {
       pchi.seq <- rep(NA, n.group)
       for (j in 1:n.group) {
-        # Procedure 2 in Brzyski et. al. (2015) has a typo at this point
         pchi.seq[j] <- pchisq((wt[j]/s[j] * x)^2, df=group.sizes[j])
       }
       return(mean(pchi.seq))

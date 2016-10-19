@@ -1,10 +1,10 @@
 # grpSLOPE
 
 [![Build Status](https://travis-ci.org/agisga/grpSLOPE.svg?branch=master)](https://travis-ci.org/agisga/grpSLOPE)
-[![CRAN downloads this month](http://cranlogs.r-pkg.org/badges/grpSLOPE)](http://cran.rstudio.com/web/packages/grpSLOPE/index.html)
+[![CRAN downloads this month](http://cranlogs.r-pkg.org/badges/grpSLOPE)](https://CRAN.R-project.org/package=grpSLOPE)
 
-Group SLOPE is a penalized linear regression method that is used for adaptive selection of groups of significant predictors in a high-dimensional linear model. It was introduced in [Brzyski et. al. (2015) *Group SLOPE &mdash; adaptive selection of groups of predictors*](http://arxiv.org/abs/1511.09078) and [Gossmann et. al. (2015) *Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE*](http://dx.doi.org/10.1145/2808719.2808743).
-A unique feature of the Group SLOPE method is that it offers (group) false discovery rate control (i.e., control of the expected proportion of irrelevant groups among the total number of groups of predictors selected by the Group SLOPE method).
+Group SLOPE is a penalized linear regression method that is used for adaptive selection of groups of significant predictors in a high-dimensional linear model. A unique feature of the Group SLOPE method is that it offers (group) false discovery rate control (i.e., control of the expected proportion of irrelevant groups among the total number of groups of predictors selected by Group SLOPE).
+A detailed description of the method can be found in [D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) *Group SLOPE &mdash; adaptive selection of groups of predictors*](https://arxiv.org/abs/1610.04960).
 
 ## Usage
 
@@ -53,14 +53,14 @@ library(devtools)
 install_github("agisga/grpSLOPE")
 ```
 
-## Contributing
+## Contributing to the R package
 
 ### Code style
 
 Variable names are all lower case with words separated by dots.
 Function names begin with a lower case letter and are written in camel case.
 Constants names are all caps.
-Otherwise, I try to follow [Google's R style guide](https://google.github.io/styleguide/Rguide.xml).
+Otherwise, the package code follows [Google's R style guide](https://google.github.io/styleguide/Rguide.xml).
 
 ### Workflow
 
