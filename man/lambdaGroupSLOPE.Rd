@@ -28,13 +28,13 @@ problem according to one of multiple methods (see Details).
 \details{
 Multiple methods are available to generate the regularizing sequence \code{lambda}:
 \itemize{
-  \item "max" -- lambdas as in Theorem 2.5 in Brzyski et. al. (2015).
+  \item "max" -- lambdas as in Theorem 2.5 in Brzyski et. al. (2016).
     Provalby controls gFDR in orthogonal designs.
-  \item "mean" -- lambdas of equation (2.14) in Brzyski et. al. (2015).
+  \item "mean" -- lambdas of equation (2.16) in Brzyski et. al. (2016).
     Applicable for gFDR control in orthogonal designs. Less conservative than "max".
-  \item "corrected" -- lambdas of Procedure 1 in Brzyski et. al. (2015) if all 
-    group sizes are equal and \code{wt} is a constant vector; otherwise, lambdas
-    of Procedure 2 in Brzyski et. al. (2015).
+  \item "corrected" -- lambdas of Procedure 1 in Brzyski et. al. (2016);
+    in the special case that all group sizes are equal and \code{wt} is a constant vector, 
+    Procedure 6 of Brzyski et. al. (2016) is applied.
     Applicable for gFDR control when predictors from different groups are stochastically independent.
 }
 }
@@ -58,6 +58,6 @@ rbind(lambda.max, lambda.mean, lambda.corrected)
 
 }
 \references{
-D. Brzyski, W. Su, M. Bogdan (2015), \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{http://arxiv.org/abs/1511.09078}
+D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{https://arxiv.org/abs/1610.04960}
 }
 
