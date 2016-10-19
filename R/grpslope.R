@@ -235,7 +235,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
     
     # Stopping criteria --------------------------------------------
 
-    # Compute duality gap (eq. (B.20) in Appendix I in Brzyski et. al. (2016))
+    # Compute duality gap (eq. (B.20) in Appendix B in Brzyski et. al. (2016))
     b.norms <- rep(NA, n.group)
     for (i in 1:n.group) {
       selected <- group.id[[i]]
