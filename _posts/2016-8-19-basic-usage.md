@@ -2,16 +2,16 @@
 layout: post
 title: "Basic usage of the R package grpSLOPE"
 author: Alexej Gossmann
-date: 2016-08-19
+date: 2016-10-18
 ---
 
 ## Introduction
 
 Group SLOPE (*gSLOPE*) is a penalized linear regression method that is used for adaptive selection of groups of significant predictors in a high-dimensional linear model.
-A unique property of the Group SLOPE method is that it offers group false discovery rate (*gFDR*) control (i.e., control of the expected proportion of irrelevant groups among the total number of groups selected by the Group SLOPE method).
-Group SLOPE is implemented in the R package `grpSLOPE`.
+A unique property of the Group SLOPE method is that it offers group false discovery rate (*gFDR*) control (i.e., control of the expected proportion of irrelevant groups among the total number of groups selected by Group SLOPE).
+A detailed description of the method can be found in [D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) *Group SLOPE &mdash; adaptive selection of groups of predictors*](https://arxiv.org/abs/1610.04960).
 
-As an introduction to the R package, in the following we will walk through a usage example. First, we will simulate some data, before we feed it into `grpSLOPE`, and subsequently examine the output.
+Group SLOPE is implemented in the R package `grpSLOPE`. As an introduction to the R package, in the following we will walk through a basic usage demonstration. First, we will simulate some data, before we feed it into `grpSLOPE`, and subsequently examine the output.
 
 ## Data generation
 
@@ -53,7 +53,7 @@ For example, the upper left $10 \times 10$ corner of $X$ looks as follows.
 0 0 1 0 0 0 0 0 1 1
 - - - - - - - - - -
 
-**Note:** In fact, with the default settings, the Group SLOPE method is guaranteed to control gFDR only when applied to a data matrix, where the columns corresponding to different groups of predictors are nearly uncorrelated. The relevant theoretical results can be found in [Brzyski et. al. (2015) *Group SLOPE -- adaptive selection of groups of predictors*](http://arxiv.org/abs/1511.09078)). Only for the brevity of exposition we neither check for nor enforce low between-group correlations in this example.
+**Note:** In fact, with the default settings, the Group SLOPE method is guaranteed to control gFDR only when applied to a data matrix, where the columns corresponding to different groups of predictors are nearly uncorrelated. The relevant theoretical results can be found in [Brzyski et. al. (2016)](https://arxiv.org/abs/1610.04960). Only for the brevity of exposition we neither check for nor enforce low between-group correlations in this example.
 
 We divide the 500 predictor variables into 100 groups of sizes ranging from 3 to 7.
 
@@ -137,84 +137,84 @@ The resulting object `model` of class "grpSLOPE" contains a lot of information a
 
 * Groups that were selected as significant by the Group SLOPE method.
 
+    
+    {% highlight r %}
+    model$selected
+    {% endhighlight %}
+    
+    
+    
+    {% highlight text %}
+    ##  [1] "grp4"  "grp11" "grp13" "grp22" "grp34" "grp35" "grp59" "grp65"
+    ##  [9] "grp68" "grp72" "grp78"
+    {% endhighlight %}
 
-{% highlight r %}
-model$selected
-{% endhighlight %}
-
-
-
-{% highlight text %}
-##  [1] "grp4"  "grp11" "grp13" "grp22" "grp34" "grp35" "grp59" "grp65"
-##  [9] "grp68" "grp72" "grp78"
-{% endhighlight %}
-
-Notice that the model has correctly identified all significant groups, and additionally has falsely reported the group "grp11" as significant.
+  Notice that the model has correctly identified all significant groups, and additionally has falsely reported the group "grp11" as significant.
     
 * The estimated noise level $\hat{\sigma}$ (true $\sigma$ is equal to one).
 
-
-{% highlight r %}
-sigma(model) # or equivalently: model$sigma
-{% endhighlight %}
-
-
-
-{% highlight text %}
-## [1] 0.9875381
-{% endhighlight %}
+    
+    {% highlight r %}
+    sigma(model) # or equivalently: model$sigma
+    {% endhighlight %}
+    
+    
+    
+    {% highlight text %}
+    ## [1] 0.9886372
+    {% endhighlight %}
     
 * The regression coefficients, which can be displayed either on the normalized scale (i.e., the scale corresponding to the normalized versions of $X$ and $y$, on which all the parameter estimates are computed internally),
 
+    
+    {% highlight r %}
+    # the first 13 coefficient estimates
+    coef(model)[1:13]
+    {% endhighlight %}
+    
+    
+    
+    {% highlight text %}
+    ##   grp1_1   grp1_2   grp1_3   grp2_1   grp2_2   grp2_3   grp3_1 
+    ## 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 
+    ##   grp3_2   grp3_3   grp4_1   grp4_2   grp4_3   grp5_1 
+    ## 0.000000 0.000000 4.127673 1.613667 5.232564 0.000000
+    {% endhighlight %}
+    
+  or on the original scale of $X$ and $y$,
 
-{% highlight r %}
-# the first 13 coefficient estimates
-coef(model)[1:13]
-{% endhighlight %}
+    
+    {% highlight r %}
+    # intercept and the first 13 coefficient estimates
+    coef(model, scaled = FALSE)[1:14]
+    {% endhighlight %}
+    
+    
+    
+    {% highlight text %}
+    ## (Intercept)      grp1_1      grp1_2      grp1_3      grp2_1 
+    ##   3.8190431   0.0000000   0.0000000   0.0000000   0.0000000 
+    ##      grp2_2      grp2_3      grp3_1      grp3_2      grp3_3 
+    ##   0.0000000   0.0000000   0.0000000   0.0000000   0.0000000 
+    ##      grp4_1      grp4_2      grp4_3      grp5_1 
+    ##   0.2727357   0.1000815   0.4077402   0.0000000
+    {% endhighlight %}
 
+  (notice that the coefficients are named corresponding to the given grouping structure). As expected from a penalized regression method, we observe some shrinkage, when we compare the above to the true parameters.
 
-
-{% highlight text %}
-##   grp1_1   grp1_2   grp1_3   grp2_1   grp2_2   grp2_3   grp3_1 
-## 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 
-##   grp3_2   grp3_3   grp4_1   grp4_2   grp4_3   grp5_1 
-## 0.000000 0.000000 4.130738 1.614578 5.235767 0.000000
-{% endhighlight %}
-
-or on the original scale of $X$ and $y$,
-
-
-{% highlight r %}
-# intercept and the first 13 coefficient estimates
-coef(model, scaled = FALSE)[1:14]
-{% endhighlight %}
-
-
-
-{% highlight text %}
-## (Intercept)      grp1_1      grp1_2      grp1_3      grp2_1 
-##   3.8149568   0.0000000   0.0000000   0.0000000   0.0000000 
-##      grp2_2      grp2_3      grp3_1      grp3_2      grp3_3 
-##   0.0000000   0.0000000   0.0000000   0.0000000   0.0000000 
-##      grp4_1      grp4_2      grp4_3      grp5_1 
-##   0.2729383   0.1001380   0.4079898   0.0000000
-{% endhighlight %}
-
-(notice that the coefficients are named corresponding to the given grouping structure). As expected from a penalized regression method, we observe some shrinkage, when we compare the above to the true parameters.
-
-
-{% highlight r %}
-# true first 13 coefficients
-b[1:13]
-{% endhighlight %}
-
-
-
-{% highlight text %}
-##  [1] 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000
-##  [7] 0.0000000 0.0000000 0.0000000 0.3677210 0.1713692 0.6425599
-## [13] 0.0000000
-{% endhighlight %}
+    
+    {% highlight r %}
+    # true first 13 coefficients
+    b[1:13]
+    {% endhighlight %}
+    
+    
+    
+    {% highlight text %}
+    ##  [1] 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000 0.0000000
+    ##  [7] 0.0000000 0.0000000 0.0000000 0.3677210 0.1713692 0.6425599
+    ## [13] 0.0000000
+    {% endhighlight %}
 
 * It might also be interesting to plot the first few elements of the regularizing sequence $\lambda$ used by the Group SLOPE method for the given inputs.
 
@@ -225,7 +225,7 @@ plot(model$lambda[1:10], xlab = "Index", ylab = "Lambda", type="l")
 
 ![plot of chunk unnamed-chunk-15](/grpSLOPE/figure/source/2016-8-19-basic-usage/unnamed-chunk-15-1.png)
 
-* We can further check the performance of the method by computing the resulting group false discovery proportion (gFDP) and power.
+We can further check the performance of the method by computing the resulting group false discovery proportion (gFDP) and power.
 
 
 {% highlight r %}
@@ -265,6 +265,8 @@ Alternatively, any non-increasing sequence of appropriate length can be utilized
 
 ## References
 
-* [Brzyski, D., Su, W., & Bogdan, M. (2015). *Group SLOPE -- adaptive selection of groups of predictors.* arXiv preprint arXiv:1511.09078.](http://arxiv.org/abs/1511.09078)
+* [Bogdan, M., van den Berg, E., Sabatti, C., Su, W., and Candès, E. J. (2015), *SLOPE &mdash; Adaptive Variable Selection via Convex Optimization.*](https://arxiv.org/pdf/1407.3824v2.pdf) The Annals of Applied Statistics, vol. 9, no. 3, p. 1103.
 
-* [Gossmann, A., Cao, S., & Wang, Y.-P. (2015). *Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE.*  In Proceedings of the 6th ACM Conference on Bioinformatics, Computational Biology and Health Informatics, BCB ’15 (pp. 232–240). New York, NY, USA: ACM.](http://dx.doi.org/10.1145/2808719.2808743).
+* [Brzyski, D., Gossmann, A., Su, W., and Bogdan, M. (2016) *Group SLOPE &mdash; adaptive selection of groups of predictors*](https://arxiv.org/abs/1610.04960) (submitted to the Journal of the Royal Statistical Society: Series B).
+
+* [Gossmann, A., Cao, S., and Wang, Y.-P. (2015). *Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE.*](http://dx.doi.org/10.1145/2808719.2808743) In Proceedings of the 6th ACM Conference on Bioinformatics, Computational Biology and Health Informatics, BCB ’15 (pp. 232–240). New York, NY, USA: ACM.
