@@ -371,6 +371,9 @@ lambdaGroupSLOPE <- function(method, fdr, group, wt, n.obs=NULL)
   n.group     <- length(group.id)
   group.sizes <- sapply(group.id, FUN=length)
 
+  # make sure weights are in the same order as group.id
+  wt <- wt[names(group.id)]
+
   # compute the lambda sequence according to 'method'
   if (method=="max" | method=="mean") {
     lambda <- lambdaChiOrtho(fdr=fdr, n.group=n.group, wt=wt,
@@ -517,7 +520,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
     ortho <- orthogonalizeGroups(X, group.id)
     # determine sizes of orthogonalized groups:
     ortho.group.length <- rep(NA, n.group)
-    names(ortho.group.length) <- names(group.id)
+    names(ortho.group.length) <- names(ortho)
     for (i in 1:n.group) {
       ortho.group.length[i] <- ncol(ortho[[i]]$Q)
     }
@@ -529,7 +532,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
     block.start <- head(c(1, block.end + 1), n.group)
     for (i in 1:n.group) {
       ind <- block.start[i]:block.end[i]
-      grp[ind] <- names(group.id)[i]
+      grp[ind] <- names(ortho)[i]
       X[ , ind] <- ortho[[i]]$Q
     }
     ortho.group.id <- getGroupID(grp)

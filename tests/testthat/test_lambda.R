@@ -24,7 +24,10 @@ test_that("method 'mean' computes the sequence correctly", {
 
 test_that("method 'corrected' computes the sequence correctly when all group sizes are equal", {
   sol <- c(1.636351,1.532511,1.466937,1.417591,1.377319)
-  lambda.chi <- lambdaGroupSLOPE(fdr=fdr, group=rep(1:5,5), wt=rep(sqrt(5), 5),
+  eqgrp <- rep(1:5,5)
+  eqwt <- rep(sqrt(5), 5)
+  names(eqwt) <- 1:5
+  lambda.chi <- lambdaGroupSLOPE(fdr=fdr, group=eqgrp, wt=eqwt,
                                  n.obs=1000, method="corrected")
   expect_equal(lambda.chi, sol, tolerance=1e-6)
 })
