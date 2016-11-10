@@ -77,9 +77,17 @@ coef.grpSLOPE <- function(object, scaled = TRUE, ...) {
   return(coefs)
 }
 
+if (getRversion() < "3.3.0") {
+  sigma <- function(object, ...) UseMethod("sigma", object)
+}
+
 #' Extract (estimated) noise level
 #' 
 #' Extract the noise level of the \code{grpSLOPE} model.
+#'
+#' This basically obtains \code{object$sigma}. For \code{R (>= 3.3.0)}
+#' \code{sigma} is an S3 method with the default method coming from the
+#' \code{stats} package.
 #'
 #' @param object A \code{grpSLOPE} object 
 #' @param ... Potentially further arguments passed to and from methods
@@ -99,6 +107,8 @@ coef.grpSLOPE <- function(object, scaled = TRUE, ...) {
 #' sigma(result)
 #' # [1] 1
 #' 
+#' @rawNamespace if (getRversion() >= "3.3.0") importFrom(stats,sigma)
+#' @rawNamespace if (getRversion() < "3.3.0") export(sigma)
 #' @export
 sigma.grpSLOPE <- function(object, ...) {
   return(object$sigma)

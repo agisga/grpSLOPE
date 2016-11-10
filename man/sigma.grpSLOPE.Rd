@@ -14,6 +14,11 @@
 \description{
 Extract the noise level of the \code{grpSLOPE} model.
 }
+\details{
+This basically obtains \code{object$sigma}. For \code{R (>= 3.3.0)}
+\code{sigma} is an S3 method with the default method coming from the
+\code{stats} package.
+}
 \examples{
 set.seed(1)
 A   <- matrix(rnorm(100^2), 100, 100)
