@@ -35,7 +35,7 @@ More complicated (and possibly less helpful) example codes are available in the 
 
 ## Installation
 
-The latest stable version of `grpSLOPE` can be installed from CRAN (The Comprehensive R Archive Network). Just open an R session an do:
+The latest stable version of `grpSLOPE` can be installed from CRAN (The Comprehensive R Archive Network). Just open an R session and do:
 
 ```R
 install.packages("grpSLOPE")
