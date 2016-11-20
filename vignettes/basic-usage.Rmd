@@ -179,6 +179,6 @@ Alternatively, any non-increasing sequence of appropriate length can be utilized
 
 * [Bogdan, M., van den Berg, E., Sabatti, C., Su, W., and Candès, E. J. (2015). *SLOPE &mdash; Adaptive Variable Selection via Convex Optimization.*](https://arxiv.org/pdf/1407.3824v2.pdf) The Annals of Applied Statistics, vol. 9, no. 3, p. 1103.
 
-* [Brzyski, D., Gossmann, A., Su, W., and Bogdan, M. (2016). *Group SLOPE &mdash; adaptive selection of groups of predictors*](https://arxiv.org/abs/1610.04960) (submitted to the Journal of the Royal Statistical Society: Series B).
+* [Brzyski, D., Gossmann, A., Su, W., and Bogdan, M. (2016). *Group SLOPE &mdash; adaptive selection of groups of predictors*](https://arxiv.org/abs/1610.04960) (under review).
 
 * [Gossmann, A., Cao, S., and Wang, Y.-P. (2015). *Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE.*](http://dx.doi.org/10.1145/2808719.2808743) In Proceedings of the 6th ACM Conference on Bioinformatics, Computational Biology and Health Informatics, BCB ’15 (pp. 232–240). New York, NY, USA: ACM.
