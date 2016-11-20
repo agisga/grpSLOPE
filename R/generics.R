@@ -109,6 +109,7 @@ if (getRversion() < "3.3.0") {
 #' 
 #' @rawNamespace if (getRversion() >= "3.3.0") importFrom(stats,sigma)
 #' @rawNamespace if (getRversion() < "3.3.0") export(sigma)
+#' @name sigma
 #' @export
 sigma.grpSLOPE <- function(object, ...) {
   return(object$sigma)
