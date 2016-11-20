@@ -490,6 +490,13 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
                      verbose = FALSE, orthogonalize = NULL, normalize = TRUE,
                      max.iter=1e4, dual.gap.tol=1e-6, infeas.tol=1e-6,
                      x.init=vector(), ...) {
+
+  # check inputs for NA or NaN
+  if (anyNA(X)) { stop("Some entries of X are NA or NaN!") }
+  if (anyNA(y)) { stop("Some entries of y are NA or NaN!") }
+  if (anyNA(group)) { stop("Some entries of group are NA or NaN!") }
+  
+  # extract some additional info about the inputs
   group.id <- getGroupID(group)
   n.group  <- length(group.id)
   n <- nrow(X)
@@ -497,13 +504,17 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
   # normalize X and y -------------------------------------------------
   # (save scaling values in order to obtain parameter estimates on the original scale later on)
   if (normalize) {
-    # center X, so that columns have means equal to zero:
+    # (1) center X, so that columns have means equal to zero
     X.mean <- apply(X, 2, mean)
     X <- X - matrix(rep(X.mean, each = n), nrow = n)
-    # scale X, so that columns have norms equal to one:
+    # (2) scale X, so that columns have norms equal to one
     X.scaling <- apply(X, 2, function(col.of.X) { 1 / sqrt(sum(col.of.X^2)) })
+    # check if division by 0 has occured
+    if (!all(is.finite(X.scaling))) { 
+      stop("X cannot be normalized (probably some column has sample variance equal to 0).")
+    }
     X <- X %*% diag(X.scaling)
-    # center y to have unit norm:
+    # (3) center y to have unit norm
     y.mean <- mean(y)
     y <- y - y.mean
   }

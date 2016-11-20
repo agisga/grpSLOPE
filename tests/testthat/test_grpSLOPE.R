@@ -76,6 +76,56 @@ test_that("corrected lambdas can't be computed unless groups sizes are small eno
                regexp = "Corrected lambdas cannot be computed unless groups sizes are small enough compared to sample size.")
 })
 
+test_that("an error message is returned when inputs have missing data", {
+  # NA in X
+  Xcorrupted <- A
+  ind1 <- sample(1:nrow(Xcorrupted), 3)
+  ind2 <- sample(1:ncol(Xcorrupted), 2)
+  Xcorrupted[ind1, ind2] <- NA
+  expect_error(grpSLOPE(X=Xcorrupted, y=y, group=grp, fdr=fdr, lambda="corrected"),
+               regexp = "Some entries of X are NA or NaN!")
+  # NaN in X
+  Xcorrupted <- A
+  ind1 <- sample(1:nrow(Xcorrupted), 3)
+  ind2 <- sample(1:ncol(Xcorrupted), 2)
+  Xcorrupted[ind1, ind2] <- NaN 
+  expect_error(grpSLOPE(X=Xcorrupted, y=y, group=grp, fdr=fdr, lambda="corrected"),
+               regexp = "Some entries of X are NA or NaN!")
+  # NA in y
+  ycorrupted <- y
+  ind1 <- sample(1:length(y), 1)
+  ycorrupted[ind1] <- NA
+  expect_error(grpSLOPE(X=A, y=ycorrupted, group=grp, fdr=fdr, lambda="corrected"),
+               regexp = "Some entries of y are NA or NaN!")
+  # NaN in y
+  ycorrupted <- y
+  ind1 <- sample(1:length(y), 3)
+  ycorrupted[ind1] <- NaN 
+  expect_error(grpSLOPE(X=A, y=ycorrupted, group=grp, fdr=fdr, lambda="corrected"),
+               regexp = "Some entries of y are NA or NaN!")
+  # NA in group 
+  grpcorrupted <- grp 
+  ind1 <- sample(1:length(grp), 1)
+  grpcorrupted[ind1] <- NA
+  expect_error(grpSLOPE(X=A, y=y, group=grpcorrupted, fdr=fdr, lambda="corrected"),
+               regexp = "Some entries of group are NA or NaN!")
+  # NaN in group 
+  grpcorrupted <- grp
+  ind1 <- sample(1:length(grp), 3)
+  grpcorrupted[ind1] <- NaN 
+  expect_error(grpSLOPE(X=A, y=y, group=grpcorrupted, fdr=fdr, lambda="corrected"),
+               regexp = "Some entries of group are NA or NaN!")
+})
+
+test_that("an error message is returned when X has constant columns and normalize=TRUE", {
+  # NA in X
+  Xcorrupted <- A
+  ind1 <- sample(1:nrow(Xcorrupted), 1)
+  Xcorrupted[ , ind1] <- rep(rnorm(1), nrow(Xcorrupted)) 
+  expect_error(grpSLOPE(X=Xcorrupted, y=y, group=grp, fdr=fdr, lambda="corrected", normalize=TRUE),
+               regexp = "X cannot be normalized (probably some column has sample variance equal to 0).", fixed=TRUE)
+})
+
 #--------------------------------------------------------------------------
 context("grpSLOPE(lambda = 'corrected', orthogonalize = FALSE)")
 
