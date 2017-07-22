@@ -514,7 +514,7 @@ grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
       stop("X cannot be normalized (probably some column has sample variance equal to 0).")
     }
     X <- X %*% diag(X.scaling)
-    # (3) center y to have unit norm
+    # (3) center y
     y.mean <- mean(y)
     y <- y - y.mean
   }
