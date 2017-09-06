@@ -9,9 +9,9 @@ The R package [grpSLOPE](https://CRAN.R-project.org/package=grpSLOPE) was used t
 
 ## Figure 2
 
-[:page_facing_up: Simulation code for Figure 2 a](https://github.com/dbrzyski/gSLOPE/blob/master/R/grpSLOPE/simulations/figure_2a.R)
-[:page_facing_up: Simulation code for Figures 2 b-e](https://github.com/dbrzyski/gSLOPE/blob/master/R/grpSLOPE/simulations/figure_2bcde.R)
-[:page_facing_up: Visualization code for Figures 2 a-e](https://github.com/dbrzyski/gSLOPE/blob/master/R/grpSLOPE/figures/figure_2.R)
+* [:page_facing_up: Simulation code for Figure 2 a](https://github.com/dbrzyski/gSLOPE/blob/master/R/grpSLOPE/simulations/figure_2a.R)
+* [:page_facing_up: Simulation code for Figures 2 b-e](https://github.com/dbrzyski/gSLOPE/blob/master/R/grpSLOPE/simulations/figure_2bcde.R)
+* [:page_facing_up: Visualization code for Figures 2 a-e](https://github.com/dbrzyski/gSLOPE/blob/master/R/grpSLOPE/figures/figure_2.R)
 
 ### Figure 2 a
 
@@ -36,15 +36,15 @@ The R package [grpSLOPE](https://CRAN.R-project.org/package=grpSLOPE) was used t
 
 ## Figure 3 a-c
 
-[:page_facing_up: Simulation code for Figures 3 a-c](https://github.com/dbrzyski/gSLOPE/blob/master/R/grpSLOPE/simulations/figure_3.R)
-[:page_facing_up: Visualization code for Figures 3 a-c](https://github.com/dbrzyski/gSLOPE/blob/master/R/grpSLOPE/figures/figure_3.R)
+* [:page_facing_up: Simulation code for Figures 3 a-c](https://github.com/dbrzyski/gSLOPE/blob/master/R/grpSLOPE/simulations/figure_3.R)
+* [:page_facing_up: Visualization code for Figures 3 a-c](https://github.com/dbrzyski/gSLOPE/blob/master/R/grpSLOPE/figures/figure_3.R)
 
 ![Figures 3 a-c](https://raw.githubusercontent.com/dbrzyski/gSLOPE/master/R/grpSLOPE/figures/Figure_3abc.png)
 
 ## Figure 4
 
-[:page_facing_up: Simulation code for Figures 4 a-c](https://github.com/dbrzyski/gSLOPE/blob/master/R/grpSLOPE/simulations/figure_4abc.R)
-[:page_facing_up: Visualization code for Figures 4 a-c](https://github.com/dbrzyski/gSLOPE/blob/master/R/grpSLOPE/figures/figure_4abc.R)
+* [:page_facing_up: Simulation code for Figures 4 a-c](https://github.com/dbrzyski/gSLOPE/blob/master/R/grpSLOPE/simulations/figure_4abc.R)
+* [:page_facing_up: Visualization code for Figures 4 a-c](https://github.com/dbrzyski/gSLOPE/blob/master/R/grpSLOPE/figures/figure_4abc.R)
 
 ### Figure 4 a
 
