@@ -106,4 +106,3 @@ head(result$group.norms)
 \references{
 D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{https://arxiv.org/abs/1610.04960}
 }
-

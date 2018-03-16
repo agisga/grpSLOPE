@@ -36,4 +36,3 @@ sigma(result)
 # [1] 1
 
 }
-
