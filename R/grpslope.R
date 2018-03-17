@@ -196,7 +196,7 @@ lambdaGroupSLOPE <- function(method, fdr, group, wt, n.obs=NULL)
 grpSLOPE <- function(X, y, group, fdr, lambda = "corrected", sigma = NULL,
                      verbose = FALSE, orthogonalize = NULL, normalize = TRUE,
                      max.iter=1e4, dual.gap.tol=1e-6, infeas.tol=1e-6,
-                     x.init=vector(), ...) {
+                     x.init=NULL, ...) {
 
   # check inputs for NA or NaN
   if (anyNA(X)) { stop("Some entries of X are NA or NaN!") }

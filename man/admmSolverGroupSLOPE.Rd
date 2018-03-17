@@ -5,8 +5,8 @@
 \title{Alternating direction method of multipliers}
 \usage{
 admmSolverGroupSLOPE(y, A, group, wt, lambda, rho = NULL, max.iter = 10000,
-  verbose = FALSE, infeas.tol = 1e-06, z.init = vector(),
-  u.init = vector(), ...)
+  verbose = FALSE, infeas.tol = 1e-06, z.init = NULL, u.init = NULL,
+  ...)
 }
 \arguments{
 \item{y}{the response vector}

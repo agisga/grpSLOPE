@@ -170,7 +170,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda,
                                              max.iter = 1e4, verbose = FALSE,
                                              dual.gap.tol = 1e-6,
                                              infeas.tol = 1e-6,
-                                             x.init = vector(), ...) {
+                                             x.init = NULL, ...) {
   # This function is based on the source code available from
   # http://statweb.stanford.edu/~candes/SortedL1/software.html
   # under the GNU GPL-3 licence.
@@ -178,9 +178,10 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda,
   # Original implementation: Copyright 2013, M. Bogdan, E. van den Berg, W. Su, and E.J. Candes
   # Modifications: Copyright 2015, Alexej Gossmann
 
-  # Prepare grouping information
   group.id <- getGroupID(group)
   n.group  <- length(group.id)
+  p <- ncol(A)
+  if (is.null(x.init)) x.init <- matrix(0, p, 1)
 
   # Ensure that lambda is non-increasing and of right length
   n.lambda <- length(lambda)
@@ -194,7 +195,6 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda,
   # Adjust matrix for prior weights
   Dinv <- diag(1 / wt)
   A    <- A %*% Dinv
-  p    <- ncol(A)
 
   # Set constants
   STATUS_RUNNING    <- 0
@@ -215,7 +215,6 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda,
 
   # Run regular SLOPE if all groups are singletons
   if (length(group.id) == p) {
-    if (length(x.init) == 0) x.init <- matrix(0, p, 1)
     sol <- SLOPE::SLOPE_solver(A = A, b = y, lambda = lambda,
                                initial = x.init, max_iter = max.iter,
                                tol_infeas = infeas.tol,
@@ -234,7 +233,6 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda,
   L <- norm(rand.mat, "f")
 
   # Initialize parameters and iterates
-  if (length(x.init) == 0) x.init <- matrix(0, p, 1)
   tt       <- 1
   eta      <- 2
   lambda   <- as.matrix(lambda)
@@ -380,8 +378,8 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda,
 #' @export
 admmSolverGroupSLOPE <- function(y, A, group, wt, lambda, rho = NULL,
                                  max.iter = 1e4, verbose = FALSE,
-                                 infeas.tol = 1e-6, z.init = vector(),
-                                 u.init = vector(), ...) {
+                                 infeas.tol = 1e-6, z.init = NULL,
+                                 u.init = NULL, ...) {
 
   group.id <- getGroupID(group)
   n.group  <- length(group.id)
@@ -398,8 +396,8 @@ admmSolverGroupSLOPE <- function(y, A, group, wt, lambda, rho = NULL,
   if (is.null(rho)) {
     stop("The argument rho needs to be explicitly specified.")
   }
-  if (length(z.init) == 0) z.init <- matrix(0, p, 1)
-  if (length(u.init) == 0) u.init <- matrix(0, p, 1)
+  if (is.null(z.init)) z.init <- matrix(0, p, 1)
+  if (is.null(u.init)) u.init <- matrix(0, p, 1)
 
   # Adjust matrix for prior weights
   Dinv <- diag(1 / wt)

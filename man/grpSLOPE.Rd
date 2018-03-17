@@ -7,7 +7,7 @@
 grpSLOPE(X, y, group, fdr, lambda = "corrected", sigma = NULL,
   verbose = FALSE, orthogonalize = NULL, normalize = TRUE,
   max.iter = 10000, dual.gap.tol = 1e-06, infeas.tol = 1e-06,
-  x.init = vector(), ...)
+  x.init = NULL, ...)
 }
 \arguments{
 \item{X}{The model matrix}
