@@ -81,6 +81,36 @@ proxGroupSortedL1 <- function(y, group, lambda, ...) {
   return(prox.solution)
 }
 
+# Compute duality gap for Group SLOPE (eq. (B.20) in
+# Appendix B in Brzyski et. al. (2016))
+#
+getDualityGapGroupSLOPE <- function(group.id, n.group, b, lambda, g) {
+
+  b.norms <- rep(NA, n.group)
+  for (i in 1:n.group) {
+    selected <- group.id[[i]]
+    b.norms[i] <- norm(as.matrix(b[selected]), "f")
+  }
+  b.norms.sorted <- sort(b.norms, decreasing = TRUE)
+  duality.gap <- crossprod(b, g) + crossprod(lambda, b.norms.sorted)
+  return(duality.gap)
+}
+
+# Compute the infeasibility for Group SLOPE.
+# A comment on the derivation of this infeasibility criterion can be found at:
+# https://github.com/agisga/grpSLOPE/blob/gh-pages/_posts/outdated_2015-12-4-Infeasibility.md
+#
+getInfeasibilityGroupSLOPE <- function(group.id, n.group, lambda, g) {
+  g.norms <- rep(NA, n.group)
+  for (i in 1:n.group) {
+    selected <- group.id[[i]]
+    g.norms[i] <- norm(as.matrix(g[selected]), "f")
+  }
+  g.norms.sorted  <- sort(g.norms, decreasing = TRUE)
+  infeasibility <- max(max(cumsum(g.norms.sorted - lambda)), 0)
+  return(infeasibility)
+}
+
 #' Proximal gradient method for Group SLOPE
 #'
 #' Compute the coefficient estimates for the Group SLOPE problem.
@@ -102,7 +132,7 @@ proxGroupSortedL1 <- function(y, group, lambda, ...) {
 #' @param x.init An optional initial value for the iterative algorithm
 #' @param ... Options passed to \code{\link[SLOPE]{prox_sorted_L1}}
 #'
-#' @return A list with members:
+#' @return A list with the entries:
 #'   \describe{
 #'     \item{x}{Solution (n-by-1 matrix)}
 #'     \item{status}{Convergence status: 1 if optimal, 2 if iteration limit reached}
@@ -235,28 +265,13 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 
     # Stopping criteria --------------------------------------------
 
-    # Compute duality gap (eq. (B.20) in Appendix B in Brzyski et. al. (2016))
-    b.norms <- rep(NA, n.group)
-    for (i in 1:n.group) {
-      selected <- group.id[[i]]
-      b.norms[i] <- norm(as.matrix(b[selected]), "f")
-    }
-    b.norms.sorted <- sort(b.norms, decreasing=TRUE)
-    duality.gap <- crossprod(b, g) + crossprod(lambda, b.norms.sorted)
-
-    # Compute the infeasibility
-    # (a comment on the derivation of this infeasibility criterion can be found at:
-    # https://github.com/agisga/grpSLOPE/blob/gh-pages/_posts/outdated_2015-12-4-Infeasibility.md)
-    g.norms <- rep(NA, n.group)
-    for (i in 1:n.group) {
-      selected <- group.id[[i]]
-      g.norms[i] <- norm(as.matrix(g[selected]), "f")
-    }
-    g.norms.sorted  <- sort(g.norms, decreasing=TRUE)
-    infeasibility <- max(max(cumsum(g.norms.sorted-lambda)),0)
+    duality.gap <- getDualityGapGroupSLOPE(group.id, n.group, b, lambda, g)
+    infeasibility <- getInfeasibilityGroupSLOPE(group.id, n.group, lambda, g)
 
     # Format string
-    if (verbose == TRUE) str <- sprintf('   %9.2e  %9.2e', duality.gap, infeasibility)
+    if (verbose == TRUE) {
+      out_str <- sprintf('   %9.2e  %9.2e', duality.gap, infeasibility)
+    }
 
     # Check stopping criteria
     if ((duality.gap < dual.gap.tol) && (infeasibility < infeas.tol)) {
@@ -264,7 +279,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
     }
 
     if (verbose == TRUE) {
-      printf('%5d  %9.2e%s\n', iter, f, str)
+      printf('%5d  %9.2e%s\n', iter, f, out_str)
     }
 
     if ((status == 0) && (iter >= max.iter)) {

@@ -33,7 +33,7 @@ contain a group id for each predictor variable.}
 \item{...}{Options passed to \code{\link[SLOPE]{prox_sorted_L1}}}
 }
 \value{
-A list with members:
+A list with the entries:
   \describe{
     \item{x}{Solution (n-by-1 matrix)}
     \item{status}{Convergence status: 1 if optimal, 2 if iteration limit reached}
