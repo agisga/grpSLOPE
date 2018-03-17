@@ -85,7 +85,6 @@ proxGroupSortedL1 <- function(y, group, lambda, ...) {
 # Appendix B in Brzyski et. al. (2016))
 #
 getDualityGapGroupSLOPE <- function(group.id, n.group, b, lambda, g) {
-
   b.norms <- rep(NA, n.group)
   for (i in 1:n.group) {
     selected <- group.id[[i]]
@@ -167,10 +166,11 @@ getInfeasibilityGroupSLOPE <- function(group.id, n.group, lambda, g) {
 #' @references A. Gossmann, S. Cao, Y.-P. Wang (2015) \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}, \url{http://dx.doi.org/10.1145/2808719.2808743}
 #'
 #' @export
-proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1e4,
-                                             verbose=FALSE, dual.gap.tol=1e-6, 
-                                             infeas.tol=1e-6, x.init=vector(), ...)
-{
+proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda,
+                                             max.iter = 1e4, verbose = FALSE,
+                                             dual.gap.tol = 1e-6,
+                                             infeas.tol = 1e-6,
+                                             x.init = vector(), ...) {
   # This function is based on the source code available from
   # http://statweb.stanford.edu/~candes/SortedL1/software.html
   # under the GNU GPL-3 licence.
@@ -178,15 +178,13 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
   # Original implementation: Copyright 2013, M. Bogdan, E. van den Berg, W. Su, and E.J. Candes
   # Modifications: Copyright 2015, Alexej Gossmann
 
-  # Initialize ---------------------------------------------------------------
-
   # Prepare grouping information
   group.id <- getGroupID(group)
   n.group  <- length(group.id)
 
   # Ensure that lambda is non-increasing and of right length
   n.lambda <- length(lambda)
-  if ((n.lambda > 1) && any(lambda[2:n.lambda] > lambda[1:n.lambda-1])) {
+  if ( (n.lambda > 1) & any(lambda[2:n.lambda] > lambda[1:(n.lambda - 1)]) ) {
     stop("Lambda must be non-increasing.")
   }
   if (n.lambda != n.group) {
@@ -194,9 +192,15 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
   }
 
   # Adjust matrix for prior weights
-  Dinv <- diag(1/wt)
+  Dinv <- diag(1 / wt)
   A    <- A %*% Dinv
   p    <- ncol(A)
+
+  # Set constants
+  STATUS_RUNNING    <- 0
+  STATUS_OPTIMAL    <- 1
+  STATUS_ITERATIONS <- 2
+  STATUS_MSG        <- c('Optimal','Iteration limit reached')
 
   # Auxilliary function to record output information
   recordResult <- function(b, status, L, iter, L.iter) {
@@ -211,31 +215,26 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 
   # Run regular SLOPE if all groups are singletons
   if (length(group.id) == p) {
-    if (length(x.init) == 0) x.init <- matrix(0,p,1)
-    sol <- SLOPE::SLOPE_solver(A=A, b=y, lambda=lambda, initial=x.init,
-                               max_iter=max.iter, tol_infeas=infeas.tol,
-                               tol_rel_gap=dual.gap.tol)
-    status <- 2
-    if (sol$optimal) status <- 1
-    result <- recordResult(b=matrix(sol$x, c(p,1)), status=status, L=sol$lipschitz,
-                           iter=sol$iter, L.iter=NULL)
+    if (length(x.init) == 0) x.init <- matrix(0, p, 1)
+    sol <- SLOPE::SLOPE_solver(A = A, b = y, lambda = lambda,
+                               initial = x.init, max_iter = max.iter,
+                               tol_infeas = infeas.tol,
+                               tol_rel_gap = dual.gap.tol)
+    status <- STATUS_ITERATIONS
+    if (sol$optimal) status <- STATUS_OPTIMAL
+    result <- recordResult(b = matrix(sol$x, c(p, 1)), status = status,
+                           L = sol$lipschitz, iter = sol$iter, L.iter = NULL)
     return(result)
   }
 
   # Get initial lower bound on the Lipschitz constant
-  rand.mat <- matrix(rnorm(p),c(p,1))
+  rand.mat <- matrix(rnorm(p), c(p, 1))
   rand.mat <- rand.mat / norm(rand.mat, "f")
   rand.mat <- t(A) %*% (A %*% rand.mat)
   L <- norm(rand.mat, "f")
 
-  # Set constants
-  STATUS_RUNNING    <- 0
-  STATUS_OPTIMAL    <- 1
-  STATUS_ITERATIONS <- 2
-  STATUS_MSG        <- c('Optimal','Iteration limit reached')
-
   # Initialize parameters and iterates
-  if (length(x.init) == 0) x.init <- matrix(0,p,1)
+  if (length(x.init) == 0) x.init <- matrix(0, p, 1)
   tt       <- 1
   eta      <- 2
   lambda   <- as.matrix(lambda)
@@ -251,48 +250,40 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
   duality.gap <- Inf
   infeasibility <- Inf
 
-  if (verbose == TRUE) {
+  if (verbose) {
     printf <- function(...) invisible(cat(sprintf(...)))
-    printf('%5s  %9s  %9s  %9s\n', 'Iter', '||r||_2', 'Dual. gap', 'Infeas.')
+    printf("%5s  %9s  %9s  %9s\n", "Iter", "||r||_2", "Dual. gap", "Infeas.")
   }
 
-  # Main loop ---------------------------------------------------------
-  while (TRUE)
-  {
+  # Main loop
+  while (TRUE) {
+
     # Compute the gradient
     r <- (A %*% b) - y
     g <- crossprod(A, r)
 
-    # Stopping criteria --------------------------------------------
+    # Stopping criteria
 
     duality.gap <- getDualityGapGroupSLOPE(group.id, n.group, b, lambda, g)
     infeasibility <- getInfeasibilityGroupSLOPE(group.id, n.group, lambda, g)
 
-    # Format string
-    if (verbose == TRUE) {
-      out_str <- sprintf('   %9.2e  %9.2e', duality.gap, infeasibility)
+    if (verbose) {
+      out_str <- sprintf("   %9.2e  %9.2e", duality.gap, infeasibility)
+      printf("%5d  %9.2e%s\n", iter, f, out_str)
     }
 
-    # Check stopping criteria
-    if ((duality.gap < dual.gap.tol) && (infeasibility < infeas.tol)) {
+    if ( (duality.gap < dual.gap.tol) & (infeasibility < infeas.tol) ) {
       status <- STATUS_OPTIMAL
-    }
-
-    if (verbose == TRUE) {
-      printf('%5d  %9.2e%s\n', iter, f, out_str)
-    }
-
-    if ((status == 0) && (iter >= max.iter)) {
+    } else if ( (status == STATUS_RUNNING) & (iter >= max.iter) ) {
       status <- STATUS_ITERATIONS
     }
 
-    if (status != 0) {
-      if (verbose == TRUE) {
-        printf('Exiting with status %d -- %s\n', status, STATUS_MSG[[status]])
+    if (status != STATUS_RUNNING) {
+      if (verbose) {
+        printf("Exiting with status %d -- %s\n", status, STATUS_MSG[[status]])
       }
       break
     }
-    # (stopping criteria ends) ------------------
 
     # Increment iteration count
     iter <- iter + 1
@@ -306,27 +297,28 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
 
     # Lipschitz search
     while (TRUE) {
-      x  <- proxGroupSortedL1(y = b - (1/L)*g, group = group.id,
-                              lambda = lambda/L, ...)
+      x  <- proxGroupSortedL1(y = b - (1 / L) * g, group = group.id,
+                              lambda = lambda / L, ...)
       d  <- x - b
       Ax <- A %*% x
-      r  <- Ax-y
-      f  <- as.double(crossprod(r))/2
-      qq <- f.prev + as.double(crossprod(d,g)) + (L/2)*as.double(crossprod(d))
+      r  <- Ax - y
+      f  <- as.double(crossprod(r)) / 2
+      qq <- f.prev + as.double(crossprod(d, g)) + (L / 2) * as.double(crossprod(d))
 
       L.iter <- L.iter + 1
 
-      if (qq >= f*(1-1e-12))
+      if (qq >= f * (1 - 1e-12))
         break
       else
         L <- L * eta
     }
 
     # Update
-    tt <- (1 + sqrt(1 + 4*tt^2)) / 2
-    b  <- x + ((tt.prev - 1) / tt) * (x - x.prev)
-  } # while (TRUE)
+    tt <- (1 + sqrt(1 + 4 * tt^2)) / 2
+    b  <- x + ( (tt.prev - 1) / tt ) * (x - x.prev)
+  }
 
-  result <- recordResult(b=b, status=status, L=L, iter=iter, L.iter=L.iter)
+  result <- recordResult(b = b, status = status, L = L,
+                         iter = iter, L.iter = L.iter)
   return(result)
 }
