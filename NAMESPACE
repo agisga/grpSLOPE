@@ -3,6 +3,7 @@
 S3method(coef,grpSLOPE)
 S3method(predict,grpSLOPE)
 S3method(sigma,grpSLOPE)
+export(admmSolverGroupSLOPE)
 export(getGroupID)
 export(grpSLOPE)
 export(lambdaGroupSLOPE)

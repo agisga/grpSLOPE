@@ -322,3 +322,161 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda,
                          iter = iter, L.iter = L.iter)
   return(result)
 }
+
+#' Alternating direction method of multipliers
+#'
+#' Compute the coefficient estimates for the Group SLOPE problem.
+#'
+#' \code{admmSolverGroupSLOPE} computes the coefficient estimates
+#' for the Group SLOPE model. The employed optimization algorithm is
+#' the alternating direction method of multipliers (ADMM).
+#'
+#' @param y the response vector
+#' @param A the model matrix
+#' @param group A vector describing the grouping structure. It should
+#'   contain a group id for each predictor variable.
+#' @param wt A vector of weights (per coefficient)
+#' @param lambda A decreasing sequence of regularization parameters \eqn{\lambda}
+#' @param rho Penalty parameter in the augmented Lagrangian (see Boyd et. al., 2011)
+#' @param max.iter Maximal number of iterations to carry out
+#' @param verbose A \code{logical} specifying whether to print output or not
+#' @param infeas.tol The tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et. al., 2011, Sec. 3.3.1)
+#' @param z.init An optional initial value for the iterative algorithm
+#' @param u.init An optional initial value for the iterative algorithm
+#' @param ... Options passed to \code{\link[SLOPE]{prox_sorted_L1}}
+#'
+#' @return A list with the entries:
+#'   \describe{
+#'     \item{x}{Solution (n-by-1 matrix)}
+#'     \item{status}{Convergence status: 1 if optimal, 2 if iteration limit reached}
+#'     \item{iter}{Number of iterations of the ADMM method}
+#'   }
+#'
+#' @examples
+#' set.seed(1)
+#' A   <- matrix(runif(100, 0, 1), 10, 10)
+#' grp <- c(0, 0, 1, 1, 2, 2, 2, 2, 2, 3)
+#' wt  <- c(2, 2, 2, 2, 5, 5, 5, 5, 5, 1)
+#' x   <- c(0, 0, 5, 1, 0, 0, 0, 1, 0, 3)
+#' y   <- A %*% x
+#' lam <- 0.1 * (10:7)
+#' result <- admmSolverGroupSLOPE(y = y, A = A, group = grp, wt = wt,
+#'                                lambda=lam, rho = 1, verbose = FALSE)
+#' result$x
+#' #           [,1]
+#' #  [1,] 0.000000
+#' #  [2,] 0.000000
+#' #  [3,] 3.856002
+#' #  [4,] 2.080742
+#' #  [5,] 0.000000
+#' #  [6,] 0.000000
+#' #  [7,] 0.000000
+#' #  [8,] 0.000000
+#' #  [9,] 0.000000
+#' # [10,] 3.512829
+#'
+#' @references S. Boyd, N. Parikh, E. Chu, B. Peleato, and J. Eckstein (2011) \emph{Distributed Optimization and Statistical Learning via the Alternating Direction Method of Multipliers.} Foundations and Trends in Machine Learning 3 (1).
+#'
+#' @export
+admmSolverGroupSLOPE <- function(y, A, group, wt, lambda, rho = NULL,
+                                 max.iter = 1e4, verbose = FALSE,
+                                 infeas.tol = 1e-6, z.init = vector(),
+                                 u.init = vector(), ...) {
+
+  group.id <- getGroupID(group)
+  n.group  <- length(group.id)
+  p <- ncol(A)
+
+  # Check function arguments
+  n.lambda <- length(lambda)
+  if ( (n.lambda > 1) & any(lambda[2:n.lambda] > lambda[1:(n.lambda - 1)]) ) {
+    stop("Lambda must be non-increasing.")
+  }
+  if (n.lambda != n.group) {
+    stop("Lambda must have exactly as many entries as there are groups.")
+  }
+  if (is.null(rho)) {
+    stop("The argument rho needs to be explicitly specified.")
+  }
+  if (length(z.init) == 0) z.init <- matrix(0, p, 1)
+  if (length(u.init) == 0) u.init <- matrix(0, p, 1)
+
+  # Adjust matrix for prior weights
+  Dinv <- diag(1 / wt)
+  A    <- A %*% Dinv
+
+  # Set constants
+  STATUS_RUNNING    <- 0
+  STATUS_OPTIMAL    <- 1
+  STATUS_ITERATIONS <- 2
+  STATUS_MSG        <- c('Optimal','Iteration limit reached')
+
+  # Auxilliary function to record output information
+  recordResult <- function(b, status, iter) {
+    result           <- list()
+    result$x         <- Dinv %*% b
+    result$status    <- status
+    result$iter      <- iter
+    return(result)
+  }
+
+  # TODO: Run ADMM version of regular SLOPE if all groups are singletons
+
+  # Initialize parameters and iterates
+  M <- solve(crossprod(A) + diag(rho, p))
+  MtAy <- M %*% crossprod(A, y)
+  lambda_rho <- lambda / rho
+  z <- z.init
+  u <- u.init
+  x <- NULL
+  z.prev <- NULL
+  status <- STATUS_RUNNING
+  dual.feasibility <- Inf
+  primal.feasibility <- Inf
+  iter <- 0
+
+  if (verbose) {
+    printf <- function(...) invisible(cat(sprintf(...)))
+    printf("%5s  %11s  %11s\n", "Iter", "Prim. feas.", "Dual feas.")
+  }
+
+  # Main loop
+  while (TRUE) {
+
+    z.prev <- z
+    iter <- iter + 1
+
+    # ADMM updates
+
+    x <- MtAy + crossprod(M, (rho * (z - u)))
+    z <- proxGroupSortedL1(y = as.vector(x + u), group = group.id,
+                           lambda = lambda_rho, ...)
+    u <- u + x - z
+
+    # Stopping criteria
+
+    dual.feasibility <- norm(as.matrix(rho*(z - z.prev)), type = "f")
+    primal.feasibility <- norm(as.matrix(z - x), type = "f")
+
+    if (verbose) {
+      printf("%5s  %11.2e  %11.2e\n", iter,
+             dual.feasibility, primal.feasibility)
+    }
+
+    if ( (dual.feasibility < infeas.tol) & (primal.feasibility < infeas.tol) ) {
+      status <- STATUS_OPTIMAL
+    } else if ( (status == STATUS_RUNNING) & (iter >= max.iter) ) {
+      status <- STATUS_ITERATIONS
+    }
+
+    if (status != STATUS_RUNNING) {
+      if (verbose) {
+        printf("Exiting with status %d -- %s\n", status, STATUS_MSG[[status]])
+      }
+      break
+    }
+  }
+
+  result <- recordResult(b = z, status = status, iter = iter)
+  return(result)
+}
