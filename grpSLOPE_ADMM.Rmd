@@ -56,7 +56,7 @@ instead, it has to be called explicitly, and with more input parameters)_
 ```{r}
 # regularizing parameters
 lambda <- lambdaGroupSLOPE(method = "corrected", fdr = 0.1, n.obs = n,
-                           group = grp, wt = wt_per_predictor)
+                           group = grp, wt = wt_per_grp)
 
 # get Group SLOPE results with ADMM
 tic()
@@ -99,7 +99,10 @@ Note that the above computations, strictly speaking, don't follow the full appro
 Using the full approach of Brzyski et. al. (with FISTA optimization), we get:
 
 ```{r}
+tic()
 result <- grpSLOPE(X = A, y = y, group = grp, fdr = 0.1, sigma = 1)
+toc()
+
 print(paste("TP:", sum(x != 0 & result$beta != 0), ";",
             "FP:", sum(x == 0 & result$beta != 0)))
 ```
