@@ -51,6 +51,9 @@ install.packages("devtools")
 
 library(devtools)
 install_github("agisga/grpSLOPE")
+
+# or to install from a specific (experimental) branch
+install_github("agisga/grpSLOPE", ref = "optimization_and_ADMM")
 ```
 
 ## Contributing to the R package

@@ -1,0 +1,106 @@
+---
+title: "grpSLOPE ADMM"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+For now ADMM for `grpSLOPE` is implemented in an alternate (experimental) branch in the github repository.
+
+To install the `grpSLOPE` version from that branch on github do:
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+devtools::install_github("agisga/grpSLOPE", ref = "optimization_and_ADMM")
+```
+
+Then load the package:
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+library(grpSLOPE)
+library(tictoc) # for measuring runtime of ADMM vs FISTA
+```
+
+Here is a basic demonstration of how ADMM can be used with grpSLOPE.
+
+Generate some data, and define grouping structures and prior weights.
+
+```{r}
+set.seed(2018)
+n <- 200
+p <- 400
+n_grp <- 100
+# design matrix
+A <- matrix(rnorm(n * p), n, p)
+# group membership per predictor
+grp <- sample(x = 1:n_grp, size = p, replace = TRUE)
+# weights
+wt_per_grp <- sqrt(c(table(grp))) # i.e. sqrt of the group size as weight for each group
+wt_per_predictor <- wt_per_grp[as.character(grp)]
+# a sparse vector of coefficients per predictor (i.e., the true solution)
+grp_signif <- 1:10
+ind_signif <- which(grp %in% grp_signif)
+x <- rep(0, p)
+x[ind_signif] <- rnorm(length(ind_signif), mean = 5, sd = 1)
+# response variable
+y <- A %*% x + rnorm(n)
+# normalize
+col_norms <- apply(A, 2, function(a) sqrt(sum((a - mean(a))^2)))
+A <- scale(A, center = TRUE, scale = col_norms)
+y <- scale(y, center = TRUE, scale = FALSE)
+```
+
+Apply ADMM to solve the Group SLOPE optimization problem:
+_(the ADMM algorithm is not yet included in the user-friendly function `grpSLOPE()`;
+instead, it has to be called explicitly, and with more input parameters)_
+
+```{r}
+# regularizing parameters
+lambda <- lambdaGroupSLOPE(method = "corrected", fdr = 0.1, n.obs = n,
+                           group = grp, wt = wt_per_predictor)
+
+# get Group SLOPE results with ADMM
+tic()
+result_admm <- admmSolverGroupSLOPE(y = y, A = A, group = grp,
+                                    wt = wt_per_predictor, lambda = lambda,
+                                    rho = 1, infeas.tol = 1e-6, verbose = FALSE)
+toc()
+```
+
+Apply the proximal gradient method to solve the Group SLOPE optimization problem:
+
+```{r}
+tic()
+result_fista <- proximalGradientSolverGroupSLOPE(y = y, A = A, group = grp,
+                                                 wt = wt_per_predictor,
+                                                 lambda = lambda, dual.gap.tol = 1e-6,
+                                                 infeas.tol = 1e-6, verbose = FALSE)
+toc()
+```
+
+*As we can see, in this case, ADMM is 2.5 times as fast as FISTA. However, the speed of ADMM largely depends on the choice of the parameter `rho`.*
+
+Compare the solutions:
+
+```{r}
+summary(result_admm$x - result_fista$x)
+```
+
+As expected, they are the same up to about 1e-6.
+
+Compare the obtained results to the true solution:
+
+```{r}
+print(paste("TP:", sum(x != 0 & result_admm$x != 0), ";", 
+            "FP:", sum(x == 0 & result_admm$x != 0)))
+```
+
+Note that the above computations, strictly speaking, don't follow the full approach of [Brzyski et. al. 2017], because the orthogonalization within groups is not performed.
+
+Using the full approach of Brzyski et. al. (with FISTA optimization), we get:
+
+```{r}
+result <- grpSLOPE(X = A, y = y, group = grp, fdr = 0.1, sigma = 1)
+print(paste("TP:", sum(x != 0 & result$beta != 0), ";",
+            "FP:", sum(x == 0 & result$beta != 0)))
+```
+
