@@ -338,7 +338,8 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda,
 #' @param rho Penalty parameter in the augmented Lagrangian (see Boyd et. al., 2011)
 #' @param max.iter Maximal number of iterations to carry out
 #' @param verbose A \code{logical} specifying whether to print output or not
-#' @param infeas.tol The tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et. al., 2011, Sec. 3.3.1)
+#' @param absolute.tol The absolute tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et. al., 2011, Sec. 3.3.1)
+#' @param relative.tol The relative tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et. al., 2011, Sec. 3.3.1)
 #' @param z.init An optional initial value for the iterative algorithm
 #' @param u.init An optional initial value for the iterative algorithm
 #' @param ... Options passed to \code{\link[SLOPE]{prox_sorted_L1}}
@@ -378,12 +379,13 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda,
 #' @export
 admmSolverGroupSLOPE <- function(y, A, group, wt, lambda, rho = NULL,
                                  max.iter = 1e4, verbose = FALSE,
-                                 infeas.tol = 1e-6, z.init = NULL,
-                                 u.init = NULL, ...) {
+                                 absolute.tol = 1e-4, relative.tol = 1e-4,
+                                 z.init = NULL, u.init = NULL, ...) {
 
   group.id <- getGroupID(group)
   n.group  <- length(group.id)
   p <- ncol(A)
+  n.sample <- nrow(A)
 
   # Check function arguments
   n.lambda <- length(lambda)
@@ -420,10 +422,18 @@ admmSolverGroupSLOPE <- function(y, A, group, wt, lambda, rho = NULL,
 
   # TODO: Run ADMM version of regular SLOPE if all groups are singletons
 
-  # Initialize parameters and iterates
-  M <- solve(crossprod(A) + diag(rho, p))
-  MtAy <- M %*% crossprod(A, y)
+  # cache the vector (rho I + A^T A)^{-1} A^T y = M A^T y, and the matrix M
+  if (n.sample >= p) {
+    M <- solve(diag(rho, p) + crossprod(A))
+    MAty <- tcrossprod(M, crossprod(y, A))
+  } else {
+    Woodbury_trick <- solve(diag(rho, n.sample) + tcrossprod(A))
+    MAt.transposed <- crossprod(Woodbury_trick, A)
+    MAty <- crossprod(MAt.transposed, y)
+    M <- (diag(p) - crossprod(MAt.transposed, A)) / rho
+  }
   lambda_rho <- lambda / rho
+  # Initialize parameters and iterates
   z <- z.init
   u <- u.init
   x <- NULL
@@ -441,27 +451,32 @@ admmSolverGroupSLOPE <- function(y, A, group, wt, lambda, rho = NULL,
   # Main loop
   while (TRUE) {
 
-    z.prev <- z
     iter <- iter + 1
 
     # ADMM updates
 
-    x <- MtAy + crossprod(M, (rho * (z - u)))
+    x <- MAty + crossprod(M, (rho * (z - u)))
+    z.prev <- z
     z <- proxGroupSortedL1(y = as.vector(x + u), group = group.id,
                            lambda = lambda_rho, ...)
     u <- u + x - z
 
     # Stopping criteria
 
-    dual.feasibility <- norm(as.matrix(rho*(z - z.prev)), type = "f")
     primal.feasibility <- norm(as.matrix(z - x), type = "f")
+    dual.feasibility <- norm(as.matrix(rho*(z - z.prev)), type = "f")
+
+    primal.tol <- sqrt(p) * absolute.tol +
+      relative.tol * max(norm(as.matrix(x), type = "f"), norm(as.matrix(z), type = "f"))
+    dual.tol <- sqrt(p) * absolute.tol +
+      relative.tol * rho * norm(as.matrix(u), type = "f")
 
     if (verbose) {
       printf("%5s  %11.2e  %11.2e\n", iter,
              dual.feasibility, primal.feasibility)
     }
 
-    if ( (dual.feasibility < infeas.tol) & (primal.feasibility < infeas.tol) ) {
+    if ( (dual.feasibility < dual.tol) & (primal.feasibility < primal.tol) ) {
       status <- STATUS_OPTIMAL
     } else if ( (status == STATUS_RUNNING) & (iter >= max.iter) ) {
       status <- STATUS_ITERATIONS
