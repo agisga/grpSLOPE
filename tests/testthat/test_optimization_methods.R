@@ -126,3 +126,105 @@ test_that("solution is computed correctly when each group is a singleton", {
   expect_is(result$iter, "numeric")
   expect_true(result$iter > 1)
 })
+
+#--- comparison of FISTA vs ADMM for high and low-dimensional problems
+
+generate_data <- function(n = NA, p = NA, n_grp = NA, seed = 2018) {
+  set.seed(seed)
+  A <- matrix(rnorm(n * p), n, p)
+  # group membership per predictor
+  grp <- sample(x = 1:n_grp, size = p, replace = TRUE)
+  # weights: sqrt of the group size as weight for each group
+  wt_per_grp <- sqrt(c(table(grp)))
+  wt_per_predictor <- wt_per_grp[as.character(grp)]
+  # a sparse vector of coefficients per predictor (i.e., the true solution)
+  grp_signif <- 1:10
+  ind_signif <- which(grp %in% grp_signif)
+  x <- rep(0, p)
+  x[ind_signif] <- rnorm(length(ind_signif), mean = 5, sd = 1)
+  # response variable
+  y <- A %*% x + rnorm(n)
+  # normalize
+  col_norms <- apply(A, 2, function(a) sqrt(sum((a - mean(a))^2)))
+  A <- scale(A, center = TRUE, scale = col_norms)
+  y <- scale(y, center = TRUE, scale = FALSE)
+  # regularizing parameters
+  lambda <- lambdaGroupSLOPE(method = "corrected", fdr = 0.1, n.obs = n,
+                             group = grp, wt = wt_per_grp)
+  return(list("y" = y, "A" = A, "grp" = grp, "lambda" = lambda,
+              "wt_per_predictor" = wt_per_predictor))
+}
+
+# high-dimensional problem
+test_that("ADMM agrees with FISTA in a high-dimensional problem", {
+  n <- 200
+  p <- 400
+  n_grp <- 100
+  dat <- generate_data(n = n, p = p, n_grp = n_grp)
+  # optimization
+  result_admm <- admmSolverGroupSLOPE(y = dat$y,
+                                      A = dat$A,
+                                      group = dat$grp,
+                                      wt = dat$wt_per_predictor,
+                                      lambda = dat$lambda,
+                                      rho = 1,
+                                      absolute.tol = 1e-6,
+                                      relative.tol=1e-6,
+                                      verbose = FALSE)
+  result_fista <- proximalGradientSolverGroupSLOPE(y = dat$y,
+                                                   A = dat$A,
+                                                   group = dat$grp,
+                                                   wt = dat$wt_per_predictor,
+                                                   lambda = dat$lambda,
+                                                   dual.gap.tol = 1e-6,
+                                                   infeas.tol = 1e-6,
+                                                   verbose = FALSE)
+
+  expect_equal(result_admm$x, result_fista$x, tolerance=1e-6)
+
+  expect_identical(result_admm$status, 1)
+  expect_identical(result_fista$status, 1)
+
+  expect_is(result_admm$iter, "numeric")
+  expect_is(result_fista$iter, "numeric")
+
+  expect_true(result_admm$iter > 1)
+  expect_true(result_fista$iter > 1)
+})
+
+# low-dimensional problem
+test_that("ADMM agrees with FISTA in a low-dimensional problem", {
+  n <- 400
+  p <- 100
+  n_grp <- 25
+  dat <- generate_data(n = n, p = p, n_grp = n_grp)
+  # optimization
+  result_admm <- admmSolverGroupSLOPE(y = dat$y,
+                                      A = dat$A,
+                                      group = dat$grp,
+                                      wt = dat$wt_per_predictor,
+                                      lambda = dat$lambda,
+                                      rho = 1,
+                                      absolute.tol = 1e-6,
+                                      relative.tol=1e-6,
+                                      verbose = FALSE)
+  result_fista <- proximalGradientSolverGroupSLOPE(y = dat$y,
+                                                   A = dat$A,
+                                                   group = dat$grp,
+                                                   wt = dat$wt_per_predictor,
+                                                   lambda = dat$lambda,
+                                                   dual.gap.tol = 1e-6,
+                                                   infeas.tol = 1e-6,
+                                                   verbose = FALSE)
+
+  expect_equal(result_admm$x, result_fista$x, tolerance=1e-6)
+
+  expect_identical(result_admm$status, 1)
+  expect_identical(result_fista$status, 1)
+
+  expect_is(result_admm$iter, "numeric")
+  expect_is(result_fista$iter, "numeric")
+
+  expect_true(result_admm$iter > 1)
+  expect_true(result_fista$iter > 1)
+})
