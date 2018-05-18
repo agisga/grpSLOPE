@@ -5,8 +5,8 @@
 \title{Alternating direction method of multipliers}
 \usage{
 admmSolverGroupSLOPE(y, A, group, wt, lambda, rho = NULL, max.iter = 10000,
-  verbose = FALSE, infeas.tol = 1e-06, z.init = NULL, u.init = NULL,
-  ...)
+  verbose = FALSE, absolute.tol = 1e-04, relative.tol = 1e-04,
+  z.init = NULL, u.init = NULL, ...)
 }
 \arguments{
 \item{y}{the response vector}
@@ -26,7 +26,9 @@ contain a group id for each predictor variable.}
 
 \item{verbose}{A \code{logical} specifying whether to print output or not}
 
-\item{infeas.tol}{The tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et. al., 2011, Sec. 3.3.1)}
+\item{absolute.tol}{The absolute tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et. al., 2011, Sec. 3.3.1)}
+
+\item{relative.tol}{The relative tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et. al., 2011, Sec. 3.3.1)}
 
 \item{z.init}{An optional initial value for the iterative algorithm}
 
