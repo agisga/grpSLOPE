@@ -2,6 +2,9 @@ This is a list of API changes.
 
 # grpSLOPE 0.2.1.9000
 
+* Removes the dependency on the R package `SLOPE`, because the only two functions from `SLOPE` that are used in `grpSLOPE` are being deprecated and removed from `SLOPE` package versions newer than 0.1.3.
+* Since the dependency on the R package `SLOPE` has been removed (see above), the two functions `SLOPE::SLOPE_solver` and `SLOPE::prox_sorted_L1` (including the underlying C implementation) have been adapted from `SLOPE` version 0.1.3 into this version of the `grpSLOPE` package.
+
 # grpSLOPE 0.2.1
 
 * Fix for the installation error on r-oldrel-windows-ix86+x86_64 (R v3.2.5) in the CRAN package check results. This error was caused by the generic S3 method `sigma()` not being available from the `stats` package prior to R v3.3.0.
