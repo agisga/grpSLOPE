@@ -1,3 +1,21 @@
+# SLOPE: Sorted L1 Penalized Estimation (SLOPE)
+# Copyright (C) 2015 Malgorzata Bogdan, Ewout van den Berg, Chiara Sabatti,
+# Weijie Su, Emmanuel Candes, Evan Patterson
+# Copyright (C) 2020 Alexej Gossmann (minor modifications to the original code)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 #' Prox for sorted L1 norm
 #'
 #' Compute the prox for the sorted L1 norm. That is, given a vector \eqn{x}

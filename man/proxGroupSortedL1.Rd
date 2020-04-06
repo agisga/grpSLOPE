@@ -16,7 +16,7 @@ a group id for each predictor variable.}
 
 \item{lambda}{A decreasing sequence of regularization parameters \eqn{\lambda}}
 
-\item{...}{Options passed to \code{\link[SLOPE]{prox_sorted_L1}}}
+\item{...}{Options passed to \code{\link{prox_sorted_L1}}}
 }
 \description{
 Evaluate the proximal mapping for the group SLOPE problem.

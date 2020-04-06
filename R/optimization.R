@@ -18,7 +18,6 @@
 #
 ###############################################################################
 
-#' @importFrom SLOPE prox_sorted_L1
 #' @importFrom stats rnorm
 NULL
 #> NULL
@@ -37,7 +36,7 @@ NULL
 #'   grouping structure. If it is a vector, then it should contain
 #'   a group id for each predictor variable.
 #' @param lambda A decreasing sequence of regularization parameters \eqn{\lambda}
-#' @param ... Options passed to \code{\link[SLOPE]{prox_sorted_L1}}
+#' @param ... Options passed to \code{\link{prox_sorted_L1}}
 #'
 #' @examples
 #' grp <- c(0,0,0,1,1,0,2,1,0,2)
@@ -129,7 +128,7 @@ getInfeasibilityGroupSLOPE <- function(group.id, n.group, lambda, g) {
 #' @param dual.gap.tol The tolerance used in the stopping criteria for the duality gap
 #' @param infeas.tol The tolerance used in the stopping criteria for the infeasibility
 #' @param x.init An optional initial value for the iterative algorithm
-#' @param ... Options passed to \code{\link[SLOPE]{prox_sorted_L1}}
+#' @param ... Options passed to \code{\link{prox_sorted_L1}}
 #'
 #' @return A list with the entries:
 #'   \describe{
@@ -342,7 +341,7 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda,
 #' @param relative.tol The relative tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et. al., 2011, Sec. 3.3.1)
 #' @param z.init An optional initial value for the iterative algorithm
 #' @param u.init An optional initial value for the iterative algorithm
-#' @param ... Options passed to \code{\link[SLOPE]{prox_sorted_L1}}
+#' @param ... Options passed to \code{\link{prox_sorted_L1}}
 #'
 #' @return A list with the entries:
 #'   \describe{

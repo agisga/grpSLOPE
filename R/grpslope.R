@@ -20,8 +20,8 @@
 
 #' @importFrom stats lm pchisq qchisq qnorm sd uniroot coef predict
 #' @importFrom utils head
-#' @import Rcpp
-#' @useDynLib grpSLOPE
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib grpSLOPE, .registration = TRUE
 NULL
 #> NULL
 

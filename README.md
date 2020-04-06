@@ -53,9 +53,6 @@ install.packages("devtools")
 
 library(devtools)
 install_github("agisga/grpSLOPE")
-
-# or to install from a specific (experimental) branch
-install_github("agisga/grpSLOPE", ref = "optimization_and_ADMM")
 ```
 
 If you don't want to use `devtools`, you can install `grpSLOPE` by downloading the source code and then following these steps:

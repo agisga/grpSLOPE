@@ -34,7 +34,7 @@ contain a group id for each predictor variable.}
 
 \item{u.init}{An optional initial value for the iterative algorithm}
 
-\item{...}{Options passed to \code{\link[SLOPE]{prox_sorted_L1}}}
+\item{...}{Options passed to \code{\link{prox_sorted_L1}}}
 }
 \value{
 A list with the entries:
