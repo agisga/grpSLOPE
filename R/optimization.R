@@ -69,7 +69,7 @@ proxGroupSortedL1 <- function(y, group, lambda, ...) {
   }
 
   # get Euclidean norms of the solution vector
-  prox.norm <- SLOPE::prox_sorted_L1(group.norm, lambda, ...)
+  prox.norm <- prox_sorted_L1(group.norm, lambda, ...)
 
   # compute the solution
   prox.solution <- rep(NA, length(y))
@@ -215,10 +215,10 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda,
 
   # Run regular SLOPE if all groups are singletons
   if (length(group.id) == p) {
-    sol <- SLOPE::SLOPE_solver(A = A, b = y, lambda = lambda,
-                               initial = x.init, max_iter = max.iter,
-                               tol_infeas = infeas.tol,
-                               tol_rel_gap = dual.gap.tol)
+    sol <- SLOPE_solver(A = A, b = y, lambda = lambda,
+                        initial = x.init, max_iter = max.iter,
+                        tol_infeas = infeas.tol,
+                        tol_rel_gap = dual.gap.tol)
     status <- STATUS_ITERATIONS
     if (sol$optimal) status <- STATUS_OPTIMAL
     result <- recordResult(b = matrix(sol$x, c(p, 1)), status = status,

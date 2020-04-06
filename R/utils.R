@@ -80,3 +80,19 @@ orthogonalizeGroups <- function(X, group.id) {
 
   return(lapply(group.id, getGroupQR))
 }
+
+# Evaluate an expression with the given random seed, then restore the old seed.
+# Adapted from the R package "SLOPE" version 1.3.0.
+with_seed <- function(seed, expr) {
+  seed.old <- if (exists('.Random.seed')) .Random.seed else NULL
+  set.seed(seed)
+  on.exit({
+    if (is.null(seed.old)) {
+      if (exists('.Random.seed'))
+        rm(.Random.seed, envir = .GlobalEnv)
+    } else {
+      .Random.seed <<- seed.old
+    }
+  })
+  expr
+}

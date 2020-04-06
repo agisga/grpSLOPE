@@ -20,6 +20,8 @@
 
 #' @importFrom stats lm pchisq qchisq qnorm sd uniroot coef predict
 #' @importFrom utils head
+#' @import Rcpp
+#' @useDynLib grpSLOPE
 NULL
 #> NULL
 
@@ -153,7 +155,7 @@ lambdaGroupSLOPE <- function(method, fdr, group, wt, n.obs=NULL)
 #' @param dual.gap.tol See \code{\link{proximalGradientSolverGroupSLOPE}}.
 #' @param infeas.tol See \code{\link{proximalGradientSolverGroupSLOPE}}.
 #' @param x.init See \code{\link{proximalGradientSolverGroupSLOPE}}.
-#' @param ... Options passed to \code{\link[SLOPE]{prox_sorted_L1}}
+#' @param ... Options passed to \code{\link{prox_sorted_L1}}
 #'
 #' @return A list with members:
 #'   \describe{

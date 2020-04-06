@@ -43,7 +43,7 @@ are certain that your data are appropriately pre-processed.}
 
 \item{x.init}{See \code{\link{proximalGradientSolverGroupSLOPE}}.}
 
-\item{...}{Options passed to \code{\link[SLOPE]{prox_sorted_L1}}}
+\item{...}{Options passed to \code{\link{prox_sorted_L1}}}
 }
 \value{
 A list with members:

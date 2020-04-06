@@ -4,9 +4,9 @@
 \alias{admmSolverGroupSLOPE}
 \title{Alternating direction method of multipliers}
 \usage{
-admmSolverGroupSLOPE(y, A, group, wt, lambda, rho = NULL, max.iter = 10000,
-  verbose = FALSE, absolute.tol = 1e-04, relative.tol = 1e-04,
-  z.init = NULL, u.init = NULL, ...)
+admmSolverGroupSLOPE(y, A, group, wt, lambda, rho = NULL,
+  max.iter = 10000, verbose = FALSE, absolute.tol = 1e-04,
+  relative.tol = 1e-04, z.init = NULL, u.init = NULL, ...)
 }
 \arguments{
 \item{y}{the response vector}
