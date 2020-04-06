@@ -4,10 +4,22 @@
 \alias{grpSLOPE}
 \title{Group SLOPE (Group Sorted L-One Penalized Estimation)}
 \usage{
-grpSLOPE(X, y, group, fdr, lambda = "corrected", sigma = NULL,
-  verbose = FALSE, orthogonalize = NULL, normalize = TRUE,
-  max.iter = 10000, dual.gap.tol = 1e-06, infeas.tol = 1e-06,
-  x.init = vector(), ...)
+grpSLOPE(
+  X,
+  y,
+  group,
+  fdr,
+  lambda = "corrected",
+  sigma = NULL,
+  verbose = FALSE,
+  orthogonalize = NULL,
+  normalize = TRUE,
+  max.iter = 10000,
+  dual.gap.tol = 1e-06,
+  infeas.tol = 1e-06,
+  x.init = vector(),
+  ...
+)
 }
 \arguments{
 \item{X}{The model matrix}
@@ -106,4 +118,3 @@ head(result$group.norms)
 \references{
 D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{https://arxiv.org/abs/1610.04960}
 }
-

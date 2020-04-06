@@ -18,9 +18,10 @@
 #
 ###############################################################################
 
-#' @importFrom SLOPE prox_sorted_L1
 #' @importFrom stats lm pchisq qchisq qnorm rnorm sd uniroot coef predict
 #' @importFrom utils head
+#' @importFrom Rcpp sourceCpp
+#' @useDynLib grpSLOPE, .registration = TRUE
 NULL
 #> NULL
 
@@ -69,7 +70,7 @@ proxGroupSortedL1 <- function(y, group, lambda, ...) {
   }
 
   # get Euclidean norms of the solution vector
-  prox.norm <- SLOPE::prox_sorted_L1(group.norm, lambda, ...)
+  prox.norm <- prox_sorted_L1(group.norm, lambda, ...)
 
   # compute the solution
   prox.solution <- rep(NA, length(y))
@@ -182,9 +183,9 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda, max.iter=1
   # Run regular SLOPE if all groups are singletons
   if (length(group.id) == p) {
     if (length(x.init) == 0) x.init <- matrix(0,p,1)
-    sol <- SLOPE::SLOPE_solver(A=A, b=y, lambda=lambda, initial=x.init,
-                               max_iter=max.iter, tol_infeas=infeas.tol,
-                               tol_rel_gap=dual.gap.tol)
+    sol <- SLOPE_solver(A=A, b=y, lambda=lambda, initial=x.init,
+                        max_iter=max.iter, tol_infeas=infeas.tol,
+                        tol_rel_gap=dual.gap.tol)
     status <- 2
     if (sol$optimal) status <- 1
     result <- recordResult(b=matrix(sol$x, c(p,1)), status=status, L=sol$lipschitz,

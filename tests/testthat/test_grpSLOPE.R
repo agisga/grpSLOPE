@@ -475,18 +475,23 @@ context("grpSLOPE is equivalent to SLOPE when each group is a singleton")
 sol.beta.original.scale <- c(0, 0, 43.006608, 5.986979, 0, 0, 0, 7.515134, 0, 0)
 sol.intercept <- 0.6152246
 
+p <- ncol(A)
+A_scaled <- sweep(A, 2, colMeans(A), "-")
+A_scaled <- sweep(A_scaled, 2, apply(A_scaled, 2, norm, "2"), "/")
+lambda <- qnorm((1 - fdr*(1:p)/(2*p))) # BH sequence
+
 test_that("with lambda = 'max'", {
   # compare to results obtained with package SLOPE
   result.grpSLOPE <- grpSLOPE(X=A, y=y, group=1:10, fdr=fdr, lambda="max", sigma=1)
-  result.SLOPE <- SLOPE::SLOPE(X=A, y=y, fdr=fdr, lambda="bhq", sigma=1)
+  result.SLOPE <- SLOPE_solver(A_scaled, y - mean(y), lambda = lambda)
 
-  expect_equal(result.grpSLOPE$beta, result.SLOPE$beta, tolerance=1e-5)
-  expect_equal(as.numeric(result.grpSLOPE$group.norms),  result.SLOPE$beta, tolerance=1e-5)
-  expect_identical(as.numeric(result.grpSLOPE$selected), as.numeric(result.SLOPE$selected))
+  expect_equal(result.grpSLOPE$beta, result.SLOPE$x, tolerance=1e-5)
+  expect_equal(as.numeric(result.grpSLOPE$group.norms),  result.SLOPE$x, tolerance=1e-5)
+  expect_equal(as.numeric(result.grpSLOPE$selected), which(result.SLOPE$x != 0))
   expect_identical(result.grpSLOPE$group, 1:10)
   expect_true(result.grpSLOPE$optimal)
   expect_is(result.grpSLOPE$iter, "numeric")
-  expect_equal(result.grpSLOPE$lambda, result.SLOPE$lambda, tolerance=1e-5)
+  expect_equal(result.grpSLOPE$lambda, lambda, tolerance=1e-5)
   expect_true(result.grpSLOPE$lambda.method == "max")
   expect_identical(result.grpSLOPE$sigma, 1)
 
@@ -498,16 +503,16 @@ test_that("with lambda = 'max', orthogonalize = FALSE", {
   # compare to results obtained with package SLOPE
   result.grpSLOPE <- grpSLOPE(X=A, y=y, group=1:10, fdr=fdr, lambda="max",
                               orthogonalize=FALSE, sigma=1)
-  result.SLOPE <- SLOPE::SLOPE(X=A, y=y, fdr=fdr, lambda="bhq", sigma=1)
+  result.SLOPE <- SLOPE_solver(A_scaled, y - mean(y), lambda = lambda)
 
-  expect_equal(result.grpSLOPE$beta, result.SLOPE$beta, tolerance=1e-5)
-  expect_equal(as.numeric(result.grpSLOPE$group.norms),  result.SLOPE$beta, tolerance=1e-5)
-  expect_identical(as.numeric(result.grpSLOPE$selected), as.numeric(result.SLOPE$selected))
+  expect_equal(result.grpSLOPE$beta, result.SLOPE$x, tolerance=1e-5)
+  expect_equal(as.numeric(result.grpSLOPE$group.norms),  result.SLOPE$x, tolerance=1e-5)
+  expect_equal(as.numeric(result.grpSLOPE$selected), which(result.SLOPE$x != 0))
   expect_identical(result.grpSLOPE$group, 1:10)
   expect_identical(result.grpSLOPE$group.c, 1:10)
   expect_true(result.grpSLOPE$optimal)
   expect_is(result.grpSLOPE$iter, "numeric")
-  expect_equal(result.grpSLOPE$lambda, result.SLOPE$lambda, tolerance=1e-5)
+  expect_equal(result.grpSLOPE$lambda, lambda, tolerance=1e-5)
   expect_true(result.grpSLOPE$lambda.method == "max")
   expect_identical(result.grpSLOPE$sigma, 1)
 
@@ -519,15 +524,15 @@ test_that("with lambda = 'max', and non-zero intercept", {
   y <- y - 10
   # compare to results obtained with package SLOPE
   result.grpSLOPE <- grpSLOPE(X=A, y=y, group=1:10, fdr=fdr, lambda="max", sigma=1)
-  result.SLOPE <- SLOPE::SLOPE(X=A, y=y, fdr=fdr, lambda="bhq", sigma=1)
+  result.SLOPE <- SLOPE_solver(A_scaled, y - mean(y), lambda = lambda)
 
-  expect_equal(result.grpSLOPE$beta, result.SLOPE$beta, tolerance=1e-5)
-  expect_equal(as.numeric(result.grpSLOPE$group.norms),  result.SLOPE$beta, tolerance=1e-5)
-  expect_identical(as.numeric(result.grpSLOPE$selected), as.numeric(result.SLOPE$selected))
+  expect_equal(result.grpSLOPE$beta, result.SLOPE$x, tolerance=1e-5)
+  expect_equal(as.numeric(result.grpSLOPE$group.norms),  result.SLOPE$x, tolerance=1e-5)
+  expect_equal(as.numeric(result.grpSLOPE$selected), which(result.SLOPE$x != 0))
   expect_identical(result.grpSLOPE$group, 1:10)
   expect_true(result.grpSLOPE$optimal)
   expect_is(result.grpSLOPE$iter, "numeric")
-  expect_equal(result.grpSLOPE$lambda, result.SLOPE$lambda, tolerance=1e-5)
+  expect_equal(result.grpSLOPE$lambda, lambda, tolerance=1e-5)
   expect_true(result.grpSLOPE$lambda.method == "max")
   expect_identical(result.grpSLOPE$sigma, 1)
 
