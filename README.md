@@ -4,7 +4,7 @@
 [![CRAN downloads this month](http://cranlogs.r-pkg.org/badges/grpSLOPE)](https://CRAN.R-project.org/package=grpSLOPE)
 
 Group SLOPE is a penalized linear regression method that is used for adaptive selection of groups of significant predictors in a high-dimensional linear model. A unique feature of the Group SLOPE method is that it offers (group) false discovery rate control (i.e., control of the expected proportion of irrelevant groups among the total number of groups of predictors selected by Group SLOPE).
-A detailed description of the method can be found in [D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) *Group SLOPE &mdash; adaptive selection of groups of predictors*](https://arxiv.org/abs/1610.04960).
+A detailed description of the method can be found in [D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2019) "Group SLOPE &mdash; adaptive selection of groups of predictors." Journal of the American Statistical Association 114 (525): 419–33.](http://dx.doi.org/10.1080/01621459.2017.1411269) (or the earlier [arXiv preprint](https://arxiv.org/abs/1610.04960)).
 
 ## Usage
 
@@ -29,7 +29,7 @@ sigma(result)
 coef(result)
 ```
 
-[A detailed basic usage example can be found here](http://www.alexejgossmann.com/grpSLOPE/basic-usage/).
+[A detailed basic usage example can be found here](https://agisga.github.io/grpSLOPE/basic-usage/).
 
 More complicated (and possibly less helpful) example codes are available in the repository [grpSLOPE_examples](https://github.com/agisga/grpSLOPE_examples).
 
@@ -63,16 +63,7 @@ If you don't want to use `devtools`, you can install `grpSLOPE` by downloading t
 3. Run `R CMD build grpSLOPE`. You should then have a file like `grpSLOPE_0.2.1.9000.tar.gz`.
 4. Run `R CMD INSTALL grpSLOPE_0.2.1.9000.tar.gz` to install the package.
 
-## Contributing to the R package
-
-### Code style
-
-Variable names are all lower case with words separated by dots.
-Function names begin with a lower case letter and are written in camel case.
-Constants names are all caps.
-Otherwise, the package code follows [Google's R style guide](https://google.github.io/styleguide/Rguide.xml).
-
-### Workflow
+### Development workflow
 
 0. Modify the code.
 1. Open [`grpSLOPE.Rproj`](https://github.com/agisga/grpSLOPE/blob/master/grpSLOPE.Rproj) with RStudio.
