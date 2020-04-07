@@ -7,7 +7,10 @@
 * win-builder (devel, release, and oldrelease)
 
 ## R CMD check results
-There were no ERRORs, WARNINGs, or NOTEs.
+
+* There was 1 NOTE on local Arch Linux: "Compilation used the following non-portable flag(s): '-march=x86-64'". But I believe this to be a local issue that won't affect the install on other systems.
+* There were no ERRORs, WARNINGs, or NOTEs on the other test environments listed above.
 
 ## CRAN-related changes
+
 None.
