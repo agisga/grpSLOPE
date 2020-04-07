@@ -4,7 +4,7 @@
 [![CRAN downloads this month](http://cranlogs.r-pkg.org/badges/grpSLOPE)](https://CRAN.R-project.org/package=grpSLOPE)
 
 Group SLOPE is a penalized linear regression method that is used for adaptive selection of groups of significant predictors in a high-dimensional linear model. A unique feature of the Group SLOPE method is that it offers (group) false discovery rate control (i.e., control of the expected proportion of irrelevant groups among the total number of groups of predictors selected by Group SLOPE).
-A detailed description of the method can be found in [D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2019) "Group SLOPE &mdash; adaptive selection of groups of predictors." Journal of the American Statistical Association 114 (525): 419–33.](http://dx.doi.org/10.1080/01621459.2017.1411269) (or the earlier [arXiv preprint](https://arxiv.org/abs/1610.04960)).
+A detailed description of the method can be found in [D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2019) "Group SLOPE &mdash; adaptive selection of groups of predictors", Journal of the American Statistical Association](http://dx.doi.org/10.1080/01621459.2017.1411269) (or the 2016 [arXiv preprint](https://arxiv.org/abs/1610.04960)).
 
 ## Usage
 

@@ -71,6 +71,7 @@ NULL
 #' # lambda.mean      1.880540 1.723559 1.626517 1.554561 1.496603 1.447609
 #' # lambda.corrected 1.880540 1.729811 1.637290 1.568971 1.514028 1.467551
 #'
+#' @references D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{https://arxiv.org/abs/1610.04960}
 #' @references D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2019) \emph{Group SLOPE -- adaptive selection of groups of predictors}. Journal of the American Statistical Association 114 (525): 419–33.
 #' @export
 lambdaGroupSLOPE <- function(method, fdr, group, wt, n.obs=NULL)
@@ -192,6 +193,7 @@ lambdaGroupSLOPE <- function(method, fdr, group, wt, n.obs=NULL)
 #' #         1         2         3         4         5         6 
 #' #  2.905449  5.516103  8.964201 10.253792  0.000000  0.000000 
 #'
+#' @references D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{https://arxiv.org/abs/1610.04960}
 #' @references D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2019) \emph{Group SLOPE -- adaptive selection of groups of predictors}. Journal of the American Statistical Association 114 (525): 419–33.
 #'
 #' @export
