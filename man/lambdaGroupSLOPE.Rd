@@ -58,5 +58,5 @@ rbind(lambda.max, lambda.mean, lambda.corrected)
 
 }
 \references{
-D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{https://arxiv.org/abs/1610.04960}
+D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2019) \emph{Group SLOPE -- adaptive selection of groups of predictors}. Journal of the American Statistical Association 114 (525): 419–33.
 }
