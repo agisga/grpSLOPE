@@ -9,7 +9,8 @@ date: 2016-10-18
 
 Group SLOPE (*gSLOPE*) is a penalized linear regression method that is used for adaptive selection of groups of significant predictors in a high-dimensional linear model.
 A unique property of the Group SLOPE method is that it offers group false discovery rate (*gFDR*) control (i.e., control of the expected proportion of irrelevant groups among the total number of groups selected by Group SLOPE).
-A detailed description of the method can be found in [D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) *Group SLOPE &mdash; adaptive selection of groups of predictors*](https://arxiv.org/abs/1610.04960).
+A detailed description of the method can be found in [D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2019) "Group SLOPE &mdash; adaptive selection of groups of predictors" Journal of the American Statistical Association](http://dx.doi.org/10.1080/01621459.2017.1411269) (or the 2016 [arXiv preprint](https://arxiv.org/abs/1610.04960)).
+
 
 Group SLOPE is implemented in the R package `grpSLOPE`. As an introduction to the R package, in the following we will walk through a basic usage demonstration. First, we will simulate some data, before we feed it into `grpSLOPE`, and subsequently examine the output.
 
@@ -267,6 +268,8 @@ Alternatively, any non-increasing sequence of appropriate length can be utilized
 
 * [Bogdan, M., van den Berg, E., Sabatti, C., Su, W., and Candès, E. J. (2015), *SLOPE &mdash; Adaptive Variable Selection via Convex Optimization.*](https://arxiv.org/pdf/1407.3824v2.pdf) The Annals of Applied Statistics, vol. 9, no. 3, p. 1103.
 
-* [Brzyski, D., Gossmann, A., Su, W., and Bogdan, M. (2016) *Group SLOPE &mdash; adaptive selection of groups of predictors*](https://arxiv.org/abs/1610.04960) (under review).
+* [Brzyski, D., Gossmann, A., Su, W., and Bogdan, M. (2016) *Group SLOPE &mdash; adaptive selection of groups of predictors.* arXiv: 1610.04960](https://arxiv.org/abs/1610.04960).
+
+* [D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2019) *Group SLOPE &mdash; adaptive selection of groups of predictors.*](http://dx.doi.org/10.1080/01621459.2017.1411269) Journal of the American Statistical Association 114 (525): 419–33.
 
 * [Gossmann, A., Cao, S., and Wang, Y.-P. (2015). *Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE.*](http://dx.doi.org/10.1145/2808719.2808743) In Proceedings of the 6th ACM Conference on Bioinformatics, Computational Biology and Health Informatics, BCB ’15 (pp. 232–240). New York, NY, USA: ACM.
