@@ -4,6 +4,7 @@ This is a list of API changes.
 
 * Removes the dependency on the R package `SLOPE`, because the only two functions from `SLOPE` that are used in `grpSLOPE` are being deprecated and removed from `SLOPE` package versions newer than 0.1.3.
 * Since the dependency on the R package `SLOPE` has been removed (see above), the two functions `SLOPE::SLOPE_solver` and `SLOPE::prox_sorted_L1` (including the underlying C implementation) have been adapted from `SLOPE` version 0.1.3 into this version of the `grpSLOPE` package.
+* In addition to the default FISTA solver (function `proximalGradientSolverGroupSLOPE` used by default within function `grpSLOPE`), an ADMM solver has been implemented for the Group SLOPE model (function `admmSolverGroupSLOPE `).
 
 # grpSLOPE 0.2.1
 
