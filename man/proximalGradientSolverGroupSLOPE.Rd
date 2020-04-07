@@ -39,7 +39,7 @@ A list with the entries:
     \item{status}{Convergence status: 1 if optimal, 2 if iteration limit reached}
     \item{L}{Approximation of the Lipschitz constant (step size)}
     \item{iter}{Iterations of the proximal gradient method}
-    \item{L.iter}{Total number of iterations spent in Lischitz search}
+    \item{L.iter}{Total number of iterations spent in Lipschitz search}
   }
 }
 \description{

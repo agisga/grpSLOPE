@@ -81,7 +81,7 @@ proxGroupSortedL1 <- function(y, group, lambda, ...) {
 }
 
 # Compute duality gap for Group SLOPE (eq. (B.20) in
-# Appendix B in Brzyski et. al. (2016))
+# Appendix B in Brzyski et al. (2016))
 #
 getDualityGapGroupSLOPE <- function(group.id, n.group, b, lambda, g) {
   b.norms <- rep(NA, n.group)
@@ -136,7 +136,7 @@ getInfeasibilityGroupSLOPE <- function(group.id, n.group, lambda, g) {
 #'     \item{status}{Convergence status: 1 if optimal, 2 if iteration limit reached}
 #'     \item{L}{Approximation of the Lipschitz constant (step size)}
 #'     \item{iter}{Iterations of the proximal gradient method}
-#'     \item{L.iter}{Total number of iterations spent in Lischitz search}
+#'     \item{L.iter}{Total number of iterations spent in Lipschitz search}
 #'   }
 #'
 #' @examples
@@ -334,11 +334,11 @@ proximalGradientSolverGroupSLOPE <- function(y, A, group, wt, lambda,
 #'   contain a group id for each predictor variable.
 #' @param wt A vector of weights (per coefficient)
 #' @param lambda A decreasing sequence of regularization parameters \eqn{\lambda}
-#' @param rho Penalty parameter in the augmented Lagrangian (see Boyd et. al., 2011)
+#' @param rho Penalty parameter in the augmented Lagrangian (see Boyd et al., 2011)
 #' @param max.iter Maximal number of iterations to carry out
 #' @param verbose A \code{logical} specifying whether to print output or not
-#' @param absolute.tol The absolute tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et. al., 2011, Sec. 3.3.1)
-#' @param relative.tol The relative tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et. al., 2011, Sec. 3.3.1)
+#' @param absolute.tol The absolute tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et al., 2011, Sec. 3.3.1)
+#' @param relative.tol The relative tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et al., 2011, Sec. 3.3.1)
 #' @param z.init An optional initial value for the iterative algorithm
 #' @param u.init An optional initial value for the iterative algorithm
 #' @param ... Options passed to \code{\link{prox_sorted_L1}}

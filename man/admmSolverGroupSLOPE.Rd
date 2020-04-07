@@ -20,15 +20,15 @@ contain a group id for each predictor variable.}
 
 \item{lambda}{A decreasing sequence of regularization parameters \eqn{\lambda}}
 
-\item{rho}{Penalty parameter in the augmented Lagrangian (see Boyd et. al., 2011)}
+\item{rho}{Penalty parameter in the augmented Lagrangian (see Boyd et al., 2011)}
 
 \item{max.iter}{Maximal number of iterations to carry out}
 
 \item{verbose}{A \code{logical} specifying whether to print output or not}
 
-\item{absolute.tol}{The absolute tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et. al., 2011, Sec. 3.3.1)}
+\item{absolute.tol}{The absolute tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et al., 2011, Sec. 3.3.1)}
 
-\item{relative.tol}{The relative tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et. al., 2011, Sec. 3.3.1)}
+\item{relative.tol}{The relative tolerance used in the stopping criteria for the primal and dual feasibility conditions (see Boyd et al., 2011, Sec. 3.3.1)}
 
 \item{z.init}{An optional initial value for the iterative algorithm}
 
