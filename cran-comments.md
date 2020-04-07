@@ -1,12 +1,13 @@
 ## Test environments
-* local ubuntu 16.04, R 3.3.2 (2016-10-31)
-* local BunsenLabs GNU/Linux 8.4, R Under development (unstable) (2016-11-18 r71668)
-* x86_64-pc-linux-gnu (64-bit) using R version 3.2.5 (2016-04-14)
-* ubuntu 12.04.5 LTS (on travis-ci), R 3.3.1 (2016-06-21)
-* win-builder (devel and release)
+
+* local Arch Linux, R version 3.6.3 (2020-02-29), x86_64-pc-linux-gnu (64-bit)
+* Docker container `rocker/r-base`, R version 3.6.3 (2020-02-29), x86_64-pc-linux-gnu (64-bit)
+* Docker container `rocker/r-devel`, R Under development (unstable) (2020-04-05 r78150), x86_64-pc-linux-gnu (64-bit)
+* Ubuntu 16.04.6 LTS (on travis-ci), R 3.6.2 (2017-01-27)
+* win-builder (devel, release, and oldrelease)
 
 ## R CMD check results
-There were no ERRORs, WARNINGs, or NOTEs. 
+There were no ERRORs, WARNINGs, or NOTEs.
 
 ## CRAN-related changes
-Fix for the installation error on r-oldrel (R v3.2.5) in the CRAN package check results. This error was caused by the generic S3 method `sigma()` not being available from the `stats` package prior to R v3.3.0.
+None.
