@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // prox_sorted_L1_C
 NumericVector prox_sorted_L1_C(NumericVector y, NumericVector lambda);
 RcppExport SEXP _grpSLOPE_prox_sorted_L1_C(SEXP ySEXP, SEXP lambdaSEXP) {

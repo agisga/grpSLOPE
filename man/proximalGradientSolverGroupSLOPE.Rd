@@ -4,9 +4,19 @@
 \alias{proximalGradientSolverGroupSLOPE}
 \title{Proximal gradient method for Group SLOPE}
 \usage{
-proximalGradientSolverGroupSLOPE(y, A, group, wt, lambda,
-  max.iter = 10000, verbose = FALSE, dual.gap.tol = 1e-06,
-  infeas.tol = 1e-06, x.init = NULL, ...)
+proximalGradientSolverGroupSLOPE(
+  y,
+  A,
+  group,
+  wt,
+  lambda,
+  max.iter = 10000,
+  verbose = FALSE,
+  dual.gap.tol = 1e-06,
+  infeas.tol = 1e-06,
+  x.init = NULL,
+  ...
+)
 }
 \arguments{
 \item{y}{the response vector}

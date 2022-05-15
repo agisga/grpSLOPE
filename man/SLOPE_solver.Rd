@@ -4,9 +4,18 @@
 \alias{SLOPE_solver}
 \title{Sorted L1 solver}
 \usage{
-SLOPE_solver(A, b, lambda, initial = NULL, prox = prox_sorted_L1,
-  max_iter = 10000, grad_iter = 20, opt_iter = 1,
-  tol_infeas = 1e-06, tol_rel_gap = 1e-06)
+SLOPE_solver(
+  A,
+  b,
+  lambda,
+  initial = NULL,
+  prox = prox_sorted_L1,
+  max_iter = 10000,
+  grad_iter = 20,
+  opt_iter = 1,
+  tol_infeas = 1e-06,
+  tol_rel_gap = 1e-06
+)
 }
 \arguments{
 \item{A}{an \eqn{n}-by-\eqn{p} matrix}
