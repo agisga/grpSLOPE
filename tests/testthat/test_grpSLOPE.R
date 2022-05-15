@@ -12,7 +12,6 @@ fdr <- 0.1
 #--------------------------------------------------------------------------
 context("grpSLOPE(lambda = 'corrected')")
 
-sol.c <- c(0, 0, 17.022493, 4.901825, 0, 0, 0, 0, 0, 0)
 sol.beta <- c(0, 0, 17.570533, 4.932366, 0, 0, 0, 0, 0, 0)
 sol.group.norms <- c(0, 17.71421, 0, 0)
 sol.beta.original.scale <- c(0, 0, 32.492927, 5.776856, 0, 0, 0, 0, 0, 0)
@@ -21,7 +20,6 @@ sol.intercept <- 1.729414
 test_that("when the groups are consecutive blocks", {
   result <- grpSLOPE(X=A, y=y, group=grp, fdr=fdr, lambda="corrected")
   expect_equal(result$beta, sol.beta, tolerance=1e-5)
-  expect_equal(result$c, sol.c, tolerance=1e-5)
   expect_equal(as.numeric(result$group.norms), sol.group.norms, tolerance=1e-5)
   expect_identical(as.numeric(result$selected), c(1))
   expect_identical(result$group, grp)
@@ -317,7 +315,6 @@ test_that("corrected lambdas can't be computed unless groups sizes are small eno
 context("grpSLOPE(lambda = 'mean')")
 
 sol.beta <- c(0, 0, 17.570533, 4.932366, 0, 0, 0, 0, 0, 0)
-sol.c <- c(0, 0, 17.022493, 4.901825, 0, 0, 0, 0, 0, 0)
 sol.group.norms <- c(0, 17.71421, 0, 0)
 sol.beta.original.scale <- c(0, 0, 32.492927, 5.776856, 0, 0, 0, 0, 0, 0)
 sol.intercept <- 1.729414
@@ -325,7 +322,6 @@ sol.intercept <- 1.729414
 test_that("when the groups are consecutive blocks", {
   result <- grpSLOPE(X=A, y=y, group=grp, fdr=fdr, lambda="mean")
   expect_equal(result$beta, sol.beta, tolerance=1e-5)
-  expect_equal(result$c, sol.c, tolerance=1e-5)
   expect_equal(as.numeric(result$group.norms), sol.group.norms, tolerance=1e-5)
   expect_identical(as.numeric(result$selected), c(1))
   expect_identical(result$group, grp)
