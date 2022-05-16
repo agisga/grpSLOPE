@@ -1,6 +1,8 @@
 This is a list of API changes.
 
-# grpSLOPE 0.3.0.9000
+# grpSLOPE 0.3.1
+
+* Only changes are to the automated software tests.
 
 # grpSLOPE 0.3.0
 
