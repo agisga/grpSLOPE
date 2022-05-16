@@ -86,7 +86,7 @@ result$x
 \references{
 D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2016) \emph{Group SLOPE -- adaptive selection of groups of predictors}, \url{https://arxiv.org/abs/1610.04960}
 
-D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2019) \emph{Group SLOPE -- adaptive selection of groups of predictors}. Journal of the American Statistical Association 114 (525): 419–33. \url{http://dx.doi.org/10.1080/01621459.2017.1411269}
+D. Brzyski, A. Gossmann, W. Su, and M. Bogdan (2019) \emph{Group SLOPE -- adaptive selection of groups of predictors}. Journal of the American Statistical Association 114 (525): 419–33. \doi{10.1080/01621459.2017.1411269}
 
-A. Gossmann, S. Cao, Y.-P. Wang (2015) \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}. In Proceedings of ACM BCB 2015. \url{http://dx.doi.org/10.1145/2808719.2808743}
+A. Gossmann, S. Cao, Y.-P. Wang (2015) \emph{Identification of Significant Genetic Variants via SLOPE, and Its Extension to Group SLOPE}. In Proceedings of ACM BCB 2015. \doi{10.1145/2808719.2808743}
 }

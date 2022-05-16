@@ -21,7 +21,7 @@ Description: Group SLOPE is a penalized linear regression method that is used
     user-specified level (i.e., control the expected proportion of irrelevant
     among all selected groups of predictors).
 License: GPL-3
-URL: https://github.com/agisga/grpSLOPE.git
+URL: https://github.com/agisga/grpSLOPE
 BugReports: https://github.com/agisga/grpSLOPE/issues
 LazyData: TRUE
 LinkingTo: Rcpp
