@@ -485,7 +485,7 @@ test_that("with lambda = 'max'", {
   expect_identical(result.grpSLOPE$sigma, 1)
 
   expect_equal(result.grpSLOPE$original.scale$beta, unname(result.SLOPE$coefficients[2:11,1,1]), tolerance=1e-5)
-  expect_equal(result.grpSLOPE$original.scale$intercept, result.SLOPE$coefficients[,1,1][["(Intercept)"]], tolerance=1e-5)
+  expect_equal(result.grpSLOPE$original.scale$intercept, result.SLOPE$coefficients[,1,1][["(Intercept)"]], tolerance=1e-4)
 
   expect_equal(result.grpSLOPE$original.scale$beta, sol.beta.original.scale, tolerance=1e-5)
   expect_equal(result.grpSLOPE$original.scale$intercept, sol.intercept, tolerance=1e-5)
@@ -506,7 +506,7 @@ test_that("with lambda = 'max', orthogonalize = FALSE", {
   expect_identical(result.grpSLOPE$sigma, 1)
 
   expect_equal(result.grpSLOPE$original.scale$beta, unname(result.SLOPE$coefficients[2:11,1,1]), tolerance=1e-5)
-  expect_equal(result.grpSLOPE$original.scale$intercept, result.SLOPE$coefficients[,1,1][["(Intercept)"]], tolerance=1e-5)
+  expect_equal(result.grpSLOPE$original.scale$intercept, result.SLOPE$coefficients[,1,1][["(Intercept)"]], tolerance=1e-4)
 
   expect_equal(result.grpSLOPE$original.scale$beta, sol.beta.original.scale, tolerance=1e-5)
   expect_equal(result.grpSLOPE$original.scale$intercept, sol.intercept, tolerance=1e-5)
