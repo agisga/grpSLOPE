@@ -29,10 +29,12 @@
 #' computed using the \code{isotone} package. This option is provided
 #' primarily for testing.
 #'
-#' @param x input vector
+#' @param \eqn{x} input vector
 #' @param lambda vector of \eqn{\lambda}'s, sorted in decreasing order
 #' @param method underlying prox implementation, either 'c' or 'isotone'
 #'  (see Details)
+#'
+#' @return The solution vector \eqn{y}.
 #'
 #' @details This function has been adapted (with only cosmetic changes) from
 #' the R package \code{SLOPE} version 0.1.3, due to this function being

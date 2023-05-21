@@ -53,6 +53,8 @@ NULL
 #' @param n.obs Number of observations (i.e., number of rows in \code{A});
 #'    required only if method is "corrected"
 #'
+#' @return A vector containing the calculated lambda values.
+#'
 #' @examples
 #' # specify 6 groups of sizes 2, 3, and 4
 #' group <- c(1, 1, 2, 2, 2, 3, 3, 3, 3,
