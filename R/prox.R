@@ -29,7 +29,7 @@
 #' computed using the \code{isotone} package. This option is provided
 #' primarily for testing.
 #'
-#' @param \eqn{x} input vector
+#' @param x input vector
 #' @param lambda vector of \eqn{\lambda}'s, sorted in decreasing order
 #' @param method underlying prox implementation, either 'c' or 'isotone'
 #'  (see Details)

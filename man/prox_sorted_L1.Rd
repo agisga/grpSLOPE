@@ -14,6 +14,9 @@ prox_sorted_L1(x, lambda, method = c("c", "isotone"))
 \item{method}{underlying prox implementation, either 'c' or 'isotone'
 (see Details)}
 }
+\value{
+The solution vector \eqn{y}.
+}
 \description{
 Compute the prox for the sorted L1 norm. That is, given a vector \eqn{x}
 and a decreasing vector \eqn{\lambda}, compute the unique value of \eqn{y}
