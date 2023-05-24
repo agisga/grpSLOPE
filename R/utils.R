@@ -89,7 +89,7 @@ with_seed <- function(seed, expr) {
   on.exit({
     if (is.null(seed.old)) {
       if (exists('.Random.seed'))
-        rm(.Random.seed, envir = .GlobalEnv)
+        .Random.seed <- NULL
     } else {
       .Random.seed <<- seed.old
     }

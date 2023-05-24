@@ -13,11 +13,14 @@
 
 \item{...}{Potentially further arguments passed to and from methods}
 }
+\value{
+A vector of length nrow(newdata) containing the resulting predictions.
+}
 \description{
 Obtain predictions from a \code{grpSLOPE} model on new data
 }
 \details{
-Note that \code{newdata} must have the same shape, and must contain
+Note that \code{newdata} must contain
 the same predictor variables as columns in the same order as the
 design matrix \code{X} that was used for the \code{grpSLOPE} model fit.
 }

@@ -89,8 +89,10 @@ if (getRversion() < "3.3.0") {
 #' \code{sigma} is an S3 method with the default method coming from the
 #' \code{stats} package.
 #'
-#' @param object A \code{grpSLOPE} object 
+#' @param object A \code{grpSLOPE} object
 #' @param ... Potentially further arguments passed to and from methods
+#'
+#' @return The noise level of the given \code{grpSLOPE} model. A number.
 #'
 #' @examples
 #' set.seed(1)
@@ -119,13 +121,15 @@ sigma.grpSLOPE <- function(object, ...) {
 #' 
 #' Obtain predictions from a \code{grpSLOPE} model on new data
 #'
-#' Note that \code{newdata} must have the same shape, and must contain
+#' Note that \code{newdata} must contain
 #' the same predictor variables as columns in the same order as the
 #' design matrix \code{X} that was used for the \code{grpSLOPE} model fit.
 #'
 #' @param object A \code{grpSLOPE} object 
 #' @param newdata Predictor variables arranged in a matrix 
 #' @param ... Potentially further arguments passed to and from methods
+#'
+#' @return A vector of length nrow(newdata) containing the resulting predictions.
 #'
 #' @examples
 #' set.seed(1)

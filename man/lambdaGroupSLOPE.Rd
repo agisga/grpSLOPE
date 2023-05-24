@@ -21,6 +21,9 @@ contain a group id for each predictor variable.}
 \item{n.obs}{Number of observations (i.e., number of rows in \code{A});
 required only if method is "corrected"}
 }
+\value{
+A vector containing the calculated lambda values.
+}
 \description{
 Generate the regularizing sequence \code{lambda} for the Group SLOPE
 problem according to one of multiple methods (see Details).

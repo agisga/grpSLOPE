@@ -34,6 +34,8 @@
 #' @param method underlying prox implementation, either 'c' or 'isotone'
 #'  (see Details)
 #'
+#' @return The solution vector \eqn{y}.
+#'
 #' @details This function has been adapted (with only cosmetic changes) from
 #' the R package \code{SLOPE} version 0.1.3, due to this function being
 #' deprecated and defunct in \code{SLOPE} versions which are newer than 0.1.3.

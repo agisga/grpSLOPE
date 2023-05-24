@@ -12,6 +12,9 @@
 
 \item{...}{Potentially further arguments passed to and from methods}
 }
+\value{
+The noise level of the given \code{grpSLOPE} model. A number.
+}
 \description{
 Extract the noise level of the \code{grpSLOPE} model.
 }

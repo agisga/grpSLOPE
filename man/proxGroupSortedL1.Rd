@@ -18,6 +18,9 @@ a group id for each predictor variable.}
 
 \item{...}{Options passed to \code{\link{prox_sorted_L1}}}
 }
+\value{
+The solution vector.
+}
 \description{
 Evaluate the proximal mapping for the group SLOPE problem.
 }

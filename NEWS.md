@@ -2,6 +2,11 @@
 
 This is a list of software changes.
 
+# grpSLOPE 0.3.3
+
+* No API changes
+* Very minor changes based on feedback from CRAN review.
+
 # grpSLOPE 0.3.2
 
 * No API changes
