@@ -34,8 +34,7 @@ Suggests:
     knitr,
     rmarkdown,
     pander,
-    isotone,
-    SLOPE
+    isotone
 VignetteBuilder: knitr
 NeedsCompilation: yes
 Encoding: UTF-8

@@ -2,6 +2,8 @@
 
 This is a list of software changes.
 
+* The dependency on the SLOPE package in `Suggests` has been removed.
+
 # grpSLOPE 0.3.3
 
 * No API changes
