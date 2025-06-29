@@ -1,7 +1,7 @@
 Package: grpSLOPE
 Type: Package
 Title: Group Sorted L1 Penalized Estimation
-Version: 0.3.3.9000
+Version: 0.3.4
 Authors@R: c(person("Alexej", "Gossmann", email = "alexej.go@googlemail.com", role = c("aut", "cre")),
     person("Damian", "Brzyski", role = "aut"),
     person("Weijie", "Su", role = "aut"),
@@ -28,7 +28,7 @@ BugReports: https://github.com/agisga/grpSLOPE/issues
 LazyData: TRUE
 LinkingTo: Rcpp
 Imports: Rcpp
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Suggests:
     testthat,
     knitr,

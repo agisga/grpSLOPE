@@ -2,7 +2,9 @@
 
 This is a list of software changes.
 
-* The dependency on the SLOPE package in `Suggests` has been removed.
+# grpSLOPE 0.3.4
+
+* The dependency on the `SLOPE` package in `Suggests` has been removed (see PR #15) due to some breaking changes in `SLOPE`.
 
 # grpSLOPE 0.3.3
 

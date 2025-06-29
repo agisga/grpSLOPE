@@ -68,7 +68,8 @@ If you don't want to use `devtools`, you can install `grpSLOPE` by downloading t
 0. Modify the code.
 1. Open [`grpSLOPE.Rproj`](https://github.com/agisga/grpSLOPE/blob/master/grpSLOPE.Rproj) with RStudio.
 2. Run `devtools::document()`.
-3. Do "Build and Reload" from the menu (or CTRL-Shift-B).
-4. Do `devtools::test()` to run the unit tests.
-5. Install with `devtools::install()`
+3. Optionally run `devtools::clean_dll()` to clean up old compiled shared objects.
+4. Run `devtools::build()`.
+5. Install with `devtools::install(build = TRUE, upgrade = "never")`.
 6. Run checks with `devtools::check()`
+7. Do `devtools::test()` to run the unit tests.
